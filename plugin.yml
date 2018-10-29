@@ -1,0 +1,8 @@
+name: SkyBlock
+main: me.goodandevil.skyblock.Main
+version: 1
+api-version: 1.13
+author: GoodAndEvil
+commands:
+    island:
+        aliases: [is]
