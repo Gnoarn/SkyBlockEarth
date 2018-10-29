@@ -16,6 +16,6 @@ public class Structure implements Listener {
     }
 	
 	public void openBrowse(Player player) {
-		
+		// TODO
 	}
 }
