@@ -11,7 +11,6 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.invite.Invite;
 import me.goodandevil.skyblock.invite.InviteManager;
@@ -19,15 +18,20 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class DenyCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public DenyCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
-			InviteManager inviteManager = ((InviteManager) Main.getInstance(Main.Instance.InviteManager));
+			InviteManager inviteManager = plugin.getInviteManager();
 			
 			if (inviteManager.hasInvite(player.getUniqueId())) {
 				Invite invite = inviteManager.getInvite(player.getUniqueId());

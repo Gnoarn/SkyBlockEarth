@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -16,25 +15,20 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
-import me.goodandevil.skyblock.utils.world.Schematic;
 
 public class Rollback implements Listener {
 
     private static Rollback instance;
 
-    public static Rollback getInstance(){
+    public static Rollback getInstance() {
         if(instance == null) {
             instance = new Rollback();
         }
@@ -43,7 +37,9 @@ public class Rollback implements Listener {
     }
     
     public void open(Player player) {
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+    	Main plugin = Main.getInstance();
+    	
+		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		Inventory inv = Bukkit.createInventory(null, InventoryType.HOPPER, ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Title")));
@@ -109,26 +105,28 @@ public class Rollback implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = languageConfig.getFileConfiguration();
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+				IslandManager islandManager = plugin.getIslandManager();
 				
 				if (islandManager.hasIsland(player)) {
-					island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
 					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Rollback.Role.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Rollback.Role.Message")));
 						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
 						
 						return;
 					}
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Rollback.Owner.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Rollback.Owner.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
@@ -140,35 +138,35 @@ public class Rollback implements Listener {
 		    	} else if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Barrier.Displayname"))))) {
 		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.WRITABLE_BOOK.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Save.Displayname"))))) {
-		    		new BukkitRunnable() {
+		    		/*new BukkitRunnable() {
 		    			public void run() {
 				    		for (IslandLocation.World worldList : IslandLocation.World.values()) {
 				    			Location islandLocation = island.getLocation(worldList, IslandLocation.Environment.Island);
 				    			
 				    			try {
-									Schematic.getInstance().save(new File(new File(Main.getInstance().getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), worldList.name() + ".schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, islandLocation.getBlockY(), islandLocation.getBlockZ() + 85), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, islandLocation.getBlockY(), islandLocation.getBlockZ() - 85));
+									Schematic.getInstance().save(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), worldList.name() + ".schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, islandLocation.getBlockY(), islandLocation.getBlockZ() + 85), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, islandLocation.getBlockY(), islandLocation.getBlockZ() - 85));
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 				    		}
 		    			}
-		    		}.runTaskAsynchronously(Main.getInstance());
+		    		}.runTaskAsynchronously(plugin);*/
 		    		
 		    		player.playSound(player.getLocation(), Sounds.ANVIL_USE.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.ENCHANTED_BOOK) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Load.Displayname"))))) {
-		    		new BukkitRunnable() {
+		    		/*new BukkitRunnable() {
 		    			public void run() {
 				    		for (IslandLocation.World worldList : IslandLocation.World.values()) {
 				    			Location islandLocation = island.getLocation(worldList, IslandLocation.Environment.Island);
 				    			
 					    		try {
-									Schematic.getInstance().paste(new File(new File(Main.getInstance().getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), "Normal.schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85), true);
+									Schematic.getInstance().paste(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), "Normal.schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85), true);
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 				    		}
 		    			}
-		    		}.runTaskAsynchronously(Main.getInstance());
+		    		}.runTaskAsynchronously(plugin);*/
 		    		
 		    		player.playSound(player.getLocation(), Sounds.PISTON_EXTEND.bukkitSound(), 1.0F, 1.0F);
 		    	}

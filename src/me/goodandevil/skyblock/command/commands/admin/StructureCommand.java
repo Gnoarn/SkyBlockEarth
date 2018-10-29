@@ -10,10 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.ChatComponent;
 import me.goodandevil.skyblock.utils.structure.StructureUtil;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -26,11 +24,16 @@ import me.goodandevil.skyblock.command.SubCommand;
 
 public class StructureCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public StructureCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 0 || (args.length > 0 && args[0].equalsIgnoreCase("help"))) {
@@ -63,7 +66,7 @@ public class StructureCommand extends SubCommand {
 			if (args[0].equalsIgnoreCase("tool")) {
 				if (player.hasPermission("skyblock.admin.structure.tool") || player.hasPermission("skyblock.admin.structure.*") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
 					try {
-						ItemStack is = StructureUtil.getInstance().getTool();
+						ItemStack is = StructureUtil.getTool();
 						
 						for (ItemStack itemList : player.getInventory().getContents()) {
 							if (itemList != null) {
@@ -92,7 +95,7 @@ public class StructureCommand extends SubCommand {
 			} else if (args[0].equalsIgnoreCase("save")) {
 				if (player.hasPermission("skyblock.admin.structure.save") || player.hasPermission("skyblock.admin.structure.*") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
 					if (args.length == 2) {
-						PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+						PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 						
 						Location position1Location = playerData.getStructureArea().getPosition(1);
 						Location position2Location = playerData.getStructureArea().getPosition(2);
@@ -106,8 +109,8 @@ public class StructureCommand extends SubCommand {
 						} else {
 							if (position1Location.getWorld().getName().equals(position2Location.getWorld().getName())) {
 		                        try {
-		                            File configFile = new File(Main.getInstance().getDataFolder().toString() + "/structures/" + args[1] + ".structure");
-		                            StructureUtil.getInstance().saveStructure(configFile, player.getLocation(), StructureUtil.getInstance().getFixedLocations(position1Location, position2Location));
+		                            File configFile = new File(plugin.getDataFolder().toString() + "/structures/" + args[1] + ".structure");
+		                            StructureUtil.saveStructure(configFile, player.getLocation(), StructureUtil.getFixedLocations(position1Location, position2Location));
 									
 		                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Structure.Save.Saved.Successful.Message").replace("%name", args[1])));
 									player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);

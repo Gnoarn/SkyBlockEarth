@@ -10,7 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandChatSwitchEvent;
 import me.goodandevil.skyblock.island.Island;
@@ -25,14 +24,19 @@ import me.goodandevil.skyblock.command.SubCommand;
 
 public class ChatCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public ChatCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
 		
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (islandManager.hasIsland(player)) {

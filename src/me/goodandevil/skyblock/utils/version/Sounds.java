@@ -2,7 +2,7 @@ package me.goodandevil.skyblock.utils.version;
 
 import org.bukkit.Sound;
 
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 
 public enum Sounds {
 	
@@ -212,7 +212,7 @@ public enum Sounds {
     }
 
     public Sound bukkitSound() {
-    	int NMSVersion = NMSManager.getInstance().getVersionNumber();
+    	int NMSVersion = NMSUtil.getVersionNumber();
     	
     	if (NMSVersion < 9) {
     		return Sound.valueOf(v18sound);

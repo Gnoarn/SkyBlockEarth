@@ -8,7 +8,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.confirmation.Confirmation;
 import me.goodandevil.skyblock.utils.structure.StructureArea;
@@ -200,6 +199,6 @@ public class PlayerData {
 	}
 	
 	private Config getConfig() {
-		return ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
+		return Main.getInstance().getFileManager().getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
 	}
 }

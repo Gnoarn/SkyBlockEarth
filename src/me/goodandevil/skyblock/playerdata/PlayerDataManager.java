@@ -26,14 +26,16 @@ import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.visit.Visit;
-import me.goodandevil.skyblock.visit.VisitManager;
 import me.goodandevil.skyblock.world.WorldManager;
 
 public class PlayerDataManager {
 
+	private final Main plugin;
 	private HashMap<UUID, PlayerData> playerDataStorage = new HashMap<UUID, PlayerData>();
 	
-	public PlayerDataManager() {
+	public PlayerDataManager(Main plugin) {
+		this.plugin = plugin;
+		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			loadPlayerData(all);
 			
@@ -53,8 +55,8 @@ public class PlayerDataManager {
 	}
 	
 	public void createPlayerData(Player player) {
-		Config playerDataConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), player.getUniqueId() + ".yml"));
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+		Config playerDataConfig = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId() + ".yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 		
 		FileConfiguration playerDataConfigLoad = playerDataConfig.getFileConfiguration();
 		FileConfiguration configLoad = config.getFileConfiguration();
@@ -81,7 +83,7 @@ public class PlayerDataManager {
 	}
 	
 	public void loadPlayerData(Player player) {
-		if (((FileManager) Main.getInstance(Main.Instance.FileManager)).isFileExist(new File(Main.getInstance().getDataFolder().toString() + "/player-data", player.getUniqueId().toString() + ".yml"))) {
+		if (plugin.getFileManager().isFileExist(new File(plugin.getDataFolder().toString() + "/player-data", player.getUniqueId().toString() + ".yml"))) {
 			PlayerData playerData = new PlayerData(player);
 			playerDataStorage.put(player.getUniqueId(), playerData);
 		}
@@ -89,14 +91,14 @@ public class PlayerDataManager {
 	
 	public void unloadPlayerData(Player player) {
 		if (hasPlayerData(player)) {
-			((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
+			plugin.getFileManager().unloadConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 			playerDataStorage.remove(player.getUniqueId());
 		}
 	}
 	
 	public void savePlayerData(Player player) {
 		if (hasPlayerData(player)) {
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
+			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 			
 			try {
 				config.getFileConfiguration().save(config.getFile());
@@ -123,16 +125,16 @@ public class PlayerDataManager {
 	}
 	
 	public void storeIsland(Player player) {
-		WorldManager worldManager = ((WorldManager) Main.getInstance(Main.Instance.WorldManager));
+		WorldManager worldManager = plugin.getWorldManager();
 		
 		if (hasPlayerData(player) && (player.getWorld().getName().equals(worldManager.getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(worldManager.getWorld(IslandLocation.World.Nether).getName()))) {
-			IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+			IslandManager islandManager = plugin.getIslandManager();
 			
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
 				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+					if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
 						PlayerData playerData = getPlayerData(player);
 						playerData.setIsland(island.getOwnerUUID());
 						
@@ -143,16 +145,18 @@ public class PlayerDataManager {
 							}
 						}
 						
-						if (Main.getInstance(Main.Instance.ScoreboardManager) != null) {
+						ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+						
+						if (scoreboardManager != null) {
 							if (!island.isRole(IslandRole.Member, player.getUniqueId()) && !island.isRole(IslandRole.Operator, player.getUniqueId()) && !island.isRole(IslandRole.Owner, player.getUniqueId())) {
-								Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+								Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 								FileConfiguration configLoad = config.getFileConfiguration();
 								
 								for (Player all : Bukkit.getOnlinePlayers()) {
 									PlayerData targetPlayerData = getPlayerData(all);
 									
 									if (targetPlayerData.getOwner().equals(island.getOwnerUUID())) {
-										Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(all);
+										Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
 										scoreboard.cancel();
 										
 										if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) == 1) {
@@ -181,7 +185,7 @@ public class PlayerDataManager {
 				}
 			}
 			
-			HashMap<UUID, Visit> visitIslands = ((VisitManager) Main.getInstance(Main.Instance.VisitManager)).getIslands();
+			HashMap<UUID, Visit> visitIslands = plugin.getVisitManager().getIslands();
 			
 			// TODO Check if player is banned from Island.
 			
@@ -189,16 +193,16 @@ public class PlayerDataManager {
 				Visit visit = visitIslands.get(visitIslandList);
 				
 				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), visit.getLocation(worldList), 85)) {
+					if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), visit.getLocation(worldList), 85)) {
 						if (visit.isOpen()) {
 							PlayerData playerData = getPlayerData(player);
 							playerData.setIsland(visitIslandList);
 							
 							islandManager.loadIsland(visitIslandList);
 						} else {
-							FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+							FileManager fileManager = plugin.getFileManager();
 							
-							Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+							Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 							FileConfiguration configLoad = config.getFileConfiguration();
 							
 				    		Player targetPlayer = Bukkit.getServer().getPlayer(visitIslandList);
@@ -210,7 +214,7 @@ public class PlayerDataManager {
 				    			targetPlayerName = targetPlayer.getName();
 				    		}
 							
-				    		LocationUtil.getInstance().teleportPlayerToSpawn(player);
+				    		LocationUtil.teleportPlayerToSpawn(player);
 							
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Island.Message").replace("%player", targetPlayerName)));
 						}

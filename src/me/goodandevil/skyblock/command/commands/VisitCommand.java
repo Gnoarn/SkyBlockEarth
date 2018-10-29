@@ -8,16 +8,20 @@ import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.menus.Visit;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class VisitCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public VisitCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 		playerData.setType(Visit.Type.Default);
 		playerData.setSort(Visit.Sort.Default);
 		Visit.getInstance().open(player, (Visit.Type) playerData.getType(), (Visit.Sort) playerData.getSort());

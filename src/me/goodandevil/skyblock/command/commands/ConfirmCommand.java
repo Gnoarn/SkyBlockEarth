@@ -10,7 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
@@ -21,26 +20,28 @@ import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
-import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
-import me.goodandevil.skyblock.visit.VisitManager;
 
 public class ConfirmCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public ConfirmCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
-		PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (playerData.getConfirmationTime() > 0) {
@@ -88,20 +89,20 @@ public class ConfirmCommand extends SubCommand {
 							
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Confirmation.Confirmed.Message")));
 							
-							boolean hasSpawnPoint = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
+							boolean hasSpawnPoint = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
 							
 							for (Player all : Bukkit.getOnlinePlayers()) {
 								if (island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) {
-									Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(all);
+									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
 									scoreboard.cancel();
 									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
 									scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
 									scoreboard.run();
 									
 									for (IslandLocation.World worldList : IslandLocation.World.values()) {
-										if (LocationUtil.getInstance().isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+										if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
 											if (hasSpawnPoint) {
-												LocationUtil.getInstance().teleportPlayerToSpawn(all);
+												LocationUtil.teleportPlayerToSpawn(all);
 											} else {
 												Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: A spawn point hasn't been set.");
 											}
@@ -118,8 +119,8 @@ public class ConfirmCommand extends SubCommand {
 							}
 							
 							islandManager.deleteIsland(island);
-							((VisitManager) Main.getInstance(Main.Instance.VisitManager)).deleteIsland(player.getUniqueId());
-							((BanManager) Main.getInstance(Main.Instance.BanManager)).deleteIsland(player.getUniqueId());
+							plugin.getVisitManager().deleteIsland(player.getUniqueId());
+							plugin.getBanManager().deleteIsland(player.getUniqueId());
 							
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Confirmation.Deletion.Sender.Message")));
 							player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), 10.0F, 10.0F);

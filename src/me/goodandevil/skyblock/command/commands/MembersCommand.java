@@ -9,27 +9,29 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
-import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.menus.Members;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class MembersCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public MembersCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		if (((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasIsland(player)) {
-			PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+		if (plugin.getIslandManager().hasIsland(player)) {
+			PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 			playerData.setType(Members.Type.Default);
 			playerData.setSort(Members.Sort.Default);
 			Members.getInstance().open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 			player.playSound(player.getLocation(), Sounds.CHEST_OPEN.bukkitSound(), 1.0F, 1.0F);
 		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Settings.Owner.Message")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Settings.Owner.Message")));
 			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		}
 	}

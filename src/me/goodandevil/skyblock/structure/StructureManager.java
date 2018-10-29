@@ -10,20 +10,19 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 
 public class StructureManager {
 
 	private List<Structure> structureStorage = new ArrayList<Structure>();
 	
-	public StructureManager() {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "structures.yml"));
+	public StructureManager(Main plugin) {
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "structures.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		int NMSVersion = NMSManager.getInstance().getVersionNumber();
+		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		for (String structureList : configLoad.getConfigurationSection("").getKeys(false)) {
 			String materialName = configLoad.getString(structureList + ".Item.Material");

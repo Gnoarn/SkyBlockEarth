@@ -10,35 +10,38 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.island.IslandLocation;
-import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
-import me.goodandevil.skyblock.world.WorldManager;
 
 public class Projectile implements Listener {
 
+	private final Main plugin;
+	
+ 	public Projectile(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onProjectileLaunch(ProjectileLaunchEvent event) {
 		if (event.getEntity().getShooter() instanceof Player) {
 			Player player = (Player) event.getEntity().getShooter();
 			
-			if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
+			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
 				if (event.getEntity() instanceof FishHook) {
-					if (!((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasPermission(player, "Fishing")) {
+					if (!plugin.getIslandManager().hasPermission(player, "Fishing")) {
 						event.setCancelled(true);
 						
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					}
 					
 					return;
 				}
 				
-				if (!((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasPermission(player, "Projectile")) {
+				if (!plugin.getIslandManager().hasPermission(player, "Projectile")) {
 					event.setCancelled(true);
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
 					player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 				}
 			}

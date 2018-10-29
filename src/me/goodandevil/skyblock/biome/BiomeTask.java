@@ -8,9 +8,15 @@ import me.goodandevil.skyblock.Main;
 
 public class BiomeTask extends BukkitRunnable {
 
+	private final Main plugin;
+	
+ 	protected BiomeTask(Main plugin) {
+		this.plugin = plugin;
+	}
+ 	
 	@Override
 	public void run() {
-		BiomeManager biomeManager = ((BiomeManager) Main.getInstance(Main.Instance.BiomeManager));
+		BiomeManager biomeManager = plugin.getBiomeManager();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (biomeManager.hasBiome(all)) {

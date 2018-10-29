@@ -20,22 +20,27 @@ import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.island.IslandSettings;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class SetSpawnCommand extends SubCommand {
 
+	private final Main plugin;
+	
 	private String info;
 	private IslandLocation.Environment locationEnvironment;
 	
+	public SetSpawnCommand(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
@@ -51,15 +56,15 @@ public class SetSpawnCommand extends SubCommand {
 					return;
 				}
 				
-				me.goodandevil.skyblock.island.Island island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+				me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 				
 				if (island.isRole(IslandRole.Operator, player.getUniqueId()) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
 					if ((island.isRole(IslandRole.Operator, player.getUniqueId()) && (island.getSetting(IslandSettings.Role.Operator, locationEnvironment.name() + "Spawn").getStatus())) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
 						for (IslandLocation.World worldList : IslandLocation.World.values()) {
-							if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+							if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
 								Location location = player.getLocation();
 								
-								if (fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Spawn.Protection")) {
+								if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Spawn.Protection")) {
 									if (location.clone().subtract(0.0D, 1.0D, 0.0D).getBlock().getType() == Material.AIR || location.clone().subtract(0.0D, 1.0D, 0.0D).getBlock().getType() == Materials.LEGACY_PISTON_MOVING_PIECE.getPostMaterial()) {
 										player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.SetSpawn.Protection.Block.Message")));
 										player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
@@ -81,7 +86,7 @@ public class SetSpawnCommand extends SubCommand {
 										
 										return;
 									} else {
-										if (LocationUtil.getInstance().isLocationCentreOfBlock(location)) {
+										if (LocationUtil.isLocationCentreOfBlock(location)) {
 											new BukkitRunnable() {
 												public void run() {
 													if (location.getBlock().getType() != Material.AIR) {
@@ -95,7 +100,7 @@ public class SetSpawnCommand extends SubCommand {
 													islandManager.removeSpawnProtection(island.getLocation(worldList, locationEnvironment));
 													islandManager.setSpawnProtection(location);
 												}
-											}.runTask(Main.getInstance());
+											}.runTask(plugin);
 										} else {
 											player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.SetSpawn.Protection.Centre.Message")));
 											player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);

@@ -21,23 +21,27 @@ import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
-import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class LeaveCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public LeaveCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		
 		if (islandManager.hasIsland(player)) {
 			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(playerData.getOwner());
@@ -51,8 +55,8 @@ public class LeaveCommand extends SubCommand {
 				
 				if (!islandLeaveEvent.isCancelled()) {
 					for (IslandLocation.World worldList : IslandLocation.World.values()) {
-						if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-							LocationUtil.getInstance().teleportPlayerToSpawn(player);
+						if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+							LocationUtil.teleportPlayerToSpawn(player);
 							
 							break;
 						}
@@ -82,7 +86,7 @@ public class LeaveCommand extends SubCommand {
 								
 								if (targetPlayerData.isChat()) {
 									targetPlayerData.setChat(false);
-									targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
+									targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
 								}
 							}
 						}
@@ -97,7 +101,7 @@ public class LeaveCommand extends SubCommand {
 								all.playSound(all.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 								
 								if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
-									Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(all);
+									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
 									scoreboard.cancel();
 									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 
@@ -116,7 +120,7 @@ public class LeaveCommand extends SubCommand {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Sender.Message")));
 					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 					
-					Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(player);
+					Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
 					scoreboard.cancel();
 					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
 					scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));

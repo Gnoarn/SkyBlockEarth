@@ -1,5 +1,6 @@
 package me.goodandevil.skyblock;
 
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.goodandevil.skyblock.ban.BanManager;
@@ -63,117 +64,119 @@ public class Main extends JavaPlugin {
 	private CommandManager commandManager;
 	private StructureManager structureManager;
 	
+	@Override
 	public void onEnable() {
 		instance = this;
 		
-		fileManager = new FileManager();
-		worldManager = new WorldManager();
-		visitManager = new VisitManager();
-		banManager = new BanManager();
-		islandManager = new IslandManager();
-		playerDataManager = new PlayerDataManager();
-		scoreboardManager = new ScoreboardManager();
-		inviteManager = new InviteManager();
-		biomeManager = new BiomeManager();
-		levellingManager = new LevellingManager();
-		commandManager = new CommandManager();
-		structureManager = new StructureManager();
+		fileManager = new FileManager(this);
+		worldManager = new WorldManager(this);
+		visitManager = new VisitManager(this);
+		banManager = new BanManager(this);
+		islandManager = new IslandManager(this);
+		playerDataManager = new PlayerDataManager(this);
+		scoreboardManager = new ScoreboardManager(this);
+		inviteManager = new InviteManager(this);
+		biomeManager = new BiomeManager(this);
+		levellingManager = new LevellingManager(this);
+		commandManager = new CommandManager(this);
+		structureManager = new StructureManager(this);
 		
-		new PlaytimeTask().runTaskTimerAsynchronously(this, 0L, 20L);
-		new VisitTask().runTaskTimerAsynchronously(this, 0L, 20L);
-		new ConfirmationTask().runTaskTimerAsynchronously(this, 0L, 20L);
+		new PlaytimeTask(playerDataManager, islandManager).runTaskTimerAsynchronously(this, 0L, 20L);
+		new VisitTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
+		new ConfirmationTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		
-		getServer().getPluginManager().registerEvents(new Join(), this);
-		getServer().getPluginManager().registerEvents(new Quit(), this);
-		getServer().getPluginManager().registerEvents(new Block(), this);
-		getServer().getPluginManager().registerEvents(new Interact(), this);
-		getServer().getPluginManager().registerEvents(new Entity(), this);
-		getServer().getPluginManager().registerEvents(new Bucket(), this);
-		getServer().getPluginManager().registerEvents(new Projectile(), this);
-		getServer().getPluginManager().registerEvents(new Inventory(), this);
-		getServer().getPluginManager().registerEvents(new Item(), this);
-		getServer().getPluginManager().registerEvents(new Teleport(), this);
-		getServer().getPluginManager().registerEvents(new Portal(), this);
-		getServer().getPluginManager().registerEvents(new Move(), this);
-		getServer().getPluginManager().registerEvents(new Death(), this);
-		getServer().getPluginManager().registerEvents(new Respawn(), this);
-		getServer().getPluginManager().registerEvents(new Chat(), this);
+		PluginManager pluginManager = getServer().getPluginManager();
 		
-		getServer().getPluginManager().registerEvents(new Biome(), this);
-		getServer().getPluginManager().registerEvents(new Weather(), this);
-		getServer().getPluginManager().registerEvents(new Rollback(), this);
-		getServer().getPluginManager().registerEvents(new Levelling(), this);
-		getServer().getPluginManager().registerEvents(new Settings(), this);
-		getServer().getPluginManager().registerEvents(new Members(), this);
-		getServer().getPluginManager().registerEvents(new Ownership(), this);
-		getServer().getPluginManager().registerEvents(new Visit(), this);
-		getServer().getPluginManager().registerEvents(new Visitors(), this);
-		getServer().getPluginManager().registerEvents(new Bans(), this);
-		getServer().getPluginManager().registerEvents(new ControlPanel(), this);
-		getServer().getPluginManager().registerEvents(new Creator(), this);
-		getServer().getPluginManager().registerEvents(new Structure(), this);
+		pluginManager.registerEvents(new Join(this), this);
+		pluginManager.registerEvents(new Quit(this), this);
+		pluginManager.registerEvents(new Block(this), this);
+		pluginManager.registerEvents(new Interact(this), this);
+		pluginManager.registerEvents(new Entity(this), this);
+		pluginManager.registerEvents(new Bucket(this), this);
+		pluginManager.registerEvents(new Projectile(this), this);
+		pluginManager.registerEvents(new Inventory(this), this);
+		pluginManager.registerEvents(new Item(this), this);
+		pluginManager.registerEvents(new Teleport(this), this);
+		pluginManager.registerEvents(new Portal(this), this);
+		pluginManager.registerEvents(new Move(this), this);
+		pluginManager.registerEvents(new Death(this), this);
+		pluginManager.registerEvents(new Respawn(this), this);
+		pluginManager.registerEvents(new Chat(this), this);
+		
+		pluginManager.registerEvents(new Biome(), this);
+		pluginManager.registerEvents(new Weather(), this);
+		pluginManager.registerEvents(new Rollback(), this);
+		pluginManager.registerEvents(new Levelling(), this);
+		pluginManager.registerEvents(new Settings(), this);
+		pluginManager.registerEvents(new Members(), this);
+		pluginManager.registerEvents(new Ownership(), this);
+		pluginManager.registerEvents(new Visit(), this);
+		pluginManager.registerEvents(new Visitors(), this);
+		pluginManager.registerEvents(new Bans(), this);
+		pluginManager.registerEvents(new ControlPanel(), this);
+		pluginManager.registerEvents(new Creator(), this);
+		pluginManager.registerEvents(new Structure(), this);
 	}
 	
+	@Override
 	public void onDisable() {
-		((LevellingManager) getInstance(Main.Instance.LevellingManager)).onDisable();
-		((IslandManager) getInstance(Main.Instance.IslandManager)).onDisable();
-		((VisitManager) getInstance(Main.Instance.VisitManager)).onDisable();
-		((BanManager) getInstance(Main.Instance.BanManager)).onDisable();
-		((BiomeManager) getInstance(Main.Instance.BiomeManager)).onDisable();
-		((PlayerDataManager) getInstance(Main.Instance.PlayerDataManager)).onDisable();
+		this.levellingManager.onDisable();
+		this.islandManager.onDisable();
+		this.visitManager.onDisable();
+		this.banManager.onDisable();
+		this.biomeManager.onDisable();
+		this.playerDataManager.onDisable();
 	}
 	
 	public static Main getInstance() {
 		return instance;
 	}
 	
-	public static Object getInstance(Main.Instance instanceType) {
-		if (instanceType == Main.Instance.Main) {
-			return getInstance();
-		} else if (instanceType == Main.Instance.FileManager) {
-			return getInstance().fileManager;
-		} else if (instanceType == Main.Instance.WorldManager) {
-			return getInstance().worldManager;
-		} else if (instanceType == Main.Instance.VisitManager) {
-			return getInstance().visitManager;
-		} else if (instanceType == Main.Instance.BanManager) {
-			return getInstance().banManager;
-		} else if (instanceType == Main.Instance.IslandManager) {
-			return getInstance().islandManager;
-		} else if (instanceType == Main.Instance.PlayerDataManager) {
-			return getInstance().playerDataManager;
-		} else if (instanceType == Main.Instance.ScoreboardManager) {
-			return getInstance().scoreboardManager;
-		} else if (instanceType == Main.Instance.InviteManager) {
-			return getInstance().inviteManager;
-		} else if (instanceType == Main.Instance.BiomeManager) {
-			return getInstance().biomeManager;
-		} else if (instanceType == Main.Instance.LevellingManager) {
-			return getInstance().levellingManager;
-		} else if (instanceType == Main.Instance.CommandManager) {
-			return getInstance().commandManager;
-		} else if (instanceType == Main.Instance.StructureManager) {
-			return getInstance().structureManager;
-		}
-		
-		return null;
+	public FileManager getFileManager() {
+		return fileManager;
 	}
 	
-	public enum Instance {
-		
-		Main,
-		FileManager,
-		WorldManager,
-		VisitManager,
-		BanManager,
-		IslandManager,
-		PlayerDataManager,
-		ScoreboardManager,
-		InviteManager,
-		BiomeManager,
-		LevellingManager,
-		CommandManager,
-		StructureManager;
-		
+	public WorldManager getWorldManager() {
+		return worldManager;
+	}
+	
+	public VisitManager getVisitManager() {
+		return visitManager;
+	}
+	
+	public BanManager getBanManager() {
+		return banManager;
+	}
+	
+	public IslandManager getIslandManager() {
+		return islandManager;
+	}
+	
+	public PlayerDataManager getPlayerDataManager() {
+		return playerDataManager;
+	}
+	
+	public ScoreboardManager getScoreboardManager() {
+		return scoreboardManager;
+	}
+	
+	public InviteManager getInviteManager() {
+		return inviteManager;
+	}
+	
+	public BiomeManager getBiomeManager() {
+		return biomeManager;
+	}
+	
+	public LevellingManager getLevellingManager() {
+		return levellingManager;
+	}
+	
+	public CommandManager getCommandManager() {
+		return commandManager;
+	}
+	
+	public StructureManager getStructureManager() {
+		return structureManager;
 	}
 }

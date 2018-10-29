@@ -11,8 +11,8 @@ public class InviteManager {
 
 	private HashMap<UUID, Invite> inviteStorage = new HashMap<UUID, Invite>();
 	
-	public InviteManager() {
-		new InviteTask().runTaskTimerAsynchronously(Main.getInstance(), 0L, 20L);
+	public InviteManager(Main plugin) {
+		new InviteTask(this, plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
 	}
 	
 	public Invite createInvite(Player player, Player sender, UUID owner, int time) {

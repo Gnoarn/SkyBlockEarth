@@ -20,19 +20,9 @@ import me.goodandevil.skyblock.utils.math.VectorUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
 
-public class LocationUtil {
+public final class LocationUtil {
 
-    private static LocationUtil instance;
-
-    public static LocationUtil getInstance(){
-        if(instance == null) {
-            instance = new LocationUtil();
-        }
-        
-        return instance;
-    }
-    
-    public boolean isLocationCentreOfBlock(Location location) {
+    public static boolean isLocationCentreOfBlock(Location location) {
     	double x = location.getX() - location.getBlockX() - 0.5D, z = location.getZ() - location.getBlockZ() - 0.5D;
     	
     	if (Math.abs(x) < 0.2D && Math.abs(z) < 0.2D) {
@@ -42,7 +32,7 @@ public class LocationUtil {
     	return false;
     }
     
-    public boolean isLocationLocation(Location location1, Location location2) {
+    public static boolean isLocationLocation(Location location1, Location location2) {
     	if (location1.getBlockX() == location2.getBlockX() && location1.getBlockY() == location2.getBlockY() && location1.getBlockZ() == location2.getBlockZ()) {
     		return true;
     	}
@@ -50,7 +40,7 @@ public class LocationUtil {
     	return false;
     }
     
-	public boolean isLocationAtLocationRadius(Location location1, Location location2, int radius) {
+	public static boolean isLocationAtLocationRadius(Location location1, Location location2, int radius) {
 		if (location1 == null || location2 == null || !location1.getWorld().getName().equals(location2.getWorld().getName())) {
 			return false;
 		}
@@ -61,7 +51,7 @@ public class LocationUtil {
 		return x < radius && z < radius;
 	}
     
-    public List<Location> getLocations(Location minLocation, Location maxLocation) {
+    public static List<Location> getLocations(Location minLocation, Location maxLocation) {
     	ArrayList<Location> locations = new ArrayList<Location>();
     	
 	    int MinX = Math.min(maxLocation.getBlockX(), minLocation.getBlockX());
@@ -83,7 +73,7 @@ public class LocationUtil {
 	    return locations;
     }
     
-    public Location getHighestBlock(Location location) {
+    public static Location getHighestBlock(Location location) {
         for(int y = 256; y > 0; y--){
         	location.setY(y);
         	
@@ -97,7 +87,7 @@ public class LocationUtil {
         return location;
     }
     
-    public int getYSurface(Location location, boolean isNether) {
+    public static int getYSurface(Location location, boolean isNether) {
         int maxY = 0;
         boolean followY = false;
         
@@ -130,7 +120,7 @@ public class LocationUtil {
         return maxY;
     }
     
-    public double rotateYaw(double a, double b) throws Exception {
+    public static double rotateYaw(double a, double b) throws Exception {
         if (a < -180 || a > 180) {
             throw new Exception();
         }
@@ -144,7 +134,7 @@ public class LocationUtil {
         }
     }
 
-    public double rotatePitch(double a, double b) throws Exception {
+    public static double rotatePitch(double a, double b) throws Exception {
         if(a < -90 || a > 90){
             throw new Exception();
         }
@@ -158,22 +148,24 @@ public class LocationUtil {
         }
     }
     
-    public Location rotateLocation(Location location, BlockDegreesType blockTypeDegrees) {
+    public static Location rotateLocation(Location location, BlockDegreesType blockTypeDegrees) {
         if (blockTypeDegrees == BlockDegreesType.ROTATE_90) {
-        	return VectorUtil.getInstance().rotateAroundAxisY(location.toVector(), 90).toLocation(location.getWorld());
+        	return VectorUtil.rotateAroundAxisY(location.toVector(), 90).toLocation(location.getWorld());
         } else if (blockTypeDegrees == BlockDegreesType.ROTATE_180) {
-            return VectorUtil.getInstance().rotateAroundAxisY(location.toVector(), 180).toLocation(location.getWorld());
+            return VectorUtil.rotateAroundAxisY(location.toVector(), 180).toLocation(location.getWorld());
         } else if (blockTypeDegrees == BlockDegreesType.ROTATE_270) {
-            return VectorUtil.getInstance().rotateAroundAxisY(location.toVector(), 270).toLocation(location.getWorld());
+            return VectorUtil.rotateAroundAxisY(location.toVector(), 270).toLocation(location.getWorld());
         } else {
             return location;
         }
     }
     
-    public void teleportPlayerToSpawn(Player player) {
-    	FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+    public static void teleportPlayerToSpawn(Player player) {
+    	Main plugin = Main.getInstance();
     	
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "locations.yml"));
+    	FileManager fileManager = plugin.getFileManager();
+    	
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "locations.yml"));
 		
 		if (config.getFileConfiguration().getString("Location.Spawn") == null) {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: A spawn point hasn't been set.");
@@ -182,7 +174,7 @@ public class LocationUtil {
 				public void run() {
 					player.teleport(fileManager.getLocation(config, "Location.Spawn", true));
 				}
-			}.runTask(Main.getInstance());
+			}.runTask(plugin);
 		}
     }
 }

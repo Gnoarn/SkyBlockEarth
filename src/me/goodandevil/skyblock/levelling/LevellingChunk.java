@@ -8,18 +8,21 @@ import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandLocation;
 
 public class LevellingChunk {
 
+	private final Main plugin;
 	private Island island;
+	
 	private ArrayList<ChunkSnapshot> chunkSnapshots = new ArrayList<ChunkSnapshot>();
 	private boolean complete;
 	
-	public LevellingChunk(Island island) {
+	public LevellingChunk(Main plugin, Island island) {
+		this.plugin = plugin;
 		this.island = island;
+		
 		complete = false;
 	}
 	
@@ -28,7 +31,7 @@ public class LevellingChunk {
 			public void run() {
 				prepareChunkSnapshots();
 			}
-		}.runTask(Main.getInstance());
+		}.runTask(plugin);
 	}
 	
 	public ArrayList<ChunkSnapshot> getChunkSnapshots() {
@@ -41,7 +44,7 @@ public class LevellingChunk {
 	
 	private void prepareChunkSnapshots() {
 		for (IslandLocation.World worldList : IslandLocation.World.values()) {
-			if (worldList == IslandLocation.World.Normal || (worldList == IslandLocation.World.Nether && ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.World.Nether.Enable"))) {
+			if (worldList == IslandLocation.World.Normal || (worldList == IslandLocation.World.Nether && plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.World.Nether.Enable"))) {
 				Location islandLocation = island.getLocation(worldList, IslandLocation.Environment.Island);
 				
 				Location minLocation = new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85);

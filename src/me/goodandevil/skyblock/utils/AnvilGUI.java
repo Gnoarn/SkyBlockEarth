@@ -34,11 +34,11 @@ public class AnvilGUI {
     private Listener listener;
 
     private void loadClasses() {
-        BlockPosition = NMSManager.getInstance().getNMSClass("BlockPosition");
-        PacketPlayOutOpenWindow = NMSManager.getInstance().getNMSClass("PacketPlayOutOpenWindow");
-        ContainerAnvil = NMSManager.getInstance().getNMSClass("ContainerAnvil");
-        EntityHuman = NMSManager.getInstance().getNMSClass("EntityHuman");
-        ChatMessage = NMSManager.getInstance().getNMSClass("ChatMessage");
+        BlockPosition = NMSUtil.getNMSClass("BlockPosition");
+        PacketPlayOutOpenWindow = NMSUtil.getNMSClass("PacketPlayOutOpenWindow");
+        ContainerAnvil = NMSUtil.getNMSClass("ContainerAnvil");
+        EntityHuman = NMSUtil.getNMSClass("EntityHuman");
+        ChatMessage = NMSUtil.getNMSClass("ChatMessage");
     }
 
     public AnvilGUI(final Player player, final AnvilClickEventHandler handler) {
@@ -119,19 +119,19 @@ public class AnvilGUI {
         player.setLevel(player.getLevel() + 1);
 
         try {
-	        Object craftPlayer = NMSManager.getInstance().getCraftClass("entity.CraftPlayer").cast(player);
+	        Object craftPlayer = NMSUtil.getCraftClass("entity.CraftPlayer").cast(player);
 	        Method getHandleMethod = craftPlayer.getClass().getMethod("getHandle", new Class<?>[0]);
 	        Object entityPlayer = getHandleMethod.invoke(craftPlayer, new Object[0]);
 
             Object container;
             
-  	      	if (NMSManager.getInstance().getVersionNumber() == 7) {
-  	      		container = ContainerAnvil.getConstructor(new Class[] { NMSManager.getInstance().getNMSClass("PlayerInventory"), NMSManager.getInstance().getNMSClass("World"), Integer.TYPE, Integer.TYPE, Integer.TYPE, EntityHuman }).newInstance(new Object[] { NMSManager.getInstance().getFieldObject(entityPlayer, NMSManager.getInstance().getField(entityPlayer.getClass(), "inventory", false)), NMSManager.getInstance().getFieldObject(entityPlayer, NMSManager.getInstance().getField(entityPlayer.getClass(), "world", false)), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), entityPlayer });
+  	      	if (NMSUtil.getVersionNumber() == 7) {
+  	      		container = ContainerAnvil.getConstructor(new Class[] { NMSUtil.getNMSClass("PlayerInventory"), NMSUtil.getNMSClass("World"), Integer.TYPE, Integer.TYPE, Integer.TYPE, EntityHuman }).newInstance(new Object[] { NMSUtil.getFieldObject(entityPlayer, NMSUtil.getField(entityPlayer.getClass(), "inventory", false)), NMSUtil.getFieldObject(entityPlayer, NMSUtil.getField(entityPlayer.getClass(), "world", false)), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), entityPlayer });
   	      	} else {
-  	      		container = ContainerAnvil.getConstructor(NMSManager.getInstance().getNMSClass("PlayerInventory"), NMSManager.getInstance().getNMSClass("World"), BlockPosition, EntityHuman).newInstance(NMSManager.getInstance().getFieldObject(entityPlayer, NMSManager.getInstance().getField(entityPlayer.getClass(), "inventory", false)), NMSManager.getInstance().getFieldObject(entityPlayer, NMSManager.getInstance().getField(entityPlayer.getClass(), "world", false)), BlockPosition.getConstructor(int.class, int.class, int.class).newInstance(0, 0, 0), entityPlayer);
+  	      		container = ContainerAnvil.getConstructor(NMSUtil.getNMSClass("PlayerInventory"), NMSUtil.getNMSClass("World"), BlockPosition, EntityHuman).newInstance(NMSUtil.getFieldObject(entityPlayer, NMSUtil.getField(entityPlayer.getClass(), "inventory", false)), NMSUtil.getFieldObject(entityPlayer, NMSUtil.getField(entityPlayer.getClass(), "world", false)), BlockPosition.getConstructor(int.class, int.class, int.class).newInstance(0, 0, 0), entityPlayer);
   	      	}
             
-            NMSManager.getInstance().getField(NMSManager.getInstance().getNMSClass("Container"), "checkReachable", true).set(container, false);
+            NMSUtil.getField(NMSUtil.getNMSClass("Container"), "checkReachable", true).set(container, false);
             
             Method getBukkitViewMethod = container.getClass().getMethod("getBukkitView", new Class<?>[0]);
             Object bukkitView = getBukkitViewMethod.invoke(container);
@@ -148,21 +148,21 @@ public class AnvilGUI {
             Constructor<?> chatMessageConstructor = ChatMessage.getConstructor(String.class, Object[].class);
             Object packet;
             
-            if (NMSManager.getInstance().getVersionNumber() == 7) {
+            if (NMSUtil.getVersionNumber() == 7) {
             	packet = PacketPlayOutOpenWindow.getConstructor(new Class[] { Integer.TYPE, Integer.TYPE, String.class, Integer.TYPE, Boolean.TYPE, Integer.TYPE }).newInstance(new Object[] { Integer.valueOf(c), Integer.valueOf(8), "Repairing", Integer.valueOf(0), Boolean.valueOf(true), Integer.valueOf(0) });
             } else {
-            	packet = PacketPlayOutOpenWindow.getConstructor(int.class, String.class, NMSManager.getInstance().getNMSClass("IChatBaseComponent"), int.class).newInstance(c, "minecraft:anvil", chatMessageConstructor.newInstance("Repairing", new Object[]{}), 0);
+            	packet = PacketPlayOutOpenWindow.getConstructor(int.class, String.class, NMSUtil.getNMSClass("IChatBaseComponent"), int.class).newInstance(c, "minecraft:anvil", chatMessageConstructor.newInstance("Repairing", new Object[]{}), 0);
             }
             
-            NMSManager.getInstance().sendPacket(player, packet);
+            NMSUtil.sendPacket(player, packet);
             
-            Field activeContainerField = NMSManager.getInstance().getField(EntityHuman, "activeContainer", true);
+            Field activeContainerField = NMSUtil.getField(EntityHuman, "activeContainer", true);
             
             if (activeContainerField != null) {
                 activeContainerField.set(entityPlayer, container);
-                NMSManager.getInstance().getField(NMSManager.getInstance().getNMSClass("Container"), "windowId", true).set(activeContainerField.get(entityPlayer), c);
+                NMSUtil.getField(NMSUtil.getNMSClass("Container"), "windowId", true).set(activeContainerField.get(entityPlayer), c);
                 
-                Method addSlotListenerMethod = activeContainerField.get(entityPlayer).getClass().getMethod("addSlotListener", NMSManager.getInstance().getNMSClass("ICrafting"));
+                Method addSlotListenerMethod = activeContainerField.get(entityPlayer).getClass().getMethod("addSlotListener", NMSUtil.getNMSClass("ICrafting"));
                 addSlotListenerMethod.invoke(activeContainerField.get(entityPlayer), entityPlayer);
             }
         } catch (Exception e) {

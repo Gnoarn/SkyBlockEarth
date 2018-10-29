@@ -14,14 +14,12 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.island.IslandSettings;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -39,9 +37,11 @@ public class Weather implements Listener {
     }
     
     public void open(Player player) {
-    	Island island = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)).getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+    	Main plugin = Main.getInstance();
     	
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+    	Island island = plugin.getIslandManager().getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
+    	
+		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		int islandTime = island.getTime();
@@ -101,27 +101,29 @@ public class Weather implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = languageConfig.getFileConfiguration();
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Weather.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+				IslandManager islandManager = plugin.getIslandManager();
 				Island island = null;
 				
 				if (islandManager.hasIsland(player)) {
-					island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
 					if (!((island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Biome").getStatus()) || island.isRole(IslandRole.Owner, player.getUniqueId()))) {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Weather.Permission.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Weather.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
 						
 						return;
 					}
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Weather.Owner.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Weather.Owner.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					

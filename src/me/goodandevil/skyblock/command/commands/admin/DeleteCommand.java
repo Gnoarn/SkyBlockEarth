@@ -10,7 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
@@ -21,22 +20,25 @@ import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
-import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
-import me.goodandevil.skyblock.visit.VisitManager;
 
 public class DeleteCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public DeleteCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		FileManager fileManager = plugin.getFileManager();
+		IslandManager islandManager = plugin.getIslandManager();
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.delete") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
@@ -57,21 +59,21 @@ public class DeleteCommand extends SubCommand {
 				if (islandManager.isIslandExist(targetPlayerUUID)) {
 					islandManager.loadIsland(targetPlayerUUID);
 					
-					boolean hasSpawnPoint = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
+					boolean hasSpawnPoint = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
 					Island island = islandManager.getIsland(targetPlayerUUID);
 					
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						if (island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) {
-							Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(all);
+							Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
 							scoreboard.cancel();
 							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
 							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
 							scoreboard.run();
 							
 							for (IslandLocation.World worldList : IslandLocation.World.values()) {
-								if (LocationUtil.getInstance().isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+								if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
 									if (hasSpawnPoint) {
-										LocationUtil.getInstance().teleportPlayerToSpawn(all);
+										LocationUtil.teleportPlayerToSpawn(all);
 									} else {
 										Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: A spawn point hasn't been set.");
 									}
@@ -88,8 +90,8 @@ public class DeleteCommand extends SubCommand {
 					}
 					
 					islandManager.deleteIsland(island);
-					((VisitManager) Main.getInstance(Main.Instance.VisitManager)).deleteIsland(player.getUniqueId());
-					((BanManager) Main.getInstance(Main.Instance.BanManager)).deleteIsland(player.getUniqueId());
+					plugin.getVisitManager().deleteIsland(player.getUniqueId());
+					plugin.getBanManager().deleteIsland(player.getUniqueId());
 				
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Delete.Deleted.Message").replace("%player", targetPlayerName)));
 					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);

@@ -17,13 +17,18 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class ReloadCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public ReloadCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		FileManager fileManager = plugin.getFileManager();
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.reload") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {

@@ -16,15 +16,13 @@ import org.bukkit.inventory.ItemStack;
 
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.biome.BiomeManager;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.island.IslandSettings;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.version.Biomes;
@@ -45,11 +43,13 @@ public class Biome implements Listener {
     }
 	
     public void open(Player player) {
-		Island island = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)).getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+    	Main plugin = Main.getInstance();
+    	
+		Island island = plugin.getIslandManager().getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 		String islandBiomeName = island.getBiomeName();
-		int NMSVersion = NMSManager.getInstance().getVersionNumber();
+		int NMSVersion = NMSUtil.getVersionNumber();
 		
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Biome.Title"), null, 1);
@@ -119,28 +119,30 @@ public class Biome implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = languageConfig.getFileConfiguration();
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Biome.Title")))) {
 				event.setCancelled(true);
 				
-				BiomeManager biomeManager = ((BiomeManager) Main.getInstance(Main.Instance.BiomeManager));
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+				BiomeManager biomeManager = plugin.getBiomeManager();
+				IslandManager islandManager = plugin.getIslandManager();
 				Island island = null;
 				
 				if (islandManager.hasIsland(player)) {
-					island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
 					if (!((island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Biome").getStatus()) || island.isRole(IslandRole.Owner, player.getUniqueId()))) {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Biome.Permission.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
 						
 						return;
 					}
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Biome.Owner.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Owner.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
@@ -159,10 +161,10 @@ public class Biome implements Listener {
 							me.goodandevil.skyblock.biome.Biome biome = biomeManager.getBiome(player);
 							
 							if (biome.getTime() < 60) {
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", biome.getTime() + " " + languageConfig.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", biome.getTime() + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
 							} else {
-								long[] durationTime = NumberUtil.getInstance().getDuration(biome.getTime());
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", durationTime[2] + " " + languageConfig.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Minute") + " " + durationTime[3] + " " + languageConfig.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
+								long[] durationTime = NumberUtil.getDuration(biome.getTime());
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
 							}
 							
 							player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
@@ -188,7 +190,7 @@ public class Biome implements Listener {
 		    				selectedBiomeType = Biomes.ROOFED_FOREST.bukkitBiome();
 		    			}
 		    			
-		    			biomeManager.createBiome(player, ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Biome.Cooldown"));
+		    			biomeManager.createBiome(player, plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Biome.Cooldown"));
 			    		biomeManager.setBiome(player, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), selectedBiomeType);
 			    		
 			    		island.setBiome(selectedBiomeType);
@@ -197,7 +199,7 @@ public class Biome implements Listener {
 			    		
 		    			open(player);
 		    			
-		    			if (!LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
+		    			if (!LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
 		    				player.playSound(player.getLocation(), Sounds.SPLASH.bukkitSound(), 1.0F, 1.0F);
 		    			}
 		    		}
@@ -210,7 +212,9 @@ public class Biome implements Listener {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();
 		
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Main plugin = Main.getInstance();
+		
+		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Biome.Title")))) {

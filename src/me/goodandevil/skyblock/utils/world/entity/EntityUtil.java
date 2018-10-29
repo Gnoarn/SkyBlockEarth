@@ -18,37 +18,25 @@ import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.EulerAngle;
 
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.item.ItemStackUtil;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
 
 @SuppressWarnings("deprecation")
-public class EntityUtil {
-
-    private static EntityUtil instance;
-
-    public static EntityUtil getInstance(){
-        if(instance == null) {
-            instance = new EntityUtil();
-        }
-        
-        return instance;
-    }
-    
-	public EntityData convertEntityToEntityData(Entity entity, int x, int y, int z) {
-    	ItemStackUtil itemStack = ItemStackUtil.getInstance();
-    	
+public final class EntityUtil {
+	
+	public static EntityData convertEntityToEntityData(Entity entity, int x, int y, int z) {
         EntityData entityData = new EntityData(entity.getType().toString(), x, y, z, entity.getCustomName(), entity.isCustomNameVisible(), entity.getFireTicks(), entity.getTicksLived());
         
         if (entity instanceof ArmorStand) {
             ArmorStand armorStand = (ArmorStand) entity;
             entityData.setArms(armorStand.hasArms());
-            entityData.setHand(itemStack.serializeItemStack(armorStand.getItemInHand()));
-            entityData.setHelmet(itemStack.serializeItemStack(armorStand.getHelmet()));
-            entityData.setChestplate(itemStack.serializeItemStack(armorStand.getChestplate()));
-            entityData.setLeggings(itemStack.serializeItemStack(armorStand.getLeggings()));
-            entityData.setBoots(itemStack.serializeItemStack(armorStand.getBoots()));
+            entityData.setHand(ItemStackUtil.serializeItemStack(armorStand.getItemInHand()));
+            entityData.setHelmet(ItemStackUtil.serializeItemStack(armorStand.getHelmet()));
+            entityData.setChestplate(ItemStackUtil.serializeItemStack(armorStand.getChestplate()));
+            entityData.setLeggings(ItemStackUtil.serializeItemStack(armorStand.getLeggings()));
+            entityData.setBoots(ItemStackUtil.serializeItemStack(armorStand.getBoots()));
             entityData.setBasePlate(armorStand.hasBasePlate());
             entityData.setVisible(armorStand.isVisible());
             entityData.setSmall(armorStand.isSmall());
@@ -63,19 +51,19 @@ public class EntityUtil {
             return entityData;
         }
         
-        int NMSVersion = NMSManager.getInstance().getVersionNumber();
+        int NMSVersion = NMSUtil.getVersionNumber();
         
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
             
             if (NMSVersion > 8) {
             	entityData.setAI(livingEntity.hasAI());
-            	entityData.setHand(itemStack.serializeItemStack(livingEntity.getEquipment().getItemInMainHand()));
-                entityData.setOffHand(itemStack.serializeItemStack(livingEntity.getEquipment().getItemInOffHand()));
-                entityData.setHelmet(itemStack.serializeItemStack(livingEntity.getEquipment().getHelmet()));
-                entityData.setChestplate(itemStack.serializeItemStack(livingEntity.getEquipment().getChestplate()));
-                entityData.setLeggings(itemStack.serializeItemStack(livingEntity.getEquipment().getLeggings()));
-                entityData.setBoots(itemStack.serializeItemStack(livingEntity.getEquipment().getBoots()));
+            	entityData.setHand(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getItemInMainHand()));
+                entityData.setOffHand(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getItemInOffHand()));
+                entityData.setHelmet(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getHelmet()));
+                entityData.setChestplate(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getChestplate()));
+                entityData.setLeggings(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getLeggings()));
+                entityData.setBoots(ItemStackUtil.serializeItemStack(livingEntity.getEquipment().getBoots()));
                 entityData.setHandChance(livingEntity.getEquipment().getItemInMainHandDropChance());
                 entityData.setOffHandChange(livingEntity.getEquipment().getItemInOffHandDropChance());
                 entityData.setHelmetChance(livingEntity.getEquipment().getHelmetDropChance());
@@ -105,9 +93,9 @@ public class EntityUtil {
                 
                 for(ItemStack itemList : horse.getInventory().getContents()){
                     if (itemList == null){
-                    	items.add(itemStack.serializeItemStack(new ItemStack(Material.AIR)));
+                    	items.add(ItemStackUtil.serializeItemStack(new ItemStack(Material.AIR)));
                     } else {
-                    	items.add(itemStack.serializeItemStack(itemList));
+                    	items.add(ItemStackUtil.serializeItemStack(itemList));
                     }
                 }
                 
@@ -142,9 +130,9 @@ public class EntityUtil {
                 
                 for(ItemStack itemList : villager.getInventory().getContents()){
                     if(itemList == null){
-                    	items.add(itemStack.serializeItemStack(new ItemStack(Material.AIR)));
+                    	items.add(ItemStackUtil.serializeItemStack(new ItemStack(Material.AIR)));
                     } else {
-                    	items.add(itemStack.serializeItemStack(itemList));
+                    	items.add(ItemStackUtil.serializeItemStack(itemList));
                     }
                 }
                 
@@ -161,9 +149,9 @@ public class EntityUtil {
                     
                     for(ItemStack itemList : llama.getInventory().getContents()){
                         if(itemList == null){
-                        	items.add(itemStack.serializeItemStack(new ItemStack(Material.AIR)));
+                        	items.add(ItemStackUtil.serializeItemStack(new ItemStack(Material.AIR)));
                         } else {
-                        	items.add(itemStack.serializeItemStack(itemList));
+                        	items.add(ItemStackUtil.serializeItemStack(itemList));
                         }
                     }
                 }
@@ -190,9 +178,9 @@ public class EntityUtil {
                 
                 for(ItemStack itemList : ((InventoryHolder) entity).getInventory().getContents()){
                     if(itemList == null){
-                    	items.add(itemStack.serializeItemStack(new ItemStack(Material.AIR)));
+                    	items.add(ItemStackUtil.serializeItemStack(new ItemStack(Material.AIR)));
                     } else {
-                    	items.add(itemStack.serializeItemStack(itemList));
+                    	items.add(ItemStackUtil.serializeItemStack(itemList));
                     }
                 }
                 
@@ -206,7 +194,7 @@ public class EntityUtil {
                 if (is == null) {
                    	entityData.setItem("");
                 } else {
-                	entityData.setItem(itemStack.serializeItemStack(is));
+                	entityData.setItem(ItemStackUtil.serializeItemStack(is));
                 }
                 
                 entityData.setRotate(itemFrame.getRotation().toString());
@@ -218,15 +206,12 @@ public class EntityUtil {
         return entityData;
     }
 
-    public void convertEntityDataToEntity(EntityData entityData, Location loc, BlockDegreesType type) {
-    	LocationUtil location = LocationUtil.getInstance();
-    	ItemStackUtil itemStack = ItemStackUtil.getInstance();
-    	
-        Location entityLocation = location.rotateLocation(new Location(loc.getWorld(), entityData.getX(), entityData.getY(), entityData.getZ()), type);
+    public static void convertEntityDataToEntity(EntityData entityData, Location loc, BlockDegreesType type) {
+        Location entityLocation = LocationUtil.rotateLocation(new Location(loc.getWorld(), entityData.getX(), entityData.getY(), entityData.getZ()), type);
         
         try {
-            entityLocation.setPitch((float) location.rotatePitch(entityData.getPitch(), type.getAngle()));
-            entityLocation.setYaw((float) location.rotateYaw(entityData.getYaw(), type.getAngle()));
+            entityLocation.setPitch((float) LocationUtil.rotatePitch(entityData.getPitch(), type.getAngle()));
+            entityLocation.setYaw((float) LocationUtil.rotateYaw(entityData.getYaw(), type.getAngle()));
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -242,11 +227,11 @@ public class EntityUtil {
         if (entity instanceof ArmorStand) {
             ArmorStand armorStand = (ArmorStand) entity;
             armorStand.setArms(entityData.hasArms());
-            armorStand.setItemInHand(itemStack.deserializeItemStack(entityData.getHand()));
-            armorStand.setHelmet(itemStack.deserializeItemStack(entityData.getHelmet()));
-            armorStand.setChestplate(itemStack.deserializeItemStack(entityData.getChestplate()));
-            armorStand.setLeggings(itemStack.deserializeItemStack(entityData.getLeggings()));
-            armorStand.setBoots(itemStack.deserializeItemStack(entityData.getBoots()));
+            armorStand.setItemInHand(ItemStackUtil.deserializeItemStack(entityData.getHand()));
+            armorStand.setHelmet(ItemStackUtil.deserializeItemStack(entityData.getHelmet()));
+            armorStand.setChestplate(ItemStackUtil.deserializeItemStack(entityData.getChestplate()));
+            armorStand.setLeggings(ItemStackUtil.deserializeItemStack(entityData.getLeggings()));
+            armorStand.setBoots(ItemStackUtil.deserializeItemStack(entityData.getBoots()));
             armorStand.setBasePlate(entityData.hasBasePlate());
             armorStand.setVisible(entityData.isVisible());
             armorStand.setSmall(entityData.isSmall());
@@ -271,19 +256,19 @@ public class EntityUtil {
             armorStand.setRightLegPose(new EulerAngle(Double.parseDouble(rightLegPose[0]), Double.parseDouble(rightLegPose[1]), Double.parseDouble(rightLegPose[2])));
         }
         
-        int NMSVersion = NMSManager.getInstance().getVersionNumber();
+        int NMSVersion = NMSUtil.getVersionNumber();
         
         if (entity instanceof LivingEntity) {
             LivingEntity livingEntity = (LivingEntity) entity;
             
             if (NMSVersion > 8) {
                 livingEntity.setAI(entityData.hasAI());
-                livingEntity.getEquipment().setItemInMainHand(itemStack.deserializeItemStack(entityData.getHand()));
-                livingEntity.getEquipment().setItemInOffHand(itemStack.deserializeItemStack(entityData.getOffHand()));
-                livingEntity.getEquipment().setHelmet(itemStack.deserializeItemStack(entityData.getHelmet()));
-                livingEntity.getEquipment().setChestplate(itemStack.deserializeItemStack(entityData.getChestplate()));
-                livingEntity.getEquipment().setLeggings(itemStack.deserializeItemStack(entityData.getLeggings()));
-                livingEntity.getEquipment().setBoots(itemStack.deserializeItemStack(entityData.getBoots()));
+                livingEntity.getEquipment().setItemInMainHand(ItemStackUtil.deserializeItemStack(entityData.getHand()));
+                livingEntity.getEquipment().setItemInOffHand(ItemStackUtil.deserializeItemStack(entityData.getOffHand()));
+                livingEntity.getEquipment().setHelmet(ItemStackUtil.deserializeItemStack(entityData.getHelmet()));
+                livingEntity.getEquipment().setChestplate(ItemStackUtil.deserializeItemStack(entityData.getChestplate()));
+                livingEntity.getEquipment().setLeggings(ItemStackUtil.deserializeItemStack(entityData.getLeggings()));
+                livingEntity.getEquipment().setBoots(ItemStackUtil.deserializeItemStack(entityData.getBoots()));
                 livingEntity.getEquipment().setItemInMainHandDropChance(entityData.getHandChance());
                 livingEntity.getEquipment().setItemInOffHandDropChance(entityData.getOffHandChance());
                 livingEntity.getEquipment().setHelmetDropChance(entityData.getHelmetChance());
@@ -309,7 +294,7 @@ public class EntityUtil {
             	List<ItemStack> items = new ArrayList<ItemStack>();
             	
             	for (String inventoryList : entityData.getInventory()) {
-            		items.add(itemStack.deserializeItemStack(inventoryList));
+            		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
             	}
             	
             	horse.getInventory().setContents(items.toArray(new ItemStack[0]));
@@ -342,7 +327,7 @@ public class EntityUtil {
             	List<ItemStack> items = new ArrayList<ItemStack>();
             	
             	for (String inventoryList : entityData.getInventory()) {
-            		items.add(itemStack.deserializeItemStack(inventoryList));
+            		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
             	}
             	
             	villager.getInventory().setContents(items.toArray(new ItemStack[0]));
@@ -359,7 +344,7 @@ public class EntityUtil {
                 	List<ItemStack> items = new ArrayList<ItemStack>();
                 	
                 	for (String inventoryList : entityData.getInventory()) {
-                		items.add(itemStack.deserializeItemStack(inventoryList));
+                		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
                 	}
                 	
                 	llama.getInventory().setContents(items.toArray(new ItemStack[0]));
@@ -390,7 +375,7 @@ public class EntityUtil {
             	List<ItemStack> items = new ArrayList<ItemStack>();
             	
             	for (String inventoryList : entityData.getInventory()) {
-            		items.add(itemStack.deserializeItemStack(inventoryList));
+            		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
             	}
             	
             	((InventoryHolder) entity).getInventory().setContents(items.toArray(new ItemStack[0]));
@@ -400,7 +385,7 @@ public class EntityUtil {
             	ItemFrame itemFrame = ((ItemFrame) entity);
             	
                 if(0 < entityData.getItem().length()) {
-                    itemFrame.setItem(itemStack.deserializeItemStack(entityData.getItem()));
+                    itemFrame.setItem(ItemStackUtil.deserializeItemStack(entityData.getItem()));
                 }
                 
                 itemFrame.setRotation(Rotation.valueOf(entityData.getRotate().toUpperCase()));

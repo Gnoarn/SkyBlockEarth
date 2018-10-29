@@ -1,4 +1,4 @@
-package me.goodandevil.skyblock.utils;
+package me.goodandevil.skyblock.utils.item;
 
 import java.lang.reflect.Field;
 import java.util.Base64;
@@ -12,19 +12,9 @@ import com.mojang.authlib.properties.Property;
 
 import me.goodandevil.skyblock.utils.version.Materials;
 
-public class Skull {
-
-    private static Skull instance;
-
-    public static Skull getInstance(){
-        if(instance == null) {
-            instance = new Skull();
-        }
-        
-        return instance;
-    }
+public final class SkullUtil {
 	
-	public ItemStack create(String skinTexture) {
+	public static ItemStack create(String skinTexture) {
 		ItemStack is = Materials.LEGACY_SKULL_ITEM.getPostItem();
 		SkullMeta sm = (SkullMeta) is.getItemMeta();
 		
@@ -48,7 +38,7 @@ public class Skull {
         return is;
 	}
 	
-	public ItemStack create(String signature, String value) {
+	public static ItemStack create(String signature, String value) {
 		ItemStack is = Materials.LEGACY_SKULL_ITEM.getPostItem();
 		SkullMeta sm = (SkullMeta) is.getItemMeta();
 		

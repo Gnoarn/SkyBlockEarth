@@ -10,19 +10,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 
-public class SelectionLocation {
-
-    private static SelectionLocation instance;
-
-    public static SelectionLocation getInstance(){
-        if(instance == null) {
-            instance = new SelectionLocation();
-        }
-        
-        return instance;
-    }
-
-    public LinkedHashMap<Entity, StructureLocation> getEntities(Location originLocation, Location location1, Location location2) throws Exception {
+public final class SelectionLocation {
+	
+    public static LinkedHashMap<Entity, StructureLocation> getEntities(Location originLocation, Location location1, Location location2) throws Exception {
         LinkedHashMap<Location, StructureLocation> locations = getLocations(originLocation, location1, location2);
         LinkedHashMap<Entity, StructureLocation> entities = new LinkedHashMap<>();
         
@@ -41,7 +31,7 @@ public class SelectionLocation {
         return entities;
     }
 
-    public LinkedHashMap<Block, StructureLocation> getBlocks(Location originLocation, Location location1, Location location2) throws Exception {
+    public static LinkedHashMap<Block, StructureLocation> getBlocks(Location originLocation, Location location1, Location location2) throws Exception {
         LinkedHashMap<Location, StructureLocation> locations = getLocations(originLocation, location1, location2);
         LinkedHashMap<Block, StructureLocation> blocks = new LinkedHashMap<>();
         
@@ -52,7 +42,7 @@ public class SelectionLocation {
         return blocks;
     }
 
-    private LinkedHashMap<Location, StructureLocation> getLocations(Location originLocation, Location location1, Location location2) throws Exception {
+    private static LinkedHashMap<Location, StructureLocation> getLocations(Location originLocation, Location location1, Location location2) throws Exception {
         LinkedHashMap<Location, StructureLocation> locations = new LinkedHashMap<>();
         
 	    int MinX = Math.min(location2.getBlockX(), location1.getBlockX());

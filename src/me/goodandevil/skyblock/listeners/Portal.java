@@ -10,16 +10,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
-import me.goodandevil.skyblock.world.WorldManager;
 
 public class Portal implements Listener {
 
+	private final Main plugin;
+	
+ 	public Portal(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onEntityPortalEnter(EntityPortalEnterEvent event) {
 		if (!(event.getEntity() instanceof Player)) {
@@ -27,36 +31,36 @@ public class Portal implements Listener {
 		}
 		
 		Player player = (Player) event.getEntity();
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		IslandManager islandManager = plugin.getIslandManager();
 		
-		if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName())) {
+		if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName())) {
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
+				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
 					if (islandManager.hasPermission(player, "Portal")) {
 						player.teleport(island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Main));
 						player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 					} else {
 						player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					}
 					
 					break;
 				}
 			}
-		} else if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
+		} else if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 85)) {
+				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 85)) {
 					if (islandManager.hasPermission(player, "Portal")) {
 						player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
 						player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 					} else {
 						player.teleport(island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Main));
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					}
 					

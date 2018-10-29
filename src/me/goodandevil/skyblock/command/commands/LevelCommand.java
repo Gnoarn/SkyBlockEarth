@@ -10,39 +10,42 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.levelling.LevellingManager;
 import me.goodandevil.skyblock.menus.Levelling;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class LevelCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public LevelCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		IslandManager islandManager = plugin.getIslandManager();
 		
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		
 		if (islandManager.hasIsland(player)) {
-			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 			
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
+			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			player.closeInventory();
 			
 			if (configLoad.getString("Levelling.Points") == null) {
-				LevellingManager levellingManager = ((LevellingManager) Main.getInstance(Main.Instance.LevellingManager));
+				LevellingManager levellingManager = plugin.getLevellingManager();
 				
 	    		if (levellingManager.hasLevelling(island.getOwnerUUID())) {
 					me.goodandevil.skyblock.levelling.Levelling levelling = levellingManager.getLevelling(island.getOwnerUUID());
-					long[] durationTime = NumberUtil.getInstance().getDuration(levelling.getTime());
+					long[] durationTime = NumberUtil.getDuration(levelling.getTime());
 					
 					if (levelling.getTime() >= 3600) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", durationTime[1] + " " + languageConfig.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[2] + " " + languageConfig.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[3] + " " + languageConfig.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second"))));

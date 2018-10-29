@@ -24,9 +24,12 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class VisitManager {
 
+	private final Main plugin;
 	private HashMap<UUID, Visit> visitStorage = new HashMap<UUID, Visit>();
 	
-	public VisitManager() {
+	public VisitManager(Main plugin) {
+		this.plugin = plugin;
+		
 		loadIslands();
 	}
 	
@@ -40,10 +43,10 @@ public class VisitManager {
 	}
 	
 	public void loadIslands() {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		FileManager fileManager = plugin.getFileManager();
 		
-		if (!fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload")) {
-			File configFile = new File(Main.getInstance().getDataFolder().toString() + "/island-data");
+		if (!fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload")) {
+			File configFile = new File(plugin.getDataFolder().toString() + "/island-data");
 			
 			if (configFile.exists()) {
 				for (File fileList : configFile.listFiles()) {
@@ -57,7 +60,7 @@ public class VisitManager {
 						islandSignature = configLoad.getStringList("Visitor.Signature.Message");
 					}
 					
-					createIsland(islandOwnerUUID, new Location[] { fileManager.getLocation(config, "Location.Normal.Island", true), fileManager.getLocation(config, "Location.Nether.Island", true) }, configLoad.getStringList("Members").size() + configLoad.getStringList("Operators").size() + 1, configLoad.getInt("Levelling.Points") / ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Division"), islandSignature, configLoad.getBoolean("Visitor.Open"));
+					createIsland(islandOwnerUUID, new Location[] { fileManager.getLocation(config, "Location.Normal.Island", true), fileManager.getLocation(config, "Location.Nether.Island", true) }, configLoad.getStringList("Members").size() + configLoad.getStringList("Operators").size() + 1, configLoad.getInt("Levelling.Points") / plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Division"), islandSignature, configLoad.getBoolean("Visitor.Open"));
 				}	
 			}
 		}
@@ -67,11 +70,11 @@ public class VisitManager {
 		Visit visit = getIsland(islandOwnerUUID);
 		visit.save();
 		
-		File oldVisitDataFile = new File(new File(Main.getInstance().getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml");
-		File newVisitDataFile = new File(new File(Main.getInstance().getDataFolder().toString() + "/visit-data"), uuid.toString() + ".yml");
+		File oldVisitDataFile = new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml");
+		File newVisitDataFile = new File(new File(plugin.getDataFolder().toString() + "/visit-data"), uuid.toString() + ".yml");
 		
-		((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(oldVisitDataFile);
-		((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(newVisitDataFile);
+		plugin.getFileManager().unloadConfig(oldVisitDataFile);
+		plugin.getFileManager().unloadConfig(newVisitDataFile);
 		
 		oldVisitDataFile.renameTo(newVisitDataFile);
 		
@@ -80,14 +83,14 @@ public class VisitManager {
 	}
 	
 	public void removeVisitors(Island island, VisitManager.Removal removal) {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		FileManager fileManager = plugin.getFileManager();
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		for (UUID visitorList : island.getVisitors()) {
 			Player targetPlayer = Bukkit.getServer().getPlayer(visitorList);
 			
-			LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+			LocationUtil.teleportPlayerToSpawn(targetPlayer);
 			
 			targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit." + removal.name() + ".Message")));
 			targetPlayer.playSound(targetPlayer.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
@@ -129,7 +132,7 @@ public class VisitManager {
 	}
 	
 	public void createIsland(UUID islandOwnerUUID, Location[] islandLocations, int islandMembers, int islandLevel, List<String> islandSignature, boolean open) {
-		visitStorage.put(islandOwnerUUID, new Visit(islandOwnerUUID, islandLocations, islandMembers, islandLevel, islandSignature, open));
+		visitStorage.put(islandOwnerUUID, new Visit(plugin, islandOwnerUUID, islandLocations, islandMembers, islandLevel, islandSignature, open));
 	}
 	
 	public void addIsland(UUID islandOwnerUUID, Visit visit) {
@@ -144,14 +147,14 @@ public class VisitManager {
 	
 	public void unloadIsland(UUID islandOwnerUUID) {
 		if (hasIsland(islandOwnerUUID)) {
-			((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml"));
+			plugin.getFileManager().unloadConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml"));
 			visitStorage.remove(islandOwnerUUID);
 		}
 	}
 	
 	public void deleteIsland(UUID islandOwnerUUID) {
 		if (hasIsland(islandOwnerUUID)) {
-			((FileManager) Main.getInstance(Main.Instance.FileManager)).deleteConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml"));
+			plugin.getFileManager().deleteConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml"));
 			visitStorage.remove(islandOwnerUUID);
 		}
 	}

@@ -13,7 +13,6 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandKickEvent;
 import me.goodandevil.skyblock.island.Island;
@@ -27,14 +26,19 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class KickAllCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public KickAllCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
 		
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (islandManager.hasIsland(player)) {
@@ -56,7 +60,7 @@ public class KickAllCommand extends SubCommand {
 							Bukkit.getServer().getPluginManager().callEvent(islandKickEvent);
 							
 							if (!islandKickEvent.isCancelled()) {
-								LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+								LocationUtil.teleportPlayerToSpawn(targetPlayer);
 								
 								targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.KickAll.Kicked.Target.Message").replace("%player", player.getName())));
 								targetPlayer.playSound(targetPlayer.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);

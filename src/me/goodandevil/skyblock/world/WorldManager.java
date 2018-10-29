@@ -9,22 +9,25 @@ import org.bukkit.World.Environment;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.generator.VoidWorld;
 import me.goodandevil.skyblock.island.IslandLocation;
 
 public class WorldManager {
+	
+	private final Main plugin;
 
 	private org.bukkit.World normalWorld;
 	private org.bukkit.World netherWorld;
 	
-	public WorldManager() {
+	public WorldManager(Main plugin) {
+		this.plugin = plugin;
+		
 		loadWorlds();
 	}
 	
 	public void loadWorlds() {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		String netherWorldName = configLoad.getString("Island.World.Nether.Name");

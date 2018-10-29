@@ -18,9 +18,12 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class BanManager {
 
+	private final Main plugin;
 	private HashMap<UUID, Ban> banStorage = new HashMap<UUID, Ban>();
 	
-	public BanManager() {
+	public BanManager(Main plugin) {
+		this.plugin = plugin;
+		
 		loadIslands();
 	}
 	
@@ -34,10 +37,10 @@ public class BanManager {
 	}
 	
 	public void loadIslands() {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		FileManager fileManager = plugin.getFileManager();
 		
-		if (!fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload")) {
-			File configFile = new File(Main.getInstance().getDataFolder().toString() + "/island-data");
+		if (!fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload")) {
+			File configFile = new File(plugin.getDataFolder().toString() + "/island-data");
 			
 			if (configFile.exists()) {
 				for (File fileList : configFile.listFiles()) {
@@ -49,14 +52,16 @@ public class BanManager {
 	}
 	
 	public void transfer(UUID uuid, UUID islandOwnerUUID) {
+		FileManager fileManager = plugin.getFileManager();
+		
 		Ban ban = getIsland(islandOwnerUUID);
 		ban.save();
 		
-		File oldBanDataFile = new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml");
-		File newBanDataFile = new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), uuid.toString() + ".yml");
+		File oldBanDataFile = new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml");
+		File newBanDataFile = new File(new File(plugin.getDataFolder().toString() + "/ban-data"), uuid.toString() + ".yml");
 		
-		((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(oldBanDataFile);
-		((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(newBanDataFile);
+		fileManager.unloadConfig(oldBanDataFile);
+		fileManager.unloadConfig(newBanDataFile);
 		
 		oldBanDataFile.renameTo(newBanDataFile);
 		
@@ -65,14 +70,15 @@ public class BanManager {
 	}
 	
 	public void removeVisitor(Island island) {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		FileManager fileManager = plugin.getFileManager();
+		
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		for (UUID visitorList : island.getVisitors()) {
 			Player targetPlayer = Bukkit.getServer().getPlayer(visitorList);
 			
-			LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+			LocationUtil.teleportPlayerToSpawn(targetPlayer);
 			
 			targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Banned.Message")));
 			targetPlayer.playSound(targetPlayer.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
@@ -111,14 +117,14 @@ public class BanManager {
 	
 	public void unloadIsland(UUID islandOwnerUUID) {
 		if (hasIsland(islandOwnerUUID)) {
-			((FileManager) Main.getInstance(Main.Instance.FileManager)).unloadConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
+			plugin.getFileManager().unloadConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
 			banStorage.remove(islandOwnerUUID);
 		}
 	}
 	
 	public void deleteIsland(UUID islandOwnerUUID) {
 		if (hasIsland(islandOwnerUUID)) {
-			((FileManager) Main.getInstance(Main.Instance.FileManager)).deleteConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
+			plugin.getFileManager().deleteConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
 			banStorage.remove(islandOwnerUUID);
 		}
 	}

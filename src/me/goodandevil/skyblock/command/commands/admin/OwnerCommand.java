@@ -20,14 +20,19 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class OwnerCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public OwnerCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		FileManager fileManager = plugin.getFileManager();
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.owner") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {

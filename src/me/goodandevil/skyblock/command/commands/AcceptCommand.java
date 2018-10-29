@@ -28,26 +28,30 @@ import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
 import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
-import me.goodandevil.skyblock.visit.VisitManager;
 
 public class AcceptCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public AcceptCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		ScoreboardManager scoreboardManager = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
-			InviteManager inviteManager = ((InviteManager) Main.getInstance(Main.Instance.InviteManager));
+			InviteManager inviteManager = plugin.getInviteManager();
 			
 			if (inviteManager.hasInvite(player.getUniqueId())) {
 				Invite invite = inviteManager.getInvite(player.getUniqueId());
@@ -97,7 +101,7 @@ public class AcceptCommand extends SubCommand {
 							island.setRole(IslandRole.Member, player.getUniqueId());
 							island.save();
 							
-							if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) >= fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity")) {
+							if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) >= fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity")) {
 								HashMap<UUID, Invite> invites = inviteManager.getInvites();
 								
 								for (UUID inviteList : invites.keySet()) {
@@ -116,7 +120,7 @@ public class AcceptCommand extends SubCommand {
 								}	
 							}
 							
-							((VisitManager) Main.getInstance(Main.Instance.VisitManager)).getIsland(invite.getOwnerUUID()).removeVoter(player.getUniqueId());
+							plugin.getVisitManager().getIsland(invite.getOwnerUUID()).removeVoter(player.getUniqueId());
 							
 							for (Player all : Bukkit.getOnlinePlayers()) {
 								if (!all.getUniqueId().equals(player.getUniqueId())) {

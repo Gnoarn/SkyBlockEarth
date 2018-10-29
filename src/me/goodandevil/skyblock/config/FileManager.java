@@ -8,61 +8,62 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import com.google.common.io.ByteStreams;
+
+import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.utils.NMSUtil;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.google.common.io.ByteStreams;
-
-import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.utils.NMSManager;
-
 public class FileManager {
 
+	private final Main plugin;
 	private HashMap<String, Config> loadedConfigs = new HashMap<String, Config>();
 	
-	public FileManager() {
+	public FileManager(Main plugin) {
+		this.plugin = plugin;
+		
 		loadConfigs();
 	}
 	
 	public void loadConfigs() {
-		Main instance = Main.getInstance();
-		
-		if (!instance.getDataFolder().exists()) {
-			instance.getDataFolder().mkdir();
+		if (!plugin.getDataFolder().exists()) {
+			plugin.getDataFolder().mkdir();
 		}
 		
-		if (!new File(instance.getDataFolder().toString() + "/structures").exists()) {
-			new File(instance.getDataFolder().toString() + "/structures").mkdir();
+		if (!new File(plugin.getDataFolder().toString() + "/structures").exists()) {
+			new File(plugin.getDataFolder().toString() + "/structures").mkdir();
 		}
 		
 		HashMap<String, File> configFiles = new HashMap<String, File>();
 		
-		if (NMSManager.getInstance().getVersionNumber() < 13) {
-			configFiles.put("levelling-native.yml", new File(instance.getDataFolder(), "levelling.yml"));
+		if (NMSUtil.getVersionNumber() < 13) {
+			configFiles.put("levelling-native.yml", new File(plugin.getDataFolder(), "levelling.yml"));
 		} else {
-			configFiles.put("levelling.yml", new File(instance.getDataFolder(), "levelling.yml"));
+			configFiles.put("levelling.yml", new File(plugin.getDataFolder(), "levelling.yml"));
 		}
 		
-		configFiles.put("config.yml", new File(instance.getDataFolder(), "config.yml"));
-		configFiles.put("language.yml", new File(instance.getDataFolder(), "language.yml"));
-		configFiles.put("settings.yml", new File(instance.getDataFolder(), "settings.yml"));
-		configFiles.put("structures.yml", new File(instance.getDataFolder(), "structures.yml"));
-		configFiles.put("structures/default.structure", new File(instance.getDataFolder().toString() + "/structures", "default.structure"));
+		configFiles.put("config.yml", new File(plugin.getDataFolder(), "config.yml"));
+		configFiles.put("language.yml", new File(plugin.getDataFolder(), "language.yml"));
+		configFiles.put("settings.yml", new File(plugin.getDataFolder(), "settings.yml"));
+		configFiles.put("structures.yml", new File(plugin.getDataFolder(), "structures.yml"));
+		configFiles.put("structures/default.structure", new File(plugin.getDataFolder().toString() + "/structures", "default.structure"));
 		
 		for (String configFileList : configFiles.keySet()) {
 			File configFile = configFiles.get(configFileList);
 	        
 	        if (configFile.exists() && (configFileList.equals("config.yml") || configFileList.equals("language.yml"))) {
-				FileChecker fileChecker = new FileChecker(configFileList);
+				FileChecker fileChecker = new FileChecker(plugin, configFileList);
 				fileChecker.loadSections();
 				fileChecker.compareFiles();
 				fileChecker.saveChanges();
 	        } else {
 	            try {
 	                configFile.createNewFile();
-	                try (InputStream is = instance.getResource(configFileList);
+	                try (InputStream is = plugin.getResource(configFileList);
 	                OutputStream os = new FileOutputStream(configFile)) {
 	                    ByteStreams.copy(is, os);
 	                }
@@ -93,7 +94,7 @@ public class FileManager {
 			ex.printStackTrace();
 		}
 		
-		Main.getInstance().getConfig();
+		plugin.getConfig();
 	}
 
 	public org.bukkit.Location getLocation(Config config, String path, boolean direction) {

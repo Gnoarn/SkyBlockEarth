@@ -14,29 +14,32 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.biome.BiomeManager;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.levelling.LevellingManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
-import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 
 public class Join implements Listener {
 
+	private final Main plugin;
+	
+ 	public Join(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		IslandManager islandManager = plugin.getIslandManager();
 		islandManager.loadIsland(player.getUniqueId());
 		islandManager.loadPlayer(player);
 		
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 		playerDataManager.loadPlayerData(player);
 		
 		if (playerDataManager.hasPlayerData(player)) {
@@ -59,18 +62,18 @@ public class Join implements Listener {
 		
 		playerDataManager.storeIsland(player);
 		
-		((BiomeManager) Main.getInstance(Main.Instance.BiomeManager)).loadBiome(player);
+		plugin.getBiomeManager().loadBiome(player);
 		
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		FileManager fileManager = plugin.getFileManager();
 		
-		if (fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
-			Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+			Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			Scoreboard scoreboard = new Scoreboard(player);
 			
 			if (islandManager.hasIsland(player)) {
 				Island island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 				
-				((LevellingManager) Main.getInstance(Main.Instance.LevellingManager)).loadLevelling(island.getOwnerUUID());
+				plugin.getLevellingManager().loadLevelling(island.getOwnerUUID());
 				
 				if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
 					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
@@ -102,7 +105,7 @@ public class Join implements Listener {
 			}
 			
 			scoreboard.run();
-			((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).storeScoreboard(player, scoreboard);
+			plugin.getScoreboardManager().storeScoreboard(player, scoreboard);
 		}
 	}
 }

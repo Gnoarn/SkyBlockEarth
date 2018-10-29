@@ -19,7 +19,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
@@ -46,11 +45,13 @@ public class Settings implements Listener {
     }
     
     public void open(Player player, Settings.Type menuType, IslandSettings.Role role, Settings.Panel panel) {
-    	Island island = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)).getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+    	Main plugin = Main.getInstance();
+    	
+    	Island island = plugin.getIslandManager().getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
     	InventoryUtil inv = null;
     	
-		Config mainConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
-    	Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config mainConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
+    	Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
     	
     	if (menuType == Settings.Type.Categories) {
@@ -65,7 +66,7 @@ public class Settings implements Listener {
     			inv = new InventoryUtil(configLoad.getString("Menu.Settings." + role.name() + ".Title"), null, 6);
     			
     			if (role == IslandSettings.Role.Visitor) {
-    				Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+    				Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
     				Visit visit = island.getVisit();
     				
     				if (config.getFileConfiguration().getBoolean("Island.Visitor.Signature.Enable")) {
@@ -219,8 +220,10 @@ public class Settings implements Listener {
     }
     
     private ItemStack createItem(Island island, IslandSettings.Role role, String setting, Material material) {
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-		FileConfiguration configLoad = languageConfig.getFileConfiguration();
+		Main plugin = Main.getInstance();
+    	
+    	Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
     	
 		List<String> itemLore = new ArrayList<String>();
 		
@@ -258,14 +261,16 @@ public class Settings implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Categories.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Member.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Operator.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Owner.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-				PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+				IslandManager islandManager = plugin.getIslandManager();
+				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 				
 				Island island;
 				
@@ -334,14 +339,14 @@ public class Settings implements Listener {
 			    	}
 				} else if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Member.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Operator.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Owner.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Title")))) {
 			    	if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Title")))) {
-						if (!((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Signature.Enable")) {
+						if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Signature.Enable")) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Visitor.Signature.Disabled.Message")));
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							
 							return;
 						}
 			    	} else if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Title")))) {
-						if (!((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable")) {
+						if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable")) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Visitor.Welcome.Disabled.Message")));
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							
@@ -376,7 +381,7 @@ public class Settings implements Listener {
 					} else if ((is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Item.Message.Displayname"))) || is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Item.Message.Displayname"))))) {
 						player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 					} else if ((event.getCurrentItem().getType() == Material.ARROW) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Item.Line.Add.Displayname")))) && (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Welcome.Title"))))) {
-			    		if (island.getMessage(IslandMessage.Welcome).size() >= ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Visitor.Welcome.Enable")) {
+			    		if (island.getMessage(IslandMessage.Welcome).size() >= plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Visitor.Welcome.Enable")) {
 			    			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			    		} else {
 			    			player.playSound(player.getLocation(), Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
@@ -396,7 +401,7 @@ public class Settings implements Listener {
 				        						player.closeInventory();
 				        						
 				        						return;
-				        					} else if (!((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable")) {
+				        					} else if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable")) {
 				    							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Visitor.Welcome.Disabled.Message")));
 				    							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 				    							
@@ -410,7 +415,7 @@ public class Settings implements Listener {
 				        					return;
 				        				}
 				        				
-				        				Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+				        				Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 				        				FileConfiguration configLoad = config.getFileConfiguration();
 				        				
 							    		if (island.getMessage(IslandMessage.Welcome).size() > configLoad.getInt("Island.Visitor.Welcome.Enable") || event.getName().length() > configLoad.getInt("Island.Visitor.Welcome.Length")) {
@@ -426,7 +431,7 @@ public class Settings implements Listener {
 							    			public void run() {
 							    				open(player, Settings.Type.Panel, null, Settings.Panel.Welcome);
 							    			}
-							    		}.runTaskLater(Main.getInstance(), 3L);
+							    		}.runTaskLater(plugin, 3L);
 							    		
 					                    event.setWillClose(true);
 					                    event.setWillDestroy(true);
@@ -457,7 +462,7 @@ public class Settings implements Listener {
 							open(player, Settings.Type.Panel, null, Settings.Panel.Welcome);
 						}
 					} else if ((event.getCurrentItem().getType() == Material.ARROW) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Item.Line.Add.Displayname")))) && (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Panel.Signature.Title"))))) {
-			    		if (island.getMessage(IslandMessage.Signature).size() >= ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Visitor.Signature.Lines")) {
+			    		if (island.getMessage(IslandMessage.Signature).size() >= plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Visitor.Signature.Lines")) {
 			    			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			    		} else {
 			    			player.playSound(player.getLocation(), Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
@@ -477,7 +482,7 @@ public class Settings implements Listener {
 				        						player.closeInventory();
 				        						
 				        						return;
-				        					} else if (!((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Signature.Enable")) {
+				        					} else if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Signature.Enable")) {
 				    							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Visitor.Signature.Disabled.Message")));
 				    							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 				    							
@@ -491,7 +496,7 @@ public class Settings implements Listener {
 				        					return;
 				        				}
 				                    	
-				        				Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+				        				Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 				        				FileConfiguration configLoad = config.getFileConfiguration();
 				        				
 							    		if (island.getMessage(IslandMessage.Signature).size() > configLoad.getInt("Island.Visitor.Signature.Lines") || event.getName().length() > configLoad.getInt("Island.Visitor.Signature.Length")) {
@@ -507,7 +512,7 @@ public class Settings implements Listener {
 							    			public void run() {
 							    				open(player, Settings.Type.Panel, null, Settings.Panel.Signature);
 							    			}
-							    		}.runTaskLater(Main.getInstance(), 3L);
+							    		}.runTaskLater(plugin, 3L);
 							    		
 					                    event.setWillClose(true);
 					                    event.setWillDestroy(true);
@@ -611,18 +616,20 @@ public class Settings implements Listener {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();
 		
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-		FileConfiguration configLoad = languageConfig.getFileConfiguration();
+		Main plugin = Main.getInstance();
+		
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Visitor.Title"))) || event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Settings.Member.Title")))) {
-			IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+			IslandManager islandManager = plugin.getIslandManager();
 			
 			if (islandManager.hasIsland(player)) {
 				new BukkitRunnable() {
 					public void run() {
-						islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner()).save();
+						islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner()).save();
 					}
-				}.runTaskAsynchronously(Main.getInstance());
+				}.runTaskAsynchronously(plugin);
 			}
 		}
 	}

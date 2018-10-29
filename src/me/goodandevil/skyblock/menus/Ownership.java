@@ -18,7 +18,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
@@ -27,8 +26,8 @@ import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.AnvilGUI;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
-import me.goodandevil.skyblock.utils.Skull;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
+import me.goodandevil.skyblock.utils.item.SkullUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -45,9 +44,11 @@ public class Ownership implements Listener {
     }
     
     public void open(Player player) {
-    	PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+    	Main plugin = Main.getInstance();
     	
-    	Island island = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)).getIsland(playerDataManager.getPlayerData(player).getOwner());
+    	PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+    	
+    	Island island = plugin.getIslandManager().getIsland(playerDataManager.getPlayerData(player).getOwner());
     	
     	UUID originalOwnerUUID = island.getOriginalOwnerUUID();
     	
@@ -65,11 +66,11 @@ public class Ownership implements Listener {
     		playerTexture = playerDataManager.getPlayerData(targetPlayer).getTexture();
     	}
     	
-		Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Ownership.Title"), InventoryType.HOPPER, 0);
-		inv.addItem(inv.createItem(Skull.getInstance().create(playerTexture[0], playerTexture[1]), configLoad.getString("Menu.Ownership.Item.Original.Displayname"), configLoad.getStringList("Menu.Ownership.Item.Original.Lore"), inv.createItemLoreVariable(new String[] { "%player#" + originalOwnerName }), null, null), 0);
+		inv.addItem(inv.createItem(SkullUtil.create(playerTexture[0], playerTexture[1]), configLoad.getString("Menu.Ownership.Item.Original.Displayname"), configLoad.getStringList("Menu.Ownership.Item.Original.Lore"), inv.createItemLoreVariable(new String[] { "%player#" + originalOwnerName }), null, null), 0);
 		inv.addItem(inv.createItem(Materials.BLACK_STAINED_GLASS_PANE.parseItem(), configLoad.getString("Menu.Ownership.Item.Barrier.Displayname"), null, null, null, null), 1);
 		inv.addItem(inv.createItem(Materials.WRITABLE_BOOK.parseItem(), configLoad.getString("Menu.Ownership.Item.Assign.Displayname"), configLoad.getStringList("Menu.Ownership.Item.Assign.Lore"), null, null, null), 2);
 		
@@ -92,14 +93,16 @@ public class Ownership implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = languageConfig.getFileConfiguration();
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Ownership.Title")))) {
 				event.setCancelled(true);
 				
-				PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+				IslandManager islandManager = plugin.getIslandManager();
 				
 				Island island = null;
 				
@@ -107,21 +110,21 @@ public class Ownership implements Listener {
 					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 					
 					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
 						
 						return;
 					}
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
 					return;
 				}
 				
-				PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+				PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 				
 				if (playerData.getType() == null) {
 					playerData.setType(Ownership.Visibility.Hidden);
@@ -146,13 +149,13 @@ public class Ownership implements Listener {
 		        					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 		        					
 		        					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
-		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
+		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 		        						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		        						
 		        						return;
 		        					}
 		        				} else {
-		        					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
+		        					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
 		        					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		        					
 		        					return;
@@ -212,14 +215,14 @@ public class Ownership implements Listener {
 		        					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 		        					
 		        					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
-		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
+		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 		        						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		        						player.closeInventory();
 		        						
 		        						return;
 		        					}
 		        				} else {
-		        					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
+		        					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Owner.Message")));
 		        					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		        					player.closeInventory();
 		        					
@@ -233,7 +236,7 @@ public class Ownership implements Listener {
 					    				open(player);
 					    				player.playSound(player.getLocation(), Sounds.ANVIL_USE.bukkitSound(), 1.0F, 1.0F);
 					    			}
-					    		}.runTaskLater(Main.getInstance(), 3L);
+					    		}.runTaskLater(plugin, 3L);
 					    		
 			                    event.setWillClose(true);
 			                    event.setWillDestroy(true);

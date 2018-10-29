@@ -14,12 +14,12 @@ public class FileChecker {
 	
 	private HashMap<File.Type, File> loadedFiles;
 	
-	public FileChecker(String configurationFileName) {
+	public FileChecker(Main plugin, String configurationFileName) {
 		loadedFiles = new HashMap<File.Type, File>();
 		
-		java.io.File configFile = new java.io.File(Main.getInstance().getDataFolder(), configurationFileName);
+		java.io.File configFile = new java.io.File(plugin.getDataFolder(), configurationFileName);
 		loadedFiles.put(File.Type.Created, new File(configFile, YamlConfiguration.loadConfiguration(configFile)));
-		loadedFiles.put(File.Type.Resource, new File(null, YamlConfiguration.loadConfiguration(new InputStreamReader(Main.getInstance().getResource(configurationFileName)))));
+		loadedFiles.put(File.Type.Resource, new File(null, YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(configurationFileName)))));
 	}
 	
 	public void loadSections() {

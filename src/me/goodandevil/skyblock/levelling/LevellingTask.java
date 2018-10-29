@@ -9,10 +9,17 @@ import me.goodandevil.skyblock.island.IslandManager;
 
 public class LevellingTask extends BukkitRunnable {
 
+	private final Main plugin;
+	private final LevellingManager levellingManager;
+	
+ 	protected LevellingTask(LevellingManager levellingManager, Main plugin) {
+		this.levellingManager = levellingManager;
+		this.plugin = plugin;
+	}
+	
 	@Override
 	public void run() {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		LevellingManager levellingManager = ((LevellingManager) Main.getInstance(Main.Instance.LevellingManager));
+		IslandManager islandManager = plugin.getIslandManager();
 		
 		for (UUID islandList : islandManager.getIslands().keySet()) {
 			if (levellingManager.hasLevelling(islandList)) {

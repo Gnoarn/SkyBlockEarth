@@ -31,9 +31,9 @@ import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
-import me.goodandevil.skyblock.utils.Skull;
 import me.goodandevil.skyblock.utils.StringUtil;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
+import me.goodandevil.skyblock.utils.item.SkullUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -52,10 +52,12 @@ public class Visit implements Listener {
     }
 	
 	public void open(Player player, Visit.Type type, Visit.Sort sort) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		VisitManager visitManager = ((VisitManager) Main.getInstance(Main.Instance.VisitManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		Main plugin = Main.getInstance();
+		
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
+		VisitManager visitManager = plugin.getVisitManager();
+		FileManager fileManager = plugin.getFileManager();
 		
 		HashMap<UUID, me.goodandevil.skyblock.visit.Visit> displayedIslands = new HashMap<UUID, me.goodandevil.skyblock.visit.Visit>();
 		Map<UUID, me.goodandevil.skyblock.visit.Visit> visitIslands = visitManager.getOpenIslands();
@@ -117,28 +119,28 @@ public class Visit implements Listener {
 		
 		int playerMenuPage = playerDataManager.getPlayerData(player).getPage(), nextEndIndex = displayedIslands.size() - playerMenuPage * 36, totalIslands = visitManager.getIslands().size();
 		
-		Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Visit.Title"), null, 6);
 		inv.addItem(inv.createItem(Materials.OAK_FENCE_GATE.parseItem(), configLoad.getString("Menu.Visit.Item.Exit.Displayname"), null, null, null, null), 0, 8);
-		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Visit.Item.Type.Displayname"), configLoad.getStringList("Menu.Visit.Item.Type.Lore"), inv.createItemLoreVariable(new String[] { "%type#" + StringUtil.getInstance().capatilizeUppercaseLetters(type.name()) }), null, null), 3);
-		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Visit.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Visit.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%islands_open#" + NumberUtil.getInstance().formatNumber(visitIslands.size()), "%islands_closed#" + NumberUtil.getInstance().formatNumber(totalIslands - visitIslands.size()), "%islands#" + NumberUtil.getInstance().formatNumber(totalIslands) }), null, null), 4);
-		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Visit.Item.Sort.Displayname"), configLoad.getStringList("Menu.Visit.Item.Sort.Lore"), inv.createItemLoreVariable(new String[] { "%sort#" + StringUtil.getInstance().capatilizeUppercaseLetters(sort.name()) }), null, null), 5);
+		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Visit.Item.Type.Displayname"), configLoad.getStringList("Menu.Visit.Item.Type.Lore"), inv.createItemLoreVariable(new String[] { "%type#" + StringUtil.capatilizeUppercaseLetters(type.name()) }), null, null), 3);
+		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Visit.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Visit.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%islands_open#" + NumberUtil.formatNumber(visitIslands.size()), "%islands_closed#" + NumberUtil.formatNumber(totalIslands - visitIslands.size()), "%islands#" + NumberUtil.formatNumber(totalIslands) }), null, null), 4);
+		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Visit.Item.Sort.Displayname"), configLoad.getStringList("Menu.Visit.Item.Sort.Lore"), inv.createItemLoreVariable(new String[] { "%sort#" + StringUtil.capatilizeUppercaseLetters(sort.name()) }), null, null), 5);
 		inv.addItem(inv.createItem(Materials.BLACK_STAINED_GLASS_PANE.parseItem(), configLoad.getString("Menu.Visit.Item.Barrier.Displayname"), null, null, null, null), 9, 10, 11, 12, 13, 14, 15, 16, 17);
 		
 		if (playerMenuPage != 1) {
-			inv.addItem(inv.createItem(Skull.getInstance().create("ToR1w9ZV7zpzCiLBhoaJH3uixs5mAlMhNz42oaRRvrG4HRua5hC6oyyOPfn2HKdSseYA9b1be14fjNRQbSJRvXF3mlvt5/zct4sm+cPVmX8K5kbM2vfwHJgCnfjtPkzT8sqqg6YFdT35mAZGqb9/xY/wDSNSu/S3k2WgmHrJKirszaBZrZfnVnqITUOgM9TmixhcJn2obeqICv6tl7/Wyk/1W62wXlXGm9+WjS+8rRNB+vYxqKR3XmH2lhAiyVGbADsjjGtBVUTWjq+aPw670SjXkoii0YE8sqzUlMMGEkXdXl9fvGtnWKk3APSseuTsjedr7yq+AkXFVDqqkqcUuXwmZl2EjC2WRRbhmYdbtY5nEfqh5+MiBrGdR/JqdEUL4yRutyRTw8mSUAI6X2oSVge7EdM/8f4HwLf33EO4pTocTqAkNbpt6Z54asLe5Y12jSXbvd2dFsgeJbrslK7e4uy/TK8CXf0BP3KLU20QELYrjz9I70gtj9lJ9xwjdx4/xJtxDtrxfC4Afmpu+GNYA/mifpyP3GDeBB5CqN7btIvEWyVvRNH7ppAqZIPqYJ7dSDd2RFuhAId5Yq98GUTBn+eRzeigBvSi1bFkkEgldfghOoK5WhsQtQbXuBBXITMME3NaWCN6zG7DxspS6ew/rZ8E809Xe0ArllquIZ0sP+k=", "eyJ0aW1lc3RhbXAiOjE0OTU3NTE5MTYwNjksInByb2ZpbGVJZCI6ImE2OGYwYjY0OGQxNDQwMDBhOTVmNGI5YmExNGY4ZGY5IiwicHJvZmlsZU5hbWUiOiJNSEZfQXJyb3dMZWZ0Iiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zZWJmOTA3NDk0YTkzNWU5NTViZmNhZGFiODFiZWFmYjkwZmI5YmU0OWM3MDI2YmE5N2Q3OThkNWYxYTIzIn19fQ=="), configLoad.getString("Menu.Visit.Item.Previous.Displayname"), null, null, null, null), 1);
+			inv.addItem(inv.createItem(SkullUtil.create("ToR1w9ZV7zpzCiLBhoaJH3uixs5mAlMhNz42oaRRvrG4HRua5hC6oyyOPfn2HKdSseYA9b1be14fjNRQbSJRvXF3mlvt5/zct4sm+cPVmX8K5kbM2vfwHJgCnfjtPkzT8sqqg6YFdT35mAZGqb9/xY/wDSNSu/S3k2WgmHrJKirszaBZrZfnVnqITUOgM9TmixhcJn2obeqICv6tl7/Wyk/1W62wXlXGm9+WjS+8rRNB+vYxqKR3XmH2lhAiyVGbADsjjGtBVUTWjq+aPw670SjXkoii0YE8sqzUlMMGEkXdXl9fvGtnWKk3APSseuTsjedr7yq+AkXFVDqqkqcUuXwmZl2EjC2WRRbhmYdbtY5nEfqh5+MiBrGdR/JqdEUL4yRutyRTw8mSUAI6X2oSVge7EdM/8f4HwLf33EO4pTocTqAkNbpt6Z54asLe5Y12jSXbvd2dFsgeJbrslK7e4uy/TK8CXf0BP3KLU20QELYrjz9I70gtj9lJ9xwjdx4/xJtxDtrxfC4Afmpu+GNYA/mifpyP3GDeBB5CqN7btIvEWyVvRNH7ppAqZIPqYJ7dSDd2RFuhAId5Yq98GUTBn+eRzeigBvSi1bFkkEgldfghOoK5WhsQtQbXuBBXITMME3NaWCN6zG7DxspS6ew/rZ8E809Xe0ArllquIZ0sP+k=", "eyJ0aW1lc3RhbXAiOjE0OTU3NTE5MTYwNjksInByb2ZpbGVJZCI6ImE2OGYwYjY0OGQxNDQwMDBhOTVmNGI5YmExNGY4ZGY5IiwicHJvZmlsZU5hbWUiOiJNSEZfQXJyb3dMZWZ0Iiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zZWJmOTA3NDk0YTkzNWU5NTViZmNhZGFiODFiZWFmYjkwZmI5YmU0OWM3MDI2YmE5N2Q3OThkNWYxYTIzIn19fQ=="), configLoad.getString("Menu.Visit.Item.Previous.Displayname"), null, null, null, null), 1);
 		}
 		
 		if (!(nextEndIndex == 0 || nextEndIndex < 0)) {
-			inv.addItem(inv.createItem(Skull.getInstance().create("wZPrsmxckJn4/ybw/iXoMWgAe+1titw3hjhmf7bfg9vtOl0f/J6YLNMOI0OTvqeRKzSQVCxqNOij6k2iM32ZRInCQyblDIFmFadQxryEJDJJPVs7rXR6LRXlN8ON2VDGtboRTL7LwMGpzsrdPNt0oYDJLpR0huEeZKc1+g4W13Y4YM5FUgEs8HvMcg4aaGokSbvrYRRcEh3LR1lVmgxtbiUIr2gZkR3jnwdmZaIw/Ujw28+Et2pDMVCf96E5vC0aNY0KHTdMYheT6hwgw0VAZS2VnJg+Gz4JCl4eQmN2fs4dUBELIW2Rdnp4U1Eb+ZL8DvTV7ofBeZupknqPOyoKIjpInDml9BB2/EkD3zxFtW6AWocRphn03Z203navBkR6ztCMz0BgbmQU/m8VL/s8o4cxOn+2ppjrlj0p8AQxEsBdHozrBi8kNOGf1j97SDHxnvVAF3X8XDso+MthRx5pbEqpxmLyKKgFh25pJE7UaMSnzH2lc7aAZiax67MFw55pDtgfpl+Nlum4r7CK2w5Xob2QTCovVhu78/6SV7qM2Lhlwx/Sjqcl8rn5UIoyM49QE5Iyf1tk+xHXkIvY0m7q358oXsfca4eKmxMe6DFRjUDo1VuWxdg9iVjn22flqz1LD1FhGlPoqv0k4jX5Q733LwtPPI6VOTK+QzqrmiuR6e8=", "eyJ0aW1lc3RhbXAiOjE0OTM4NjgxMDA2NzMsInByb2ZpbGVJZCI6IjUwYzg1MTBiNWVhMDRkNjBiZTlhN2Q1NDJkNmNkMTU2IiwicHJvZmlsZU5hbWUiOiJNSEZfQXJyb3dSaWdodCIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ=="), configLoad.getString("Menu.Visit.Item.Next.Displayname"), null, null, null, null), 7);
+			inv.addItem(inv.createItem(SkullUtil.create("wZPrsmxckJn4/ybw/iXoMWgAe+1titw3hjhmf7bfg9vtOl0f/J6YLNMOI0OTvqeRKzSQVCxqNOij6k2iM32ZRInCQyblDIFmFadQxryEJDJJPVs7rXR6LRXlN8ON2VDGtboRTL7LwMGpzsrdPNt0oYDJLpR0huEeZKc1+g4W13Y4YM5FUgEs8HvMcg4aaGokSbvrYRRcEh3LR1lVmgxtbiUIr2gZkR3jnwdmZaIw/Ujw28+Et2pDMVCf96E5vC0aNY0KHTdMYheT6hwgw0VAZS2VnJg+Gz4JCl4eQmN2fs4dUBELIW2Rdnp4U1Eb+ZL8DvTV7ofBeZupknqPOyoKIjpInDml9BB2/EkD3zxFtW6AWocRphn03Z203navBkR6ztCMz0BgbmQU/m8VL/s8o4cxOn+2ppjrlj0p8AQxEsBdHozrBi8kNOGf1j97SDHxnvVAF3X8XDso+MthRx5pbEqpxmLyKKgFh25pJE7UaMSnzH2lc7aAZiax67MFw55pDtgfpl+Nlum4r7CK2w5Xob2QTCovVhu78/6SV7qM2Lhlwx/Sjqcl8rn5UIoyM49QE5Iyf1tk+xHXkIvY0m7q358oXsfca4eKmxMe6DFRjUDo1VuWxdg9iVjn22flqz1LD1FhGlPoqv0k4jX5Q733LwtPPI6VOTK+QzqrmiuR6e8=", "eyJ0aW1lc3RhbXAiOjE0OTM4NjgxMDA2NzMsInByb2ZpbGVJZCI6IjUwYzg1MTBiNWVhMDRkNjBiZTlhN2Q1NDJkNmNkMTU2IiwicHJvZmlsZU5hbWUiOiJNSEZfQXJyb3dSaWdodCIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWI2ZjFhMjViNmJjMTk5OTQ2NDcyYWVkYjM3MDUyMjU4NGZmNmY0ZTgzMjIxZTU5NDZiZDJlNDFiNWNhMTNiIn19fQ=="), configLoad.getString("Menu.Visit.Item.Next.Displayname"), null, null, null, null), 7);
 		}
 		
 		if (displayedIslands.size() == 0) {
 			inv.addItem(inv.createItem(new ItemStack(Material.BARRIER), configLoad.getString("Menu.Visit.Item.Nothing.Displayname"), null, null, null, null), 31);
 		} else {
-			Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
 			
 			int index = playerMenuPage * 36 - 36, endIndex = index >= displayedIslands.size() ? displayedIslands.size() - 1 : index + 36, inventorySlot = 17, playerCapacity = config.getFileConfiguration().getInt("Island.Visitor.Capacity");
 			
@@ -217,7 +219,7 @@ public class Visit implements Listener {
 							}
 						}
 						
-						inv.addItem(inv.createItem(Skull.getInstance().create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);	
+						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);	
 					} else {
 						if (signatureEnabled) {
 							for (String itemLoreList : configLoad.getStringList("Menu.Visit.Item.Island.Vote.Disabled.Signature.Enabled.Lore")) {
@@ -239,7 +241,7 @@ public class Visit implements Listener {
 							itemLore.addAll(configLoad.getStringList("Menu.Visit.Item.Island.Vote.Disabled.Signature.Disabled.Lore"));
 						}
 						
-						inv.addItem(inv.createItem(Skull.getInstance().create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity }), null, null), inventorySlot);
+						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity }), null, null), inventorySlot);
 					}
 				}
 			}
@@ -254,10 +256,12 @@ public class Visit implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-			FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+			Main plugin = Main.getInstance();
 			
-			Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+			PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+			FileManager fileManager = plugin.getFileManager();
+			
+			Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = languageConfig.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Title")))) {
@@ -301,8 +305,8 @@ public class Visit implements Listener {
 		    	} else if ((event.getCurrentItem().getType() == Material.BARRIER) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Nothing.Displayname"))))) {
 		    		player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.LEGACY_SKULL_ITEM.getPostMaterial()) && (is.hasItemMeta())) {
-		    		VisitManager visitManager = ((VisitManager) Main.getInstance(Main.Instance.VisitManager));
-		    		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		    		VisitManager visitManager = plugin.getVisitManager();
+		    		IslandManager islandManager = plugin.getIslandManager();
 		    		
 		    		String targetPlayerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 		    		UUID targetPlayerUUID;
@@ -325,7 +329,7 @@ public class Visit implements Listener {
 		    				
 		    				Island island = islandManager.getIsland(targetPlayerUUID);
 		    				
-				    		if ((!island.isRole(IslandRole.Member, player.getUniqueId()) && !island.isRole(IslandRole.Operator, player.getUniqueId()) && !island.isRole(IslandRole.Owner, player.getUniqueId())) && fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Vote")) {
+				    		if ((!island.isRole(IslandRole.Member, player.getUniqueId()) && !island.isRole(IslandRole.Operator, player.getUniqueId()) && !island.isRole(IslandRole.Owner, player.getUniqueId())) && fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Vote")) {
 				    			if (event.getClick() == ClickType.RIGHT) {
 				    				if (playerData.getIsland().equals(island.getOwnerUUID())) {
 				    					List<UUID> islandVotes = visit.getVoters();
@@ -354,7 +358,7 @@ public class Visit implements Listener {
 				    		}
 
 		    				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-			    				if (LocationUtil.getInstance().isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+			    				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
 			    					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Already.Message").replace("%player", targetPlayerName)));
 			    					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			    					

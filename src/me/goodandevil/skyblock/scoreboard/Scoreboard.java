@@ -19,7 +19,6 @@ import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 
 public class Scoreboard {
@@ -49,6 +48,8 @@ public class Scoreboard {
 	}
 	
 	public void run() {
+		Main plugin = Main.getInstance();
+		
 		new BukkitRunnable() {
 			public void run() {
 				final org.bukkit.scoreboard.Scoreboard scoreboard = (org.bukkit.scoreboard.Scoreboard) Bukkit.getScoreboardManager().getNewScoreboard();
@@ -120,13 +121,13 @@ public class Scoreboard {
 									cancel();
 								}
 							}
-						}.runTaskTimerAsynchronously(Main.getInstance(), 0L, 20L);
+						}.runTaskTimerAsynchronously(plugin, 0L, 20L);
 						
 					    player.setScoreboard(scoreboard);
 					}
-				}.runTaskAsynchronously(Main.getInstance());
+				}.runTaskAsynchronously(plugin);
 			}
-		}.runTask(Main.getInstance());
+		}.runTask(plugin);
 	}
 	
 	private String replaceDisplayName(String displayName) {
@@ -136,15 +137,17 @@ public class Scoreboard {
 	}
 	
 	private String replaceDisplayLine(String displayLine) {
-		PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)); 
+		Main plugin = Main.getInstance();
+		
+		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+		IslandManager islandManager = plugin.getIslandManager(); 
 		displayLine = displayLine.replace("%players_online", "" + Bukkit.getServer().getOnlinePlayers().size()).replace("%players_max", "" + Bukkit.getServer().getMaxPlayers()).replace("%money_balance", "" + playerData.getMoneyBalance());
 		
 		if (islandManager.hasIsland(player)) {
 			Island island = islandManager.getIsland(playerData.getOwner());
 			
 			if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
-				displayLine = displayLine.replace("%island_level", "" + NumberUtil.getInstance().formatNumber(island.getLevel())).replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null").replace("%island_visitors", "" + island.getVisitors().size());
+				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null").replace("%island_visitors", "" + island.getVisitors().size());
 			} else {
 				int islandMembers = 1 + island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size();
 				String islandRole = "";
@@ -157,7 +160,7 @@ public class Scoreboard {
 					islandRole = displayVariables.get("%member");
 				}
 				
-				displayLine = displayLine.replace("%island_level", "" + NumberUtil.getInstance().formatNumber(island.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());	
+				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());	
 			}
 		} else {
 			displayLine = displayLine.replace("%island_level", ChatColor.RED + "0").replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null");

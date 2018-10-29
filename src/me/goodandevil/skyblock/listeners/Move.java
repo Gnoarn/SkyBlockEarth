@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandLocation;
@@ -22,10 +21,15 @@ import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
-import me.goodandevil.skyblock.world.WorldManager;
 
 public class Move implements Listener {
 
+	private final Main plugin;
+	
+ 	public Move(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
@@ -34,28 +38,28 @@ public class Move implements Listener {
 		Location to = event.getTo();
 
 		if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-			if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
-				PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 				
 				if (playerDataManager.hasPlayerData(player)) {
 					PlayerData playerData = playerDataManager.getPlayerData(player);
 					UUID islandOwnerUUID = playerData.getIsland();
 					
 					if (islandOwnerUUID != null) {
-						IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+						IslandManager islandManager = plugin.getIslandManager();
 						Island island = islandManager.getIsland(islandOwnerUUID);
 						
 						if (island != null) {
 							IslandLocation.World world = null;
 							
-							if (LocationUtil.getInstance().isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
+							if (LocationUtil.isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
 								world = IslandLocation.World.Normal;
-							} else if (LocationUtil.getInstance().isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 85)) {
+							} else if (LocationUtil.isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 85)) {
 								world = IslandLocation.World.Nether;
 							}
 							
 							if (world != null) {
-								Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml"));
+								Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 								FileConfiguration configLoad = config.getFileConfiguration();
 								
 								if (configLoad.getBoolean("Island.Void.Teleport.Enable")) {
@@ -68,17 +72,17 @@ public class Move implements Listener {
 									}	
 								}
 							} else {
-								if (LocationUtil.getInstance().isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 87) || LocationUtil.getInstance().isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 87)) {
+								if (LocationUtil.isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 87) || LocationUtil.isLocationAtLocationRadius(to, island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island), 87)) {
 									player.teleport(player.getLocation().add(from.toVector().subtract(to.toVector()).normalize().multiply(2.0D)));
 									player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 								} else {
-									if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName())) {
+									if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName())) {
 										player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
 									} else {
 										player.teleport(island.getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Main));
 									}
 									
-									player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.WorldBorder.Outside.Message")));
+									player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.WorldBorder.Outside.Message")));
 									player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 								}
 							}
@@ -87,9 +91,9 @@ public class Move implements Listener {
 						}
 					}
 					
-					LocationUtil.getInstance().teleportPlayerToSpawn(player);
+					LocationUtil.teleportPlayerToSpawn(player);
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.WorldBorder.Disappeared.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.WorldBorder.Disappeared.Message")));
 					player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 				}
 			}	

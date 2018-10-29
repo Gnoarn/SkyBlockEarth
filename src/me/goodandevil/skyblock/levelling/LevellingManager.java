@@ -19,27 +19,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class LevellingManager {
 	
+	private final Main plugin;
+	
 	private List<LevellingMaterial> levellingMaterialStorage = new ArrayList<LevellingMaterial>();
 	private HashMap<UUID, Levelling> islandLevellingStorage = new HashMap<UUID, Levelling>();
 	
-	public LevellingManager() {
-		new LevellingTask().runTaskTimerAsynchronously(Main.getInstance(), 0L, 20L);
+	public LevellingManager(Main plugin) {
+		this.plugin = plugin;
+		
+		new LevellingTask(this, plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
 		
 		registerLevellingMaterials();
 		
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (islandManager.hasIsland(all)) {
@@ -53,7 +56,7 @@ public class LevellingManager {
 	}
 	
 	public void onDisable() {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		IslandManager islandManager = plugin.getIslandManager();
 		
 		for (UUID islandList : islandManager.getIslands().keySet()) {
 			Island island = islandManager.getIslands().get(islandList);
@@ -66,10 +69,10 @@ public class LevellingManager {
 	}
 	
 	public void calculatePoints(Player player, Island island) {
-		LevellingChunk levellingChunk = new LevellingChunk(island);
+		LevellingChunk levellingChunk = new LevellingChunk(plugin, island);
 		levellingChunk.prepare();
 		
-		int NMSVersion = NMSManager.getInstance().getVersionNumber();
+		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		new BukkitRunnable() {
 			public void run() {
@@ -148,7 +151,7 @@ public class LevellingManager {
 		    	    }
 		    	    
 		    	    if (totalPointsEarned == 0) {
-		    	    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Level.Materials.Message")));
+		    	    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Level.Materials.Message")));
 		    	    	player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		    	    } else {
 			    	    island.setLevelPoints(totalPointsEarned);
@@ -160,14 +163,14 @@ public class LevellingManager {
 		    	    }
 				}
 			}
-		}.runTaskTimerAsynchronously(Main.getInstance(), 0L, 1L);
+		}.runTaskTimerAsynchronously(plugin, 0L, 1L);
 	}
 	
 	public void registerLevellingMaterials() {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "levelling.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "levelling.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		int NMSVersion = NMSManager.getInstance().getVersionNumber();
+		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		for (String materialList : configLoad.getConfigurationSection("Materials").getKeys(false)) {
 			try {
@@ -200,11 +203,11 @@ public class LevellingManager {
 	}
 	
 	public void createLevelling(UUID playerUUID) {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		configLoad.set("Levelling.Cooldown", ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Cooldown"));
+		configLoad.set("Levelling.Cooldown", plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Cooldown"));
 	
 		try {
 			configLoad.save(configFile);
@@ -214,7 +217,7 @@ public class LevellingManager {
 	}
 	
 	public void removeLevelling(UUID playerUUID) {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
@@ -229,7 +232,7 @@ public class LevellingManager {
 	
 	public void saveLevelling(UUID playerUUID) {
 		if (hasLevelling(playerUUID)) {
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 			File configFile = config.getFile();
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
@@ -245,7 +248,7 @@ public class LevellingManager {
 	
 	public void loadLevelling(UUID playerUUID) {
 		if (!hasLevelling(playerUUID)) {
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (configLoad.getString("Levelling.Cooldown") != null) {

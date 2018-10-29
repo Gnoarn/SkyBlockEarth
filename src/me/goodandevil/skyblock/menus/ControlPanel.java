@@ -33,9 +33,11 @@ public class ControlPanel implements Listener {
     }
     
     public void open(Player player) {
-    	FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+    	Main plugin = Main.getInstance();
     	
-    	Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+    	FileManager fileManager = plugin.getFileManager();
+    	
+    	Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.ControlPanel.Title")), null, 1);
@@ -58,8 +60,10 @@ public class ControlPanel implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Config languageConfig = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = languageConfig.getFileConfiguration();
+			Main plugin = Main.getInstance();
+			
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.ControlPanel.Title")))) {
 				event.setCancelled(true);

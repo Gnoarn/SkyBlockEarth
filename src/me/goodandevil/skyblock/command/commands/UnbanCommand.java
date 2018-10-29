@@ -13,7 +13,6 @@ import me.goodandevil.skyblock.ban.Ban;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
@@ -25,16 +24,21 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class UnbanCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public UnbanCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {

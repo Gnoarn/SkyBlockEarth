@@ -24,24 +24,28 @@ import me.goodandevil.skyblock.island.IslandSettings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
-import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class KickCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public KickCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		
 		if (args.length == 1) {
 			if (islandManager.hasIsland(player)) {
@@ -80,7 +84,7 @@ public class KickCommand extends SubCommand {
 						Bukkit.getServer().getPluginManager().callEvent(islandKickEvent);
 						
 						if (!islandKickEvent.isCancelled()) {
-							LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+							LocationUtil.teleportPlayerToSpawn(targetPlayer);
 							
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Kick.Kicked.Sender.Message").replace("%player", targetPlayerName)));
 							player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
@@ -103,7 +107,7 @@ public class KickCommand extends SubCommand {
 							player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 							
 							if (targetPlayer == null) {
-								Config config = fileManager.getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), targetPlayerUUID.toString() + ".yml"));
+								Config config = fileManager.getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), targetPlayerUUID.toString() + ".yml"));
 								FileConfiguration configLoad = config.getFileConfiguration();
 								
 								configLoad.set("Statistics.Island.Playtime", null);
@@ -120,14 +124,14 @@ public class KickCommand extends SubCommand {
 								targetPlayer.playSound(targetPlayer.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 								
 								for (IslandLocation.World worldList : IslandLocation.World.values()) {
-									if (LocationUtil.getInstance().isLocationAtLocationRadius(targetPlayer.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-										LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+									if (LocationUtil.isLocationAtLocationRadius(targetPlayer.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+										LocationUtil.teleportPlayerToSpawn(targetPlayer);
 										
 										break;
 									}
 								}
 								
-								Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(targetPlayer);
+								Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(targetPlayer);
 								scoreboard.cancel();
 								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
 								scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
@@ -159,14 +163,14 @@ public class KickCommand extends SubCommand {
 										
 										if (targetPlayerData.isChat()) {
 											targetPlayerData.setChat(false);
-											targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
+											targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
 										}
 									}
 								}
 							}
 							
 							if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
-								Scoreboard scoreboard = ((ScoreboardManager) Main.getInstance(Main.Instance.ScoreboardManager)).getScoreboard(player);
+								Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
 								scoreboard.cancel();
 								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 								

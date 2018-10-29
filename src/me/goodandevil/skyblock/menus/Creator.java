@@ -18,7 +18,6 @@ import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.structure.Structure;
-import me.goodandevil.skyblock.structure.StructureManager;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -36,12 +35,14 @@ public class Creator implements Listener {
     
     @SuppressWarnings("deprecation")
 	public void open(Player player) {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+    	Main plugin = Main.getInstance();
+    	
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
     	
 		List<Structure> availableStructures = new ArrayList<Structure>();
 		
-		for (Structure structureList : ((StructureManager) Main.getInstance(Main.Instance.StructureManager)).getStructures()) {
+		for (Structure structureList : plugin.getStructureManager().getStructures()) {
 			if (structureList.getPermission() != null) {
 				if (!(structureList.getPermission().isEmpty() && player.hasPermission(structureList.getPermission()))) {
 					continue;
@@ -100,15 +101,17 @@ public class Creator implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+			Main plugin = Main.getInstance();
 			
-			Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+			FileManager fileManager = plugin.getFileManager();
+			
+			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Creator.Selector.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+				IslandManager islandManager = plugin.getIslandManager();
 				
 				if (islandManager.hasIsland(player)) {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Create.Owner.Message")));
@@ -117,7 +120,7 @@ public class Creator implements Listener {
 					return;
 				}
 				
-				for (Structure structureList : ((StructureManager) Main.getInstance(Main.Instance.StructureManager)).getStructures()) {
+				for (Structure structureList : plugin.getStructureManager().getStructures()) {
 					if ((event.getCurrentItem().getType() == structureList.getMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Creator.Selector.Item.Island.Displayname").replace("%displayname", structureList.getDisplayname()))))) {
 						if (structureList.getPermission() != null) {
 							if (!(structureList.getPermission().isEmpty() && player.hasPermission(structureList.getPermission()))) {
@@ -130,7 +133,7 @@ public class Creator implements Listener {
 							}
 						}
 						
-						if (!fileManager.isFileExist(new File(new File(Main.getInstance().getDataFolder().toString() + "/structures"), structureList.getFileName()))) {
+						if (!fileManager.isFileExist(new File(new File(plugin.getDataFolder().toString() + "/structures"), structureList.getFileName()))) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Creator.Selector.File.Message")));
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							

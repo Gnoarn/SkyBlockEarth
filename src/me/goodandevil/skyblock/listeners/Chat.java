@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandChatEvent;
 import me.goodandevil.skyblock.island.Island;
@@ -23,22 +22,28 @@ import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 
 public class Chat implements Listener {
 
+	private final Main plugin;
+	
+ 	public Chat(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
 		if (playerData.isChat()) {
 			event.setCancelled(true);
 			
-			Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
-			Island island = ((IslandManager) Main.getInstance(Main.Instance.IslandManager)).getIsland(playerData.getOwner());
+			Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
 			String islandRole = "";
 			
 			if (island.isRole(IslandRole.Member, player.getUniqueId())) {

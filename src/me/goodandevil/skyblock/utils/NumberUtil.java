@@ -2,23 +2,13 @@ package me.goodandevil.skyblock.utils;
 
 import java.util.Date;
 
-public class NumberUtil {
-
-    private static NumberUtil instance;
-
-    public static NumberUtil getInstance(){
-        if(instance == null) {
-            instance = new NumberUtil();
-        }
-        
-        return instance;
-    }
-    
-    public String formatNumber(int number) {
+public final class NumberUtil {
+	
+    public static String formatNumber(int number) {
     	return String.format("%,d", number);
     }
     
-    public long[] getDuration(int time) {
+    public static long[] getDuration(int time) {
         long seconds = time % 60;
         long minutes = time % 3600 / 60;
         long hours = time % 86400 / 3600;
@@ -27,7 +17,7 @@ public class NumberUtil {
         return new long[] { days, hours, minutes, seconds };
     }
     
-    public long[] getDuration(Date startDate, Date endDate) {
+    public static long[] getDuration(Date startDate, Date endDate) {
 		long different = endDate.getTime() - startDate.getTime();
 		long secondsInMilli = 1000;
 		long minutesInMilli = secondsInMilli * 60;

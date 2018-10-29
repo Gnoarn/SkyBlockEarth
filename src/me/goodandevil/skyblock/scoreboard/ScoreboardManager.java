@@ -21,15 +21,15 @@ public class ScoreboardManager {
 
 	private HashMap<UUID, Scoreboard> scoreboardStorage = new HashMap<UUID, Scoreboard>();
 	
-	public ScoreboardManager() {
+	public ScoreboardManager(Main plugin) {
 		new BukkitRunnable() {
 			public void run() {
-				PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-				IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-				FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+				IslandManager islandManager = plugin.getIslandManager();
+				FileManager fileManager = plugin.getFileManager();
 				
-				if (fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
-					Config languageConfig = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+				if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+					Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 					
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						Scoreboard scoreboard = new Scoreboard(all);
@@ -38,32 +38,32 @@ public class ScoreboardManager {
 							Island island = islandManager.getIsland(playerDataManager.getPlayerData(all).getOwner());
 							
 							if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
-								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 								
 								if (island.getVisitors().size() == 0) {
-									scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+									scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
 								} else {
-									scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+									scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
 								}
 							} else {
-								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Displayname")));
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Team.Displayname")));
 								
 								if (island.getVisitors().size() == 0) {
-									scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+									scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
 								} else {
-									scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+									scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 								}
 								
 								HashMap<String, String> displayVariables = new HashMap<String, String>();
-								displayVariables.put("%owner", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
-								displayVariables.put("%operator", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
-								displayVariables.put("%member", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
+								displayVariables.put("%owner", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
 								
 								scoreboard.setDisplayVariables(displayVariables);
 							}
 						} else {
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
-							scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
+							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
+							scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
 						}
 						
 						scoreboard.run();
@@ -71,7 +71,7 @@ public class ScoreboardManager {
 					}	
 				}
 			}
-		}.runTaskLater(Main.getInstance(), 20L);
+		}.runTaskLater(plugin, 20L);
 	}
 	
 	public void storeScoreboard(Player player, Scoreboard scoreboard) {

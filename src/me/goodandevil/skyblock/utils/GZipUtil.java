@@ -8,19 +8,9 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
 
-public class GZipUtil {
-	
-    private static GZipUtil instance;
-
-    public static GZipUtil getInstance(){
-        if(instance == null) {
-            instance = new GZipUtil();
-        }
-        
-        return instance;
-    }
+public final class GZipUtil {
     
-    public byte[] compress(byte[] data) throws IOException {
+    public static byte[] compress(byte[] data) throws IOException {
         ByteArrayOutputStream obj = new ByteArrayOutputStream();
         GZIPOutputStream gzip = new GZIPOutputStream(obj);
         gzip.write(data);
@@ -30,7 +20,7 @@ public class GZipUtil {
         return obj.toByteArray();
     }
     
-    public byte[] decompress(final byte[] compressedData) throws IOException {
+    public static byte[] decompress(final byte[] compressedData) throws IOException {
         if (isCompressed(compressedData)) {
             GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(compressedData));
             return IOUtils.toByteArray(gis);
@@ -39,7 +29,7 @@ public class GZipUtil {
         return new byte[512];
     }
     
-    public boolean isCompressed(final byte[] compressedData) {
+    public static boolean isCompressed(final byte[] compressedData) {
         return (compressedData[0] == (byte) (GZIPInputStream.GZIP_MAGIC)) && (compressedData[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8));
     }
 }

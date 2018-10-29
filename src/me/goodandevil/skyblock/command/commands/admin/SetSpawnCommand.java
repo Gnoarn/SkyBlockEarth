@@ -16,17 +16,22 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class SetSpawnCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public SetSpawnCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		FileManager fileManager = plugin.getFileManager();
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.setspawn") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
-			fileManager.setLocation(fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "locations.yml")), "Location.Spawn", player.getLocation(), true);
+			fileManager.setLocation(fileManager.getConfig(new File(plugin.getDataFolder(), "locations.yml")), "Location.Spawn", player.getLocation(), true);
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.SetSpawn.Set.Message")));
 			player.playSound(player.getLocation(), Sounds.LEVEL_UP.bukkitSound(), 1.0F, 1.0F);
 		} else {

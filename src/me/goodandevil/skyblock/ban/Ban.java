@@ -10,7 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandBanEvent;
 import me.goodandevil.skyblock.events.IslandUnbanEvent;
@@ -36,9 +35,11 @@ public class Ban {
 	}
 	
 	public List<UUID> getBans() {
+		Main plugin = Main.getInstance();
+		
 		List<UUID> islandBans = new ArrayList<UUID>();
 		
-		for (String islandBanList : ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration().getStringList("Bans")) {
+		for (String islandBanList : plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration().getStringList("Bans")) {
 			islandBans.add(UUID.fromString(islandBanList));
 		}
 		
@@ -46,8 +47,10 @@ public class Ban {
 	}
 	
 	public void addBan(UUID uuid) {
+		Main plugin = Main.getInstance();
+		
 		List<String> islandBans = new ArrayList<String>();
-		FileConfiguration configLoad = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
+		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandBanList : configLoad.getStringList("Bans")) {
 			islandBans.add(islandBanList);
@@ -60,8 +63,10 @@ public class Ban {
 	}
 	
 	public void removeBan(UUID uuid) {
+		Main plugin = Main.getInstance();
+		
 		List<String> islandBans = new ArrayList<String>();
-		FileConfiguration configLoad = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
+		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandBanList : configLoad.getStringList("Bans")) {
 			if (!uuid.toString().equals(islandBanList)) {
@@ -75,7 +80,9 @@ public class Ban {
 	}
 	
 	public void save() {
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
+		Main plugin = Main.getInstance();
+		
+		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml"));
 		
 		try {
 			config.getFileConfiguration().save(config.getFile());

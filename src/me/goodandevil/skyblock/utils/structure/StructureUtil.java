@@ -30,25 +30,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class StructureUtil {
+public final class StructureUtil {
 	
-    private static StructureUtil instance;
-
-    public static StructureUtil getInstance() {
-        if(instance == null) {
-            instance = new StructureUtil();
-        }
-        
-        return instance;
-    }
-	
-    public void saveStructure(File configFile, Location originLocation, Location[] positions) throws Exception {
+    public static void saveStructure(File configFile, Location originLocation, Location[] positions) throws Exception {
         if (!configFile.exists()) {
         	configFile.createNewFile();
         }
         
-        LinkedHashMap<Block, StructureLocation> blocks = SelectionLocation.getInstance().getBlocks(originLocation, positions[0], positions[1]);
-        LinkedHashMap<Entity, StructureLocation> entities = SelectionLocation.getInstance().getEntities(originLocation, positions[0], positions[1]);
+        LinkedHashMap<Block, StructureLocation> blocks = SelectionLocation.getBlocks(originLocation, positions[0], positions[1]);
+        LinkedHashMap<Entity, StructureLocation> entities = SelectionLocation.getEntities(originLocation, positions[0], positions[1]);
         
         List<BlockData> blockData = new ArrayList<BlockData>();
         List<EntityData> entityData = new ArrayList<EntityData>();
@@ -62,7 +52,7 @@ public class StructureUtil {
         		originBlockLocation = structureLocation.getX() + ":" + structureLocation.getY() + ":" + structureLocation.getZ() + ":" + positions[0].getWorld().getName();
         	
         		if (blockList.getType() == Material.AIR) {
-                    blockData.add(BlockUtil.getInstance().convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+                    blockData.add(BlockUtil.convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
         		}
         	}
         	
@@ -70,7 +60,7 @@ public class StructureUtil {
                 continue;
             }
             
-            blockData.add(BlockUtil.getInstance().convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+            blockData.add(BlockUtil.convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
         }
         
         for (Entity entityList : entities.keySet()) {
@@ -79,18 +69,18 @@ public class StructureUtil {
             }
             
             StructureLocation structureLocation = entities.get(entityList);
-            entityData.add(EntityUtil.getInstance().convertEntityToEntityData(entityList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+            entityData.add(EntityUtil.convertEntityToEntityData(entityList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
         }
     	
     	String JSONString = new Gson().toJson(new StructureStorage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis()), new TypeToken<StructureStorage>(){}.getType());
         
         FileOutputStream fileOutputStream = new FileOutputStream(configFile, false);
-        fileOutputStream.write(GZipUtil.getInstance().compress(JSONString.getBytes(StandardCharsets.UTF_8)));
+        fileOutputStream.write(GZipUtil.compress(JSONString.getBytes(StandardCharsets.UTF_8)));
         fileOutputStream.flush();
         fileOutputStream.close();
     }
 
-    public Structure loadStructure(File configFile) throws IOException {
+    public static Structure loadStructure(File configFile) throws IOException {
         if(!configFile.exists()) {
             return null;
         }
@@ -101,14 +91,14 @@ public class StructureUtil {
         fileInputStream.read(content);
         fileInputStream.close();
         
-        String JSONString = new String(GZipUtil.getInstance().decompress(content));
+        String JSONString = new String(GZipUtil.decompress(content));
         StructureStorage structureStorage = new Gson().fromJson(JSONString, new TypeToken<StructureStorage>(){}.getType());
         
         return new Structure(structureStorage, configFile.getName());
     }
     
     @SuppressWarnings("unchecked")
-	public StructureIsland pasteStructure(Structure s, Location location, BlockDegreesType type) throws Exception {
+	public static StructureIsland pasteStructure(Structure s, Location location, BlockDegreesType type) throws Exception {
         StructureStorage bs = s.getStructureStorage();
         
         String[] originLocationPositions = null;
@@ -122,7 +112,7 @@ public class StructureUtil {
         List<BlockData> blockData = (List<BlockData>) new Gson().fromJson(bs.getBlocks(), new TypeToken<List<BlockData>>(){}.getType());
         
         for (BlockData blockDataList : blockData) {
-            Location blockRotationLocation = LocationUtil.getInstance().rotateLocation(new Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
+            Location blockRotationLocation = LocationUtil.rotateLocation(new Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
             Location blockLocation = new Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
             blockLocation.add(blockRotationLocation);
             
@@ -132,24 +122,26 @@ public class StructureUtil {
             	}
             }
             
-            BlockUtil.getInstance().convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);
+            BlockUtil.convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);
         }
         
         for (EntityData entityDataList : (List<EntityData>) new Gson().fromJson(bs.getEntities(), new TypeToken<List<EntityData>>(){}.getType())) {
         	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
-            EntityUtil.getInstance().convertEntityDataToEntity(entityDataList, location, type);
+            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
         }
         
         return new StructureIsland(location, originLocation);
     }
 
-    public ItemStack getTool() throws Exception {
-    	FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+    public static ItemStack getTool() throws Exception {
+    	Main plugin = Main.getInstance();
     	
-    	Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+    	FileManager fileManager = plugin.getFileManager();
+    	
+    	Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
     	FileConfiguration configLoad = config.getFileConfiguration();
     	
-    	ItemStack is = new ItemStack(Material.valueOf(fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getString("Island.Admin.Structure.Selector")));
+    	ItemStack is = new ItemStack(Material.valueOf(fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getString("Island.Admin.Structure.Selector")));
     	ItemMeta im = is.getItemMeta();
     	im.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Structure.Tool.Item.Displayname")));
     	
@@ -165,7 +157,7 @@ public class StructureUtil {
     	return is;
     }
     
-    public Location[] getFixedLocations(Location location1, Location location2) {
+    public static Location[] getFixedLocations(Location location1, Location location2) {
     	Location location1Fixed = location1.clone();
     	Location location2Fixed = location2.clone();
     	

@@ -8,18 +8,22 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.island.IslandLocation;
-import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.world.WorldManager;
 
 @SuppressWarnings("deprecation")
 public class Item implements Listener {
 
+	private final Main plugin;
+	
+ 	public Item(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		Player player = event.getPlayer();
 		
-		if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
-			if (!((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasPermission(player, "ItemDrop")) {
+		if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+			if (!plugin.getIslandManager().hasPermission(player, "ItemDrop")) {
 				event.setCancelled(true);
 			}
 		}
@@ -29,8 +33,8 @@ public class Item implements Listener {
 	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
 		Player player = event.getPlayer();
 		
-		if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
-			if (!((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasPermission(player, "ItemPickup")) {
+		if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+			if (!plugin.getIslandManager().hasPermission(player, "ItemPickup")) {
 				event.setCancelled(true);
 			}
 		}

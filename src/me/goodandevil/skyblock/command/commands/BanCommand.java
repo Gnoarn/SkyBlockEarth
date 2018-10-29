@@ -27,22 +27,27 @@ import me.goodandevil.skyblock.command.SubCommand;
 
 public class BanCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public BanCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
 			if (islandManager.hasIsland(player)) {
-				if (fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning")) {
+				if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning")) {
 					me.goodandevil.skyblock.island.Island island = islandManager.getIsland(playerData.getOwner());
 					
 					if (island.isRole(IslandRole.Owner, player.getUniqueId()) || (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Ban").getStatus())) {
@@ -85,8 +90,8 @@ public class BanCommand extends SubCommand {
 								targetPlayer.playSound(targetPlayer.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 								
 								for (IslandLocation.World worldList : IslandLocation.World.values()) {
-									if (LocationUtil.getInstance().isLocationAtLocationRadius(targetPlayer.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-										LocationUtil.getInstance().teleportPlayerToSpawn(targetPlayer);
+									if (LocationUtil.isLocationAtLocationRadius(targetPlayer.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+										LocationUtil.teleportPlayerToSpawn(targetPlayer);
 										
 										break;
 									}

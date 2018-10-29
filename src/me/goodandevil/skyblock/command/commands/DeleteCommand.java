@@ -15,7 +15,6 @@ import me.goodandevil.skyblock.confirmation.Confirmation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.IslandRole;
 import me.goodandevil.skyblock.playerdata.PlayerData;
-import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.ChatComponent;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -26,16 +25,21 @@ import net.md_5.bungee.api.chat.HoverEvent;
 
 public class DeleteCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public DeleteCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		FileManager fileManager = ((FileManager) Main.getInstance(Main.Instance.FileManager));
+		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
-		PlayerData playerData = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player);
+		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 		
-		Config config = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (islandManager.hasIsland(player)) {
@@ -44,7 +48,7 @@ public class DeleteCommand extends SubCommand {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Delete.Confirmation.Pending.Message")));
 					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 				} else {
-					int confirmationTime = fileManager.getConfig(new File(Main.getInstance().getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Confirmation.Timeout");
+					int confirmationTime = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Confirmation.Timeout");
 					
 					playerData.setConfirmation(Confirmation.Deletion);
 					playerData.setConfirmationTime(confirmationTime);

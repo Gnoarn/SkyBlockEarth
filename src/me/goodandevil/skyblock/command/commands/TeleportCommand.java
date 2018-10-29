@@ -12,7 +12,6 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
@@ -23,15 +22,20 @@ import me.goodandevil.skyblock.visit.VisitManager;
 
 public class TeleportCommand extends SubCommand {
 
+	private final Main plugin;
 	private String info;
+	
+	public TeleportCommand(Main plugin) {
+		this.plugin = plugin;
+	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = ((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager));
-		IslandManager islandManager = ((IslandManager) Main.getInstance(Main.Instance.IslandManager));
-		VisitManager visitManager = ((VisitManager) Main.getInstance(Main.Instance.VisitManager));
+		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = plugin.getIslandManager();
+		VisitManager visitManager = plugin.getVisitManager();
 		
-		Config config = ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml"));
+		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
@@ -85,7 +89,7 @@ public class TeleportCommand extends SubCommand {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Teleported.Yourself.Message")));
 			player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 			
-			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 			player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
 		} else {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Owner.Message")));
@@ -96,7 +100,7 @@ public class TeleportCommand extends SubCommand {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Teleported.Message")));
 			player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 			
-			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(((PlayerDataManager) Main.getInstance(Main.Instance.PlayerDataManager)).getPlayerData(player).getOwner());
+			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 			player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
 		} else {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Owner.Message")));

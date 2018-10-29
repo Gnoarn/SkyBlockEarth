@@ -10,25 +10,28 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.island.IslandLocation;
-import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
-import me.goodandevil.skyblock.world.WorldManager;
 
 public class Bucket implements Listener {
 
+	private final Main plugin;
+	
+ 	public Bucket(Main plugin) {
+		this.plugin = plugin;
+	}
+	
 	@EventHandler
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
 		Player player = event.getPlayer();
 
 		if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Materials.LEGACY_STATIONARY_WATER.getPostMaterial() || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Materials.LEGACY_STATIONARY_LAVA.getPostMaterial()) {
-			if (player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(((WorldManager) Main.getInstance(Main.Instance.WorldManager)).getWorld(IslandLocation.World.Nether).getName())) {
-				if (!((IslandManager) Main.getInstance(Main.Instance.IslandManager)).hasPermission(player, "Bucket")) {
+			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+				if (!plugin.getIslandManager().hasPermission(player, "Bucket")) {
 					event.setCancelled(true);
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', ((FileManager) Main.getInstance(Main.Instance.FileManager)).getConfig(new File(Main.getInstance().getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
 					player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 				}
 			}

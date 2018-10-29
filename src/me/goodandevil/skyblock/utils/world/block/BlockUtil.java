@@ -19,28 +19,16 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.material.Stairs;
 import org.bukkit.potion.PotionEffectType;
 
-import me.goodandevil.skyblock.utils.NMSManager;
+import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.item.ItemStackUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 
 @SuppressWarnings("deprecation")
-public class BlockUtil {
-
-    private static BlockUtil instance;
-
-    public static BlockUtil getInstance(){
-        if(instance == null) {
-            instance = new BlockUtil();
-        }
-        
-        return instance;
-    }
+public final class BlockUtil {
     
-    public BlockData convertBlockToBlockData(Block block, int x, int y, int z) {
-    	ItemStackUtil itemStack = ItemStackUtil.getInstance();
-    	
+    public static BlockData convertBlockToBlockData(Block block, int x, int y, int z) {
         BlockData blockData = new BlockData(block.getType().toString(), block.getData(), x, y, z, block.getBiome().toString());
-    	int NMSVersion = NMSManager.getInstance().getVersionNumber();
+    	int NMSVersion = NMSUtil.getVersionNumber();
         
         if (NMSVersion > 12) {
         	blockData.setBlockData(block.getBlockData().getAsString());
@@ -69,7 +57,7 @@ public class BlockUtil {
             	ItemStack is = beacon.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -88,7 +76,7 @@ public class BlockUtil {
             	ItemStack is = furnace.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -100,7 +88,7 @@ public class BlockUtil {
             	ItemStack is = chest.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -112,7 +100,7 @@ public class BlockUtil {
             	ItemStack is = dispenser.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -124,7 +112,7 @@ public class BlockUtil {
             	ItemStack is = dropper.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -136,7 +124,7 @@ public class BlockUtil {
             	ItemStack is = hopper.getInventory().getItem(i);
             	
             	if (is != null && is.getType() != Material.AIR) {
-            		blockData.addItem(i, itemStack.serializeItemStack(is));
+            		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
             	}
             }
             
@@ -188,7 +176,7 @@ public class BlockUtil {
                         	ItemStack is = shulkerBox.getInventory().getItem(i);
                         	
                         	if (is != null && is.getType() != Material.AIR) {
-                        		blockData.addItem(i, itemStack.serializeItemStack(is));
+                        		blockData.addItem(i, ItemStackUtil.serializeItemStack(is));
                         	}
                         }
                         
@@ -206,10 +194,8 @@ public class BlockUtil {
         return blockData;
     }
     
-    public void convertBlockDataToBlock(Block block, BlockData blockData) {
-    	ItemStackUtil itemStack = ItemStackUtil.getInstance();
-    	
-    	int NMSVersion = NMSManager.getInstance().getVersionNumber();
+    public static void convertBlockDataToBlock(Block block, BlockData blockData) {
+    	int NMSVersion = NMSUtil.getVersionNumber();
     	
     	if (NMSVersion < 13) {
         	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), Material.valueOf(blockData.getMaterial().toUpperCase()), blockData.getData());	
@@ -238,7 +224,7 @@ public class BlockUtil {
             beacon.setSecondaryEffect(PotionEffectType.getByName(potionEffect[1].toUpperCase()));
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	beacon.getInventory().setItem(slotList, is);
             }
             
@@ -257,7 +243,7 @@ public class BlockUtil {
             Chest chest = (Chest) block.getState();
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	chest.getInventory().setItem(slotList, is);
             }
             
@@ -266,7 +252,7 @@ public class BlockUtil {
             Dispenser dispenser = (Dispenser) block.getState();
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dispenser.getInventory().setItem(slotList, is);
             }
             
@@ -275,7 +261,7 @@ public class BlockUtil {
             Dropper dropper = (Dropper) block.getState();
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dropper.getInventory().setItem(slotList, is);
             }
             
@@ -284,7 +270,7 @@ public class BlockUtil {
             Hopper hopper = (Hopper) block.getState();
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	hopper.getInventory().setItem(slotList, is);
             }
             
@@ -300,7 +286,7 @@ public class BlockUtil {
             furnace.setCookTime(blockData.getCookTime());
             
             for (Integer slotList : blockData.getInventory().keySet()) {
-            	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+            	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	furnace.getInventory().setItem(slotList, is);
             }
             
@@ -353,7 +339,7 @@ public class BlockUtil {
                         ShulkerBox shulkerBox = (ShulkerBox) block.getState();
                         
                         for (Integer slotList : blockData.getInventory().keySet()) {
-                        	ItemStack is = itemStack.deserializeItemStack(blockData.getInventory().get(slotList));
+                        	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
                         	shulkerBox.getInventory().setItem(slotList, is);
                         }
                         
@@ -391,7 +377,7 @@ public class BlockUtil {
     	}
     }
     
-    public List<Block> getNearbyBlocks(Location loc, int rx, int ry, int rz){
+    public static List<Block> getNearbyBlocks(Location loc, int rx, int ry, int rz){
         List<Block> nearbyBlocks = new ArrayList<Block>();
         
         for (int x = -(rx); x <= rx; x++){
@@ -405,14 +391,14 @@ public class BlockUtil {
         return nearbyBlocks;
     }
     
-    public void setBlockFast(World world, int x, int y, int z, Material material, byte data) {
+    public static void setBlockFast(World world, int x, int y, int z, Material material, byte data) {
 		try {
     		Object worldHandle = world.getClass().getMethod("getHandle").invoke(world);
     		Object chunk = worldHandle.getClass().getMethod("getChunkAt", int.class, int.class).invoke(worldHandle, x >> 4, z >> 4);
-    		Object blockPosition = NMSManager.getInstance().getNMSClass("BlockPosition").getConstructor(int.class, int.class, int.class).newInstance(x & 0xF, y, z & 0xF);
-    		Object block = NMSManager.getInstance().getNMSClass("Block").getMethod("getById", int.class).invoke(null, material.getId());
+    		Object blockPosition = NMSUtil.getNMSClass("BlockPosition").getConstructor(int.class, int.class, int.class).newInstance(x & 0xF, y, z & 0xF);
+    		Object block = NMSUtil.getNMSClass("Block").getMethod("getById", int.class).invoke(null, material.getId());
     		Object IBlockData = block.getClass().getMethod("fromLegacyData", int.class).invoke(block, data);
-    		chunk.getClass().getMethod("a", blockPosition.getClass(), NMSManager.getInstance().getNMSClass("IBlockData")).invoke(chunk, blockPosition, IBlockData);	
+    		chunk.getClass().getMethod("a", blockPosition.getClass(), NMSUtil.getNMSClass("IBlockData")).invoke(chunk, blockPosition, IBlockData);	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
