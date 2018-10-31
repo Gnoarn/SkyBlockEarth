@@ -2,6 +2,7 @@ package me.goodandevil.skyblock.menus;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,7 +48,7 @@ public class Rollback implements Listener {
 		ItemStack is;
 		ItemMeta im;
 		
-		ArrayList<String> itemLore = new ArrayList<String>();
+		List<String> itemLore = new ArrayList<>();
 		
 		is = Materials.BLACK_STAINED_GLASS_PANE.parseItem();
 		im = is.getItemMeta();

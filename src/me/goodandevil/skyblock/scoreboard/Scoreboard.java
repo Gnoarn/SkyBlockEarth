@@ -3,6 +3,7 @@ package me.goodandevil.skyblock.scoreboard;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -26,13 +27,13 @@ public class Scoreboard {
 	private Player player;
 	private String displayName;
 	private List<String> displayList;
-	private HashMap<String, String> displayVariables;
+	private Map<String, String> displayVariables;
 	private BukkitTask scheduler;
 	
 	public Scoreboard(Player player) {
 		this.player = player;
-		displayList = new ArrayList<String>();
-		displayVariables = new HashMap<String, String>();
+		displayList = new ArrayList<>();
+		displayVariables = new HashMap<>();
 	}
 	
 	public void setDisplayName(String displayName) {
@@ -43,7 +44,7 @@ public class Scoreboard {
 		this.displayList = displayList;
 	}
 	
-	public void setDisplayVariables(HashMap<String, String> displayVariables) {
+	public void setDisplayVariables(Map<String, String> displayVariables) {
 		this.displayVariables = displayVariables;
 	}
 	
@@ -51,10 +52,12 @@ public class Scoreboard {
 		Main plugin = Main.getInstance();
 		
 		new BukkitRunnable() {
+			@Override
 			public void run() {
-				final org.bukkit.scoreboard.Scoreboard scoreboard = (org.bukkit.scoreboard.Scoreboard) Bukkit.getScoreboardManager().getNewScoreboard();
+				final org.bukkit.scoreboard.Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 				
 				new BukkitRunnable() {
+					@Override
 					@SuppressWarnings("deprecation")
 					public void run() {
 						String ranStr = UUID.randomUUID().toString().split("-")[0];
@@ -83,6 +86,7 @@ public class Scoreboard {
 						scheduler = new BukkitRunnable() {
 							int i1 = displayList.size();
 							
+							@Override
 							public void run() {
 								if (player.isOnline()) {
 									try {
@@ -101,7 +105,7 @@ public class Scoreboard {
 								    			 } else {
 									    			 String[] colourCodes = prefixLine.split("&");
 									    			 String lastColourCodeText = colourCodes[colourCodes.length - 1];
-									    			 String lastColourCodeValue = lastColourCodeText.substring(0, Math.min(lastColourCodeText.length(), 1)); 
+									    			 String lastColourCodeValue = lastColourCodeText.substring(0, Math.min(lastColourCodeText.length(), 1));
 									    			 prefixLine = ChatColor.translateAlternateColorCodes('&', prefixLine);
 									    			 suffixLine = ChatColor.translateAlternateColorCodes('&', "&" + lastColourCodeValue + suffixLine);
 								    			 }
@@ -140,7 +144,7 @@ public class Scoreboard {
 		Main plugin = Main.getInstance();
 		
 		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
-		IslandManager islandManager = plugin.getIslandManager(); 
+		IslandManager islandManager = plugin.getIslandManager();
 		displayLine = displayLine.replace("%players_online", "" + Bukkit.getServer().getOnlinePlayers().size()).replace("%players_max", "" + Bukkit.getServer().getMaxPlayers()).replace("%money_balance", "" + playerData.getMoneyBalance());
 		
 		if (islandManager.hasIsland(player)) {
@@ -160,7 +164,7 @@ public class Scoreboard {
 					islandRole = displayVariables.get("%member");
 				}
 				
-				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());	
+				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());
 			}
 		} else {
 			displayLine = displayLine.replace("%island_level", ChatColor.RED + "0").replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null");

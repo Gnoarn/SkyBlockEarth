@@ -41,7 +41,7 @@ public final class BlockUtil {
             Banner banner = (Banner) blockState;
             blockData.setBaseColor(banner.getBaseColor().toString());
             
-            List<String> patterns = new ArrayList<String>();
+            List<String> patterns = new ArrayList<>();
             
             for(Pattern patternList : banner.getPatterns()) {
                 patterns.add(patternList.getPattern().toString() + ":" + patternList.getColor().toString());
@@ -198,7 +198,7 @@ public final class BlockUtil {
     	int NMSVersion = NMSUtil.getVersionNumber();
     	
     	if (NMSVersion < 13) {
-        	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), Material.valueOf(blockData.getMaterial().toUpperCase()), blockData.getData());	
+        	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), Material.valueOf(blockData.getMaterial().toUpperCase()), blockData.getData());
     	} else {
     		block.setBlockData(Bukkit.createBlockData(blockData.getBlockData()));
     	}
@@ -378,7 +378,7 @@ public final class BlockUtil {
     }
     
     public static List<Block> getNearbyBlocks(Location loc, int rx, int ry, int rz){
-        List<Block> nearbyBlocks = new ArrayList<Block>();
+        List<Block> nearbyBlocks = new ArrayList<>();
         
         for (int x = -(rx); x <= rx; x++){
             for (int y = -(ry); y <= ry; y++) {
@@ -398,7 +398,7 @@ public final class BlockUtil {
     		Object blockPosition = NMSUtil.getNMSClass("BlockPosition").getConstructor(int.class, int.class, int.class).newInstance(x & 0xF, y, z & 0xF);
     		Object block = NMSUtil.getNMSClass("Block").getMethod("getById", int.class).invoke(null, material.getId());
     		Object IBlockData = block.getClass().getMethod("fromLegacyData", int.class).invoke(block, data);
-    		chunk.getClass().getMethod("a", blockPosition.getClass(), NMSUtil.getNMSClass("IBlockData")).invoke(chunk, blockPosition, IBlockData);	
+    		chunk.getClass().getMethod("a", blockPosition.getClass(), NMSUtil.getNMSClass("IBlockData")).invoke(chunk, blockPosition, IBlockData);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

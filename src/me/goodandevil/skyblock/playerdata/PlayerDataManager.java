@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -31,7 +32,7 @@ import me.goodandevil.skyblock.world.WorldManager;
 public class PlayerDataManager {
 
 	private final Main plugin;
-	private HashMap<UUID, PlayerData> playerDataStorage = new HashMap<UUID, PlayerData>();
+	private Map<UUID, PlayerData> playerDataStorage = new HashMap<>();
 	
 	public PlayerDataManager(Main plugin) {
 		this.plugin = plugin;
@@ -108,7 +109,7 @@ public class PlayerDataManager {
 		}
 	}
 	
-	public HashMap<UUID, PlayerData> getPlayerData() {
+	public Map<UUID, PlayerData> getPlayerData() {
 		return playerDataStorage;
 	}
 
@@ -166,7 +167,7 @@ public class PlayerDataManager {
 											scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
 											scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 											
-											HashMap<String, String> displayVariables = new HashMap<String, String>();
+											Map<String, String> displayVariables = new HashMap<>();
 											displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
 											displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
 											displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
@@ -177,7 +178,7 @@ public class PlayerDataManager {
 										scoreboard.run();
 									}
 								}
-							}	
+							}
 						}
 						
 						return;

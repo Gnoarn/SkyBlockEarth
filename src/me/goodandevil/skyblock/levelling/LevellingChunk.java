@@ -2,6 +2,7 @@ package me.goodandevil.skyblock.levelling;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
@@ -16,7 +17,7 @@ public class LevellingChunk {
 	private final Main plugin;
 	private Island island;
 	
-	private ArrayList<ChunkSnapshot> chunkSnapshots = new ArrayList<ChunkSnapshot>();
+	private List<ChunkSnapshot> chunkSnapshots = new ArrayList<>();
 	private boolean complete;
 	
 	public LevellingChunk(Main plugin, Island island) {
@@ -28,13 +29,14 @@ public class LevellingChunk {
 	
 	public void prepare() {
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				prepareChunkSnapshots();
 			}
 		}.runTask(plugin);
 	}
 	
-	public ArrayList<ChunkSnapshot> getChunkSnapshots() {
+	public List<ChunkSnapshot> getChunkSnapshots() {
 		return chunkSnapshots;
 	}
 	

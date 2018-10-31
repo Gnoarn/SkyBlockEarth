@@ -40,8 +40,8 @@ public final class StructureUtil {
         LinkedHashMap<Block, StructureLocation> blocks = SelectionLocation.getBlocks(originLocation, positions[0], positions[1]);
         LinkedHashMap<Entity, StructureLocation> entities = SelectionLocation.getEntities(originLocation, positions[0], positions[1]);
         
-        List<BlockData> blockData = new ArrayList<BlockData>();
-        List<EntityData> entityData = new ArrayList<EntityData>();
+        List<BlockData> blockData = new ArrayList<>();
+        List<EntityData> entityData = new ArrayList<>();
         
         String originBlockLocation = "";
         
@@ -145,7 +145,7 @@ public final class StructureUtil {
     	ItemMeta im = is.getItemMeta();
     	im.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Structure.Tool.Item.Displayname")));
     	
-    	ArrayList<String> itemLore = new ArrayList<String>();
+    	List<String> itemLore = new ArrayList<>();
     	
     	for (String itemLoreList : configLoad.getStringList("Island.Structure.Tool.Item.Lore")) {
     		itemLore.add(ChatColor.translateAlternateColorCodes('&', itemLoreList));

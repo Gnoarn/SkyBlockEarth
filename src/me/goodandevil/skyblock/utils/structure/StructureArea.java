@@ -1,15 +1,16 @@
 package me.goodandevil.skyblock.utils.structure;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Location;
 
 public class StructureArea {
 
-	private HashMap<Integer, Location> positions;
+	private Map<Integer, Location> positions;
 	
 	public StructureArea() {
-		positions = new HashMap<Integer, Location>();
+		positions = new HashMap<>();
 	}
 	
 	public Location getPosition(int position) {

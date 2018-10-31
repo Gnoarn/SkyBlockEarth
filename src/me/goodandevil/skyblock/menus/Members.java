@@ -58,7 +58,7 @@ public class Members implements Listener {
     	
 		Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
 		
-		ArrayList<UUID> displayedMembers = new ArrayList<UUID>();
+		List<UUID> displayedMembers = new ArrayList<>();
 		
 		List<UUID> islandMembers = island.getRole(IslandRole.Member);
 		List<UUID> islandOperators = island.getRole(IslandRole.Operator);
@@ -76,7 +76,7 @@ public class Members implements Listener {
 		}
 		
 		if (sort == Members.Sort.Playtime) {
-			Map<Integer, UUID> sortedPlaytimes = new TreeMap<Integer, UUID>();
+			Map<Integer, UUID> sortedPlaytimes = new TreeMap<>();
 			
 			for (UUID displayedMemberList : displayedMembers) {
 				Player targetPlayer = Bukkit.getServer().getPlayer(displayedMemberList);
@@ -93,8 +93,8 @@ public class Members implements Listener {
 			for (Integer sortedPlaytimeList : sortedPlaytimes.keySet()) {
 				displayedMembers.add(sortedPlaytimes.get(sortedPlaytimeList));
 			}
-		} else if (sort == Members.Sort.MemberSince) { 
-			Map<Date, UUID> sortedDates = new TreeMap<Date, UUID>();
+		} else if (sort == Members.Sort.MemberSince) {
+			Map<Date, UUID> sortedDates = new TreeMap<>();
 			
 			for (UUID displayedMemberList : displayedMembers) {
 				Player targetPlayer = Bukkit.getServer().getPlayer(displayedMemberList);
@@ -115,9 +115,9 @@ public class Members implements Listener {
 			for (Date sortedDateList : sortedDates.keySet()) {
 				displayedMembers.add(sortedDates.get(sortedDateList));
 			}
-		} else if (sort == Members.Sort.LastOnline) { 
-			ArrayList<UUID> onlineMembers = new ArrayList<UUID>(displayedMembers);
-			Map<Date, UUID> sortedDates = new TreeMap<Date, UUID>();
+		} else if (sort == Members.Sort.LastOnline) {
+			List<UUID> onlineMembers = new ArrayList<>(displayedMembers);
+			Map<Date, UUID> sortedDates = new TreeMap<>();
 			
 			for (UUID displayedMemberList : displayedMembers) {
 				Player targetPlayer = Bukkit.getServer().getPlayer(displayedMemberList);
@@ -260,7 +260,7 @@ public class Members implements Listener {
 						}
 					}
 					
-					ArrayList<String> itemLore = new ArrayList<String>();
+					List<String> itemLore = new ArrayList<>();
 					itemLore.addAll(configLoad.getStringList("Menu.Members.Item.Member.Role.Lore"));
 					itemLore.addAll(configLoad.getStringList("Menu.Members.Item.Member.Playtime.Lore"));
 					itemLore.addAll(configLoad.getStringList("Menu.Members.Item.Member.Since.Lore"));
@@ -393,7 +393,8 @@ public class Members implements Listener {
 		    						}
 		    						
 		    						new BukkitRunnable() {
-		    							public void run() {
+		    							@Override
+										public void run() {
 		    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 		    							}
 		    						}.runTaskLater(plugin, 3L);
@@ -403,7 +404,8 @@ public class Members implements Listener {
 		    						Bukkit.getServer().dispatchCommand(player, "island kick " + playerName);
 
 		    						new BukkitRunnable() {
-		    							public void run() {
+		    							@Override
+										public void run() {
 		    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 		    							}
 		    						}.runTaskLater(plugin, 3L);
@@ -414,7 +416,8 @@ public class Members implements Listener {
 		    					Bukkit.getServer().dispatchCommand(player, "island kick " + playerName);
 
 	    						new BukkitRunnable() {
-	    							public void run() {
+	    							@Override
+									public void run() {
 	    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 	    							}
 	    						}.runTaskLater(plugin, 3L);

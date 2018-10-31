@@ -3,6 +3,7 @@ package me.goodandevil.skyblock.utils.item;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,12 +38,12 @@ public class InventoryUtil {
 		}
 	}
 	
-	public Item createItem(ItemStack is, String itemDisplayname, List<String> itemLore, HashMap<String, String> itemLoreVariables, Enchantment[] itemEnchantments, ItemFlag[] itemFlags) {
+	public Item createItem(ItemStack is, String itemDisplayname, List<String> itemLore, Map<String, String> itemLoreVariables, Enchantment[] itemEnchantments, ItemFlag[] itemFlags) {
 		return new Item(is, itemDisplayname, itemLore, itemLoreVariables, itemEnchantments, itemFlags);
 	}
 	
-	public HashMap<String, String> createItemLoreVariable(String[] itemLoreVariables) {
-		HashMap<String, String> itemLoreVariablesFormatted = new HashMap<String, String>();
+	public Map<String, String> createItemLoreVariable(String[] itemLoreVariables) {
+		Map<String, String> itemLoreVariablesFormatted = new HashMap<>();
 		
 		for (String itemLoreVariableList : itemLoreVariables) {
 			String variableName = itemLoreVariableList.split("#")[0];
@@ -60,7 +61,7 @@ public class InventoryUtil {
 		return itemLoreVariablesFormatted;
 	}
 	
-	public org.bukkit.inventory.Inventory getInventory() {
+	public Inventory getInventory() {
 		return inventory;
 	}
 	
@@ -68,12 +69,12 @@ public class InventoryUtil {
 		
 		private ItemStack is;
 		private String itemDisplayname;
-		private HashMap<String, String> itemLoreVariables;
+		private Map<String, String> itemLoreVariables;
 		private List<String> itemLore;
 		private Enchantment[] itemEnchantments;
 		private ItemFlag[] itemFlags;
 		
-		public Item(ItemStack is, String itemDisplayname, List<String> itemLore, HashMap<String, String> itemLoreVariables, Enchantment[] itemEnchantments, ItemFlag[] itemFlags) {
+		public Item(ItemStack is, String itemDisplayname, List<String> itemLore, Map<String, String> itemLoreVariables, Enchantment[] itemEnchantments, ItemFlag[] itemFlags) {
 			this.is = is;
 			this.itemDisplayname = ChatColor.translateAlternateColorCodes('&', itemDisplayname);
 			this.itemLore = itemLore;
@@ -84,7 +85,7 @@ public class InventoryUtil {
 		
 		public void setLore() {
 			if (itemLore != null) {
-				ArrayList<String> formattedItemLore = new ArrayList<String>();
+				ArrayList<String> formattedItemLore = new ArrayList<>();
 				
 				for (String itemLoreList : itemLore) {
 					if (itemLoreVariables != null) {
@@ -92,7 +93,7 @@ public class InventoryUtil {
 							if (itemLoreList.contains(itemLoreVariableList)) {
 								itemLoreList = ChatColor.translateAlternateColorCodes('&', itemLoreList.replace(itemLoreVariableList, itemLoreVariables.get(itemLoreVariableList)));
 							}
-						}	
+						}
 					}
 					
 					formattedItemLore.add(ChatColor.translateAlternateColorCodes('&', itemLoreList));
@@ -115,7 +116,7 @@ public class InventoryUtil {
 			if (itemEnchantments != null) {
 				for (Enchantment itemEnchantmentList : itemEnchantments) {
 					im.addEnchant(itemEnchantmentList, 1, true);
-				}	
+				}
 			}
 			
 			is.setItemMeta(im);

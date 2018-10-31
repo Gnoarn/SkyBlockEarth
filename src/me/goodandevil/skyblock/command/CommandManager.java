@@ -62,7 +62,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 public class CommandManager implements CommandExecutor {
 	
 	private final Main plugin;
-	private HashMap<CommandManager.Type, List<SubCommand>> subCommands = new HashMap<CommandManager.Type, List<SubCommand>>();
+	private HashMap<CommandManager.Type, List<SubCommand>> subCommands = new HashMap<>();
 	
 	public CommandManager(Main plugin) {
 		this.plugin = plugin;
@@ -75,7 +75,7 @@ public class CommandManager implements CommandExecutor {
 		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		List<SubCommand> subCommands = new ArrayList<SubCommand>();
+		List<SubCommand> subCommands = new ArrayList<>();
 		subCommands.add(new VisitCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Visit.Info.Message"))));
 		subCommands.add(new ControlPanelCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.ControlPanel.Info.Message"))));
 		subCommands.add(new CreateCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Create.Info.Message"))));
@@ -111,7 +111,7 @@ public class CommandManager implements CommandExecutor {
 		
 		this.subCommands.put(CommandManager.Type.Default, subCommands);
 		
-		subCommands = new ArrayList<SubCommand>();
+		subCommands = new ArrayList<>();
 		subCommands.add(new me.goodandevil.skyblock.command.commands.admin.SetSpawnCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.SetSpawn.Info.Message"))));
 		subCommands.add(new StructureCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Structure.Info.Message"))));
 		subCommands.add(new CreateCommand(plugin).setInfo(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Create.Info.Message"))));
@@ -133,6 +133,7 @@ public class CommandManager implements CommandExecutor {
 		
 		if (command.getName().equalsIgnoreCase("island")) {
 			new BukkitRunnable() {
+				@Override
 				public void run() {
 					FileManager fileManager = plugin.getFileManager();
 					
@@ -199,7 +200,7 @@ public class CommandManager implements CommandExecutor {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Argument.Unrecognised.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					} else {
-						ArrayList<String> arguments = new ArrayList<String>();
+						ArrayList<String> arguments = new ArrayList<>();
 						arguments.addAll(Arrays.asList(args));
 						arguments.remove(args[0]);
 						
@@ -210,7 +211,7 @@ public class CommandManager implements CommandExecutor {
 						subCommand.onCommand(player, arguments.toArray(new String[0]));
 					}
 				}
-			}.runTaskAsynchronously(plugin);	
+			}.runTaskAsynchronously(plugin);
 		}
 		
 		return true;
@@ -258,7 +259,7 @@ public class CommandManager implements CommandExecutor {
 								} else {
 									commandAliases = commandAliases + subCommandFromIndex.getAliases()[i] + "/";
 								}
-							}	
+							}
 						}
 						
 						player.spigot().sendMessage(new ChatComponent(prefix.replace("%info", subCommandFromIndex.getInfo()) + "/island admin " + subCommandFromIndex.getName() + commandAliases + suffix.replace("%info", subCommandFromIndex.getInfo()), false, null, null, new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(subCommandFromIndex.getInfo()).create())).getTextComponent());

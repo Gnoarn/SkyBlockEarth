@@ -4,6 +4,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -102,7 +103,7 @@ public class AcceptCommand extends SubCommand {
 							island.save();
 							
 							if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) >= fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity")) {
-								HashMap<UUID, Invite> invites = inviteManager.getInvites();
+								Map<UUID, Invite> invites = inviteManager.getInvites();
 								
 								for (UUID inviteList : invites.keySet()) {
 									Invite targetInvite = invites.get(inviteList);
@@ -117,7 +118,7 @@ public class AcceptCommand extends SubCommand {
 											targetInvitePlayer.playSound(targetInvitePlayer.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 										}
 									}
-								}	
+								}
 							}
 							
 							plugin.getVisitManager().getIsland(invite.getOwnerUUID()).removeVoter(player.getUniqueId());
@@ -142,7 +143,7 @@ public class AcceptCommand extends SubCommand {
 												scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 											}
 											
-											HashMap<String, String> displayVariables = new HashMap<String, String>();
+											Map<String, String> displayVariables = new HashMap<>();
 											displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
 											displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
 											displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
@@ -164,7 +165,7 @@ public class AcceptCommand extends SubCommand {
 								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 							}
 							
-							HashMap<String, String> displayVariables = new HashMap<String, String>();
+							Map<String, String> displayVariables = new HashMap<>();
 							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
 							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
 							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));

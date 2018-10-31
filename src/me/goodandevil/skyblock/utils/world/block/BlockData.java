@@ -13,6 +13,7 @@ import me.goodandevil.skyblock.utils.version.Materials;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("deprecation")
 public class BlockData {
@@ -36,7 +37,7 @@ public class BlockData {
     private String skullType = SkullType.PLAYER.toString();
     private String facing;
     
-    private HashMap<Integer, String> inventory = new HashMap<Integer, String>();
+    private Map<Integer, String> inventory = new HashMap<>();
 	
     private int x = 0;
     private int y = 0;
@@ -50,7 +51,7 @@ public class BlockData {
     private short burnTime = (short) 0;
     private short cookTime = (short) 0;
     
-    private List<String> patterns = new ArrayList<String>();
+    private List<String> patterns = new ArrayList<>();
     
     private boolean exactTeleport = true;
 	
@@ -121,7 +122,7 @@ public class BlockData {
 		this.potionEffect = potionEffect;
 	}
 	
-	public HashMap<Integer, String> getInventory() {
+	public Map<Integer, String> getInventory() {
 		return this.inventory;
 	}
 	

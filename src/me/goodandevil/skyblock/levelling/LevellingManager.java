@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -31,8 +32,8 @@ public class LevellingManager {
 	
 	private final Main plugin;
 	
-	private List<LevellingMaterial> levellingMaterialStorage = new ArrayList<LevellingMaterial>();
-	private HashMap<UUID, Levelling> islandLevellingStorage = new HashMap<UUID, Levelling>();
+	private List<LevellingMaterial> levellingMaterialStorage = new ArrayList<>();
+	private Map<UUID, Levelling> islandLevellingStorage = new HashMap<>();
 	
 	public LevellingManager(Main plugin) {
 		this.plugin = plugin;
@@ -75,11 +76,12 @@ public class LevellingManager {
 		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				if (levellingChunk.isComplete()) {
 					cancel();
 					
-		    		HashMap<Material, Integer> levelMaterials = new HashMap<Material, Integer>();
+		    		HashMap<Material, Integer> levelMaterials = new HashMap<>();
 		    		
 		    		Method getBlockTypeMethod = null;
 		    		Method getBlockTypeIdMethod = null;
@@ -134,7 +136,7 @@ public class LevellingManager {
 				    	            					levelMaterials.put(levellingMaterialList.getMaterial(), levellingMaterialList.getPoints());
 				    	            				}
 				    	            			}
-				    	            		}	
+				    	            		}
 		    							}
 									} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 										e.printStackTrace();
@@ -253,7 +255,7 @@ public class LevellingManager {
 			
 			if (configLoad.getString("Levelling.Cooldown") != null) {
 				islandLevellingStorage.put(playerUUID, new Levelling(configLoad.getInt("Levelling.Cooldown")));
-			}	
+			}
 		}
 	}
 	

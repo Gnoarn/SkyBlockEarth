@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -28,7 +29,7 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 public class BiomeManager {
 	
 	private final Main plugin;
-	private HashMap<UUID, me.goodandevil.skyblock.biome.Biome> playerBiomeStorage = new HashMap<UUID, me.goodandevil.skyblock.biome.Biome>();
+	private Map<UUID, me.goodandevil.skyblock.biome.Biome> playerBiomeStorage = new HashMap<>();
 
 	public BiomeManager(Main plugin) {
 		this.plugin = plugin;
@@ -48,8 +49,9 @@ public class BiomeManager {
 	
 	public void setBiome(Player player, Location location, Biome biome) {
 	    new BukkitRunnable() {
-	    	public void run() {
-	    		List<Chunk> chunks = new ArrayList<Chunk>();
+	    	@Override
+			public void run() {
+	    		List<Chunk> chunks = new ArrayList<>();
 	    		
 	    		for (Location locationList : LocationUtil.getLocations(new Location(location.getWorld(), location.getBlockX() - 85, 0, location.getBlockZ() - 85), new Location(location.getWorld(), location.getBlockX() + 85, 256, location.getBlockZ() + 85))) {
 	            	try {
@@ -126,7 +128,7 @@ public class BiomeManager {
 		
 		if (configLoad.getString("Island.Biome.Cooldown") != null) {
 			me.goodandevil.skyblock.biome.Biome biome = new me.goodandevil.skyblock.biome.Biome(configLoad.getInt("Island.Biome.Cooldown"));
-			playerBiomeStorage.put(player.getUniqueId(), biome);	
+			playerBiomeStorage.put(player.getUniqueId(), biome);
 		}
 	}
 	

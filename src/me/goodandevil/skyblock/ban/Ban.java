@@ -37,7 +37,7 @@ public class Ban {
 	public List<UUID> getBans() {
 		Main plugin = Main.getInstance();
 		
-		List<UUID> islandBans = new ArrayList<UUID>();
+		List<UUID> islandBans = new ArrayList<>();
 		
 		for (String islandBanList : plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration().getStringList("Bans")) {
 			islandBans.add(UUID.fromString(islandBanList));
@@ -49,7 +49,7 @@ public class Ban {
 	public void addBan(UUID uuid) {
 		Main plugin = Main.getInstance();
 		
-		List<String> islandBans = new ArrayList<String>();
+		List<String> islandBans = new ArrayList<>();
 		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandBanList : configLoad.getStringList("Bans")) {
@@ -65,7 +65,7 @@ public class Ban {
 	public void removeBan(UUID uuid) {
 		Main plugin = Main.getInstance();
 		
-		List<String> islandBans = new ArrayList<String>();
+		List<String> islandBans = new ArrayList<>();
 		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/ban-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandBanList : configLoad.getStringList("Bans")) {

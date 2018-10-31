@@ -15,7 +15,7 @@ public class Structure {
 	private String displayName;
 	private String permission;
 	
-	private List<String> description = new ArrayList<String>();
+	private List<String> description = new ArrayList<>();
 	
 	public Structure(Material material, int data, String fileName, String structureName, String displayName, String permission, List<String> description) {
 		this.material = material;
