@@ -25,7 +25,7 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 public class VisitManager {
 
 	private final Main plugin;
-	private HashMap<UUID, Visit> visitStorage = new HashMap<UUID, Visit>();
+	private HashMap<UUID, Visit> visitStorage = new HashMap<>();
 	
 	public VisitManager(Main plugin) {
 		this.plugin = plugin;
@@ -54,14 +54,14 @@ public class VisitManager {
 					FileConfiguration configLoad = config.getFileConfiguration();
 					
 					UUID islandOwnerUUID = UUID.fromString(fileList.getName().replaceFirst("[.][^.]+$", ""));
-					List<String> islandSignature = new ArrayList<String>();
+					List<String> islandSignature = new ArrayList<>();
 					
 					if (configLoad.getString("Visitor.Signature.Message") != null) {
 						islandSignature = configLoad.getStringList("Visitor.Signature.Message");
 					}
 					
 					createIsland(islandOwnerUUID, new Location[] { fileManager.getLocation(config, "Location.Normal.Island", true), fileManager.getLocation(config, "Location.Nether.Island", true) }, configLoad.getStringList("Members").size() + configLoad.getStringList("Operators").size() + 1, configLoad.getInt("Levelling.Points") / plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Division"), islandSignature, configLoad.getBoolean("Visitor.Open"));
-				}	
+				}
 			}
 		}
 	}
@@ -114,7 +114,7 @@ public class VisitManager {
 	}
 	
 	public Map<UUID, Visit> getOpenIslands() {
-		Map<UUID, Visit> visitIslands = new ConcurrentHashMap<UUID, Visit>();
+		Map<UUID, Visit> visitIslands = new ConcurrentHashMap<>();
 		visitIslands.putAll(visitStorage);
 		
 		Iterator<UUID> it = visitIslands.keySet().iterator();

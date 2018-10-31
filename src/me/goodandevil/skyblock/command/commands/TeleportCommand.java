@@ -76,12 +76,11 @@ public class TeleportCommand extends SubCommand {
 	    			}
 	    			
 	    			return;
-	    		} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-					
-					return;
 	    		}
+				
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
+				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+				return;
 			}
 		}
 		

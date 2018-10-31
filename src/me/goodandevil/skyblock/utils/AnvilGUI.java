@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,7 +30,7 @@ public class AnvilGUI {
     private static Class<?> ContainerAnvil;
     private static Class<?> ChatMessage;
     private static Class<?> EntityHuman;
-    private HashMap<AnvilSlot, ItemStack> items = new HashMap<AnvilSlot, ItemStack>();
+    private Map<AnvilSlot, ItemStack> items = new HashMap<>();
     private Inventory inv;
     private Listener listener;
 

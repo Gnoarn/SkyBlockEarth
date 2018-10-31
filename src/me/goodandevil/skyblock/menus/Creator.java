@@ -40,7 +40,7 @@ public class Creator implements Listener {
 		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
     	
-		List<Structure> availableStructures = new ArrayList<Structure>();
+		List<Structure> availableStructures = new ArrayList<>();
 		
 		for (Structure structureList : plugin.getStructureManager().getStructures()) {
 			if (structureList.getPermission() != null) {
@@ -77,7 +77,7 @@ public class Creator implements Listener {
     	
     	for (int i = 0; i < availableStructures.size(); i++) {
     		Structure structure = availableStructures.get(i);
-    		List<String> itemLore = new ArrayList<String>();
+    		List<String> itemLore = new ArrayList<>();
     		
     		for (String itemLoreList : configLoad.getStringList("Menu.Creator.Selector.Item.Island.Lore")) {
     			if (itemLoreList.contains("%description")) {

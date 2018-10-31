@@ -45,14 +45,14 @@ public final class LocationUtil {
 			return false;
 		}
 		
-		int x = (int) Math.abs(location1.getBlockX() - location2.getBlockX());
-		int z = (int) Math.abs(location1.getBlockZ() - location2.getBlockZ());
+		int x = Math.abs(location1.getBlockX() - location2.getBlockX());
+		int z = Math.abs(location1.getBlockZ() - location2.getBlockZ());
 		
 		return x < radius && z < radius;
 	}
     
     public static List<Location> getLocations(Location minLocation, Location maxLocation) {
-    	ArrayList<Location> locations = new ArrayList<Location>();
+    	List<Location> locations = new ArrayList<>();
     	
 	    int MinX = Math.min(maxLocation.getBlockX(), minLocation.getBlockX());
 	    int MinY = Math.min(maxLocation.getBlockY(), minLocation.getBlockY());
@@ -126,12 +126,7 @@ public final class LocationUtil {
         }
         
         double c = a + b;
-        
-        if(c > 180){
-            return (c-180)*-1;
-        } else {
-            return 180-c;
-        }
+        return (c > 180) ? -(c - 180) : 180 - c;
     }
 
     public static double rotatePitch(double a, double b) throws Exception {
@@ -140,12 +135,7 @@ public final class LocationUtil {
         }
         
         double c = a + b;
-        
-        if(c > 90){
-            return (c-90)*-1;
-        } else {
-            return 90-c;
-        }
+        return (c > 90) ? -(c - 90) : 90 - c;
     }
     
     public static Location rotateLocation(Location location, BlockDegreesType blockTypeDegrees) {
@@ -171,6 +161,7 @@ public final class LocationUtil {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: A spawn point hasn't been set.");
 		} else {
 			new BukkitRunnable() {
+				@Override
 				public void run() {
 					player.teleport(fileManager.getLocation(config, "Location.Spawn", true));
 				}

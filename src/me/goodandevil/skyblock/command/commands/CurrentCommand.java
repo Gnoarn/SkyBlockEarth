@@ -44,29 +44,29 @@ public class CurrentCommand extends SubCommand {
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							
 							return;
-						} else {
-							if (!targetPlayer.getName().equals(player.getName())) {
-								PlayerData playerData = playerDataManager.getPlayerData(targetPlayer);
+						}
+						
+						if (!targetPlayer.getName().equals(player.getName())) {
+							PlayerData playerData = playerDataManager.getPlayerData(targetPlayer);
+							
+							if (playerData.getIsland() == null) {
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Current.Island.None.Other.Message")));
+							} else {
+								String targetPlayerName = targetPlayer.getName(), ownerPlayerName;
+								targetPlayer = Bukkit.getServer().getPlayer(playerData.getIsland());
 								
-								if (playerData.getIsland() == null) {
-									player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Current.Island.None.Other.Message")));
+								if (targetPlayer == null) {
+									ownerPlayerName = new OfflinePlayer(playerData.getIsland()).getName();
 								} else {
-									String targetPlayerName = targetPlayer.getName(), ownerPlayerName;
-									targetPlayer = Bukkit.getServer().getPlayer(playerData.getIsland());
-									
-									if (targetPlayer == null) {
-										ownerPlayerName = new OfflinePlayer(playerData.getIsland()).getName();
-									} else {
-										ownerPlayerName = targetPlayer.getName();
-									}
-									
-									player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Current.Island.Owner.Other.Message").replace("%target", targetPlayerName).replace("%owner", ownerPlayerName)));
+									ownerPlayerName = targetPlayer.getName();
 								}
 								
-								player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
-								
-								return;
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Current.Island.Owner.Other.Message").replace("%target", targetPlayerName).replace("%owner", ownerPlayerName)));
 							}
+							
+							player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+							
+							return;
 						}
 					} else if (args.length > 1) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Current.Invalid.Message")));

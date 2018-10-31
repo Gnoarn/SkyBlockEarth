@@ -89,7 +89,7 @@ public final class EntityUtil {
             	entityData.setHorseColor(horse.getColor().toString());
             	entityData.setHorseStyle(horse.getStyle().toString());
             	
-                List<String> items = new ArrayList<String>();
+                List<String> items = new ArrayList<>();
                 
                 for(ItemStack itemList : horse.getInventory().getContents()){
                     if (itemList == null){
@@ -126,7 +126,7 @@ public final class EntityUtil {
             	entityData.setProfession(villager.getProfession().toString());
             	entityData.setRiches(villager.getRiches());
             	
-                List<String> items = new ArrayList<String>();
+                List<String> items = new ArrayList<>();
                 
                 for(ItemStack itemList : villager.getInventory().getContents()){
                     if(itemList == null){
@@ -145,7 +145,7 @@ public final class EntityUtil {
                 	entityData.setLlamaColor(llama.getColor().toString());
                 	entityData.setLlamaStrength(llama.getStrength());
                 	
-                    List<String> items = new ArrayList<String>();
+                    List<String> items = new ArrayList<>();
                     
                     for(ItemStack itemList : llama.getInventory().getContents()){
                         if(itemList == null){
@@ -174,7 +174,7 @@ public final class EntityUtil {
             if (entity instanceof Boat) {
                 entityData.setWoodType(((Boat) entity).getWoodType().toString());
             } else if (entity instanceof StorageMinecart || entity instanceof HopperMinecart) {
-                List<String> items = new ArrayList<String>();
+                List<String> items = new ArrayList<>();
                 
                 for(ItemStack itemList : ((InventoryHolder) entity).getInventory().getContents()){
                     if(itemList == null){
@@ -291,7 +291,7 @@ public final class EntityUtil {
             	horse.setColor(Horse.Color.valueOf(entityData.getHorseColor().toUpperCase()));
             	horse.setStyle(Horse.Style.valueOf(entityData.getHorseStyle().toUpperCase()));
             	
-            	List<ItemStack> items = new ArrayList<ItemStack>();
+            	List<ItemStack> items = new ArrayList<>();
             	
             	for (String inventoryList : entityData.getInventory()) {
             		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
@@ -324,7 +324,7 @@ public final class EntityUtil {
             	Villager villager = ((Villager) entity);
             	villager.setProfession(Villager.Profession.valueOf(entityData.getProfession().toUpperCase()));
             	
-            	List<ItemStack> items = new ArrayList<ItemStack>();
+            	List<ItemStack> items = new ArrayList<>();
             	
             	for (String inventoryList : entityData.getInventory()) {
             		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
@@ -341,7 +341,7 @@ public final class EntityUtil {
                 	llama.setColor(Llama.Color.valueOf(entityData.getLlamaColor().toUpperCase()));
                 	llama.setStrength(entityData.getLlamaStrength());
                 	
-                	List<ItemStack> items = new ArrayList<ItemStack>();
+                	List<ItemStack> items = new ArrayList<>();
                 	
                 	for (String inventoryList : entityData.getInventory()) {
                 		items.add(ItemStackUtil.deserializeItemStack(inventoryList));
@@ -372,7 +372,7 @@ public final class EntityUtil {
                 ((Boat) entity).setWoodType(TreeSpecies.valueOf(entityData.getWoodType().toUpperCase()));
             } else if (entity instanceof StorageMinecart || entity instanceof HopperMinecart) {
             	
-            	List<ItemStack> items = new ArrayList<ItemStack>();
+            	List<ItemStack> items = new ArrayList<>();
             	
             	for (String inventoryList : entityData.getInventory()) {
             		items.add(ItemStackUtil.deserializeItemStack(inventoryList));

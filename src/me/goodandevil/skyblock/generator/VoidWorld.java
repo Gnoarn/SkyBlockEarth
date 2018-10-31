@@ -17,7 +17,7 @@ public class VoidWorld extends ChunkGenerator {
 	
 	@Override
 	public List<BlockPopulator> getDefaultPopulators(World world) {
-		return new ArrayList<BlockPopulator>();
+		return new ArrayList<>();
 	}
 
 	@Override

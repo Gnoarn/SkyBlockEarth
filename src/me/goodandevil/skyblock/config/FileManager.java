@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import com.google.common.io.ByteStreams;
@@ -21,7 +22,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class FileManager {
 
 	private final Main plugin;
-	private HashMap<String, Config> loadedConfigs = new HashMap<String, Config>();
+	private Map<String, Config> loadedConfigs = new HashMap<>();
 	
 	public FileManager(Main plugin) {
 		this.plugin = plugin;
@@ -38,7 +39,7 @@ public class FileManager {
 			new File(plugin.getDataFolder().toString() + "/structures").mkdir();
 		}
 		
-		HashMap<String, File> configFiles = new HashMap<String, File>();
+		Map<String, File> configFiles = new HashMap<>();
 		
 		if (NMSUtil.getVersionNumber() < 13) {
 			configFiles.put("levelling-native.yml", new File(plugin.getDataFolder(), "levelling.yml"));
@@ -97,11 +98,10 @@ public class FileManager {
 		plugin.getConfig();
 	}
 
-	public org.bukkit.Location getLocation(Config config, String path, boolean direction) {
-		org.bukkit.Location location = null;
+	public Location getLocation(Config config, String path, boolean direction) {
+		Location location = null;
 		
 		FileConfiguration configLoad = config.getFileConfiguration();
-		
 		if (configLoad.contains(path)) {
 			String world = configLoad.getString(path + ".world");
 			
@@ -122,8 +122,6 @@ public class FileManager {
 				location.setYaw((float) yaw);
 				location.setPitch((float) pitch);
 			}
-		} else {
-			return null;
 		}
 		
 		return location;
@@ -154,7 +152,7 @@ public class FileManager {
 		return config;
 	}
 	
-	public HashMap<String, Config> getConfigs() {
+	public Map<String, Config> getConfigs() {
 		return loadedConfigs;
 	}
 	

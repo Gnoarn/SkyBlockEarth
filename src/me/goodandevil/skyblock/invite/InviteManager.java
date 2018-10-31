@@ -1,6 +1,7 @@
 package me.goodandevil.skyblock.invite;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.entity.Player;
@@ -9,7 +10,7 @@ import me.goodandevil.skyblock.Main;
 
 public class InviteManager {
 
-	private HashMap<UUID, Invite> inviteStorage = new HashMap<UUID, Invite>();
+	private Map<UUID, Invite> inviteStorage = new HashMap<>();
 	
 	public InviteManager(Main plugin) {
 		new InviteTask(this, plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
@@ -29,7 +30,7 @@ public class InviteManager {
 	}
 	
 	public void tranfer(UUID uuid, UUID islandOwnerUUID) {
-		HashMap<UUID, Invite> islandInvites = getInvites();
+		Map<UUID, Invite> islandInvites = getInvites();
 		
 		for (UUID islandInviteList : islandInvites.keySet()) {
 			Invite invite = islandInvites.get(islandInviteList);
@@ -40,7 +41,7 @@ public class InviteManager {
 		}
 	}
 
-	public HashMap<UUID, Invite> getInvites() {
+	public Map<UUID, Invite> getInvites() {
 		return inviteStorage;
 	}
 	

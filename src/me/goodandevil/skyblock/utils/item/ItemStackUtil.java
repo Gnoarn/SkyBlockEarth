@@ -43,7 +43,7 @@ public final class ItemStackUtil {
             Object NBTTagCompound = nbtTagCompoundConstructor.newInstance();
             Object NMSItemStackClass = NMSUtil.getCraftClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class).invoke(null, item);
             NMSUtil.getNMSClass("ItemStack").getMethod("save", NBTTagCompoundClass).invoke(NMSItemStackClass, NBTTagCompound);
-            NMSUtil.getNMSClass("NBTCompressedStreamTools").getMethod("a", NBTTagCompoundClass, DataOutput.class).invoke(null, NBTTagCompound, (DataOutput)dataOutput);
+            NMSUtil.getNMSClass("NBTCompressedStreamTools").getMethod("a", NBTTagCompoundClass, DataOutput.class).invoke(null, NBTTagCompound, dataOutput);
         } catch (Exception e) {
             e.printStackTrace();
         }

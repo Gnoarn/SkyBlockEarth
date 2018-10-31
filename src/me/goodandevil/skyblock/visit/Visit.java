@@ -77,7 +77,7 @@ public class Visit {
 	}
 	
 	public List<UUID> getVisitors() {
-		List<UUID> islandVisitors = new ArrayList<UUID>();
+		List<UUID> islandVisitors = new ArrayList<>();
 		
 		for (String islandVisitorList : plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration().getStringList("Visitors")) {
 			islandVisitors.add(UUID.fromString(islandVisitorList));
@@ -87,7 +87,7 @@ public class Visit {
 	}
 	
 	public void addVisitor(UUID uuid) {
-		List<String> islandVisitors = new ArrayList<String>();
+		List<String> islandVisitors = new ArrayList<>();
 		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandVisitorList : configLoad.getStringList("Visitors")) {
@@ -103,7 +103,7 @@ public class Visit {
 	}
 	
 	public List<UUID> getVoters() {
-		List<UUID> islandVoters = new ArrayList<UUID>();
+		List<UUID> islandVoters = new ArrayList<>();
 		
 		for (String islandVisitorList : plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration().getStringList("Voters")) {
 			islandVoters.add(UUID.fromString(islandVisitorList));
@@ -113,7 +113,7 @@ public class Visit {
 	}
 	
 	public void addVoter(UUID uuid) {
-		List<String> islandVoters = new ArrayList<String>();
+		List<String> islandVoters = new ArrayList<>();
 		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandVoterList : configLoad.getStringList("Voters")) {
@@ -125,7 +125,7 @@ public class Visit {
 	}
 	
 	public void removeVoter(UUID uuid) {
-		List<String> islandVoters = new ArrayList<String>();
+		List<String> islandVoters = new ArrayList<>();
 		FileConfiguration configLoad = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/visit-data"), islandOwnerUUID.toString() + ".yml")).getFileConfiguration();
 		
 		for (String islandVoterList : configLoad.getStringList("Voters")) {

@@ -35,12 +35,12 @@ public final class WorldBorder {
 	
 	public static void send(Player player, double size, Location centerLocation) {
 		try {
-			Object worldBorder = worldBorderClass.newInstance();
+			Object worldBorder = worldBorderClass.getConstructor().newInstance();
 
 			if (NMSUtil.getVersionNumber() < 9) {
 				Field borderSize = worldBorder.getClass().getDeclaredField("d");
 				borderSize.setAccessible(true);
-				borderSize.set(worldBorder, size);	
+				borderSize.set(worldBorder, size);
 			} else {
 				Object craftWorld = craftWorldClass.cast(centerLocation.getWorld());
 				Method getHandleMethod = craftWorld.getClass().getMethod("getHandle", new Class<?>[0]);

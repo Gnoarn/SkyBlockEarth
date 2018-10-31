@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang.WordUtils;
@@ -45,8 +47,8 @@ public class Island {
 	
 	private UUID ownerUUID;
 	
-	private List<IslandLocation> islandLocations = new ArrayList<IslandLocation>();
-	private HashMap<IslandSettings.Role, HashMap<String, IslandSettings>> islandSettings = new HashMap<IslandSettings.Role, HashMap<String, IslandSettings>>();
+	private List<IslandLocation> islandLocations = new ArrayList<>();
+	private Map<IslandSettings.Role, Map<String, IslandSettings>> islandSettings = new EnumMap<>(IslandSettings.Role.class);
 	
 	int r = 85;
 	
@@ -73,7 +75,7 @@ public class Island {
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			for (IslandSettings.Role roleList : IslandSettings.Role.values()) {
-				HashMap<String, IslandSettings> roleSettings = new HashMap<String, IslandSettings>();
+				HashMap<String, IslandSettings> roleSettings = new HashMap<>();
 				
 				for (String settingList : configLoad.getConfigurationSection("Settings." + roleList.name()).getKeys(false)) {
 					roleSettings.put(settingList, new IslandSettings(configLoad.getBoolean("Settings." + roleList.name() + "." + settingList)));
@@ -110,7 +112,7 @@ public class Island {
 			Config settingsConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "settings.yml"));
 			
 			for (IslandSettings.Role roleList : IslandSettings.Role.values()) {
-				HashMap<String, IslandSettings> roleSettings = new HashMap<String, IslandSettings>();
+				HashMap<String, IslandSettings> roleSettings = new HashMap<>();
 				
 				for (String settingList : settingsConfig.getFileConfiguration().getConfigurationSection(WordUtils.capitalize(roleList.name().toLowerCase())).getKeys(false)) {
 					roleSettings.put(settingList, new IslandSettings(settingsConfig.getFileConfiguration().getBoolean(WordUtils.capitalize(roleList.name().toLowerCase()) + "." + settingList)));
@@ -128,6 +130,7 @@ public class Island {
 			playerData.save();
 			
 			new BukkitRunnable() {
+				@Override
 				public void run() {
 					islandNormalLocation.clone().subtract(0.0D, 1.0D, 0.0D).getBlock().setType(Material.STONE);
 					islandManager.setSpawnProtection(islandNormalLocation);
@@ -149,13 +152,13 @@ public class Island {
 		VisitManager visitManager = plugin.getVisitManager();
 		
 		if (!visitManager.hasIsland(getOwnerUUID())) {
-			visitManager.createIsland(getOwnerUUID(), new Location[] { getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island) }, getRole(IslandRole.Member).size() + getRole(IslandRole.Operator).size() + 1, getLevel(), getMessage(IslandMessage.Signature), isOpen());			
+			visitManager.createIsland(getOwnerUUID(), new Location[] { getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), getLocation(IslandLocation.World.Nether, IslandLocation.Environment.Island) }, getRole(IslandRole.Member).size() + getRole(IslandRole.Operator).size() + 1, getLevel(), getMessage(IslandMessage.Signature), isOpen());
 		}
 		
 		BanManager banManager = plugin.getBanManager();
 		
 		if (!banManager.hasIsland(getOwnerUUID())) {
-			banManager.createIsland(getOwnerUUID());			
+			banManager.createIsland(getOwnerUUID());
 		}
 	}
 	
@@ -185,7 +188,7 @@ public class Island {
 		Bukkit.getServer().getPluginManager().callEvent(islandPasswordChangeEvent);
 		
 		if (!islandPasswordChangeEvent.isCancelled()) {
-			plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml")).getFileConfiguration().set("Ownership.Password", password);			
+			plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml")).getFileConfiguration().set("Ownership.Password", password);
 		}
 	}
 	
@@ -262,7 +265,7 @@ public class Island {
 		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		List<UUID> islandRoles = new ArrayList<UUID>();
+		List<UUID> islandRoles = new ArrayList<>();
 		
 		if (configLoad.getString(role.name() + "s") != null) {
 			for (String operatorList : configLoad.getStringList(role.name() + "s")) {
@@ -295,7 +298,7 @@ public class Island {
 				List<String> islandMembers;
 				
 				if (configLoad.getString(role.name() + "s") == null) {
-					islandMembers = new ArrayList<String>();
+					islandMembers = new ArrayList<>();
 				} else {
 					islandMembers = configLoad.getStringList(role.name() + "s");
 				}
@@ -388,12 +391,12 @@ public class Island {
 		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		HashMap<Material, Integer> levelMaterials = new HashMap<Material, Integer>();
+		HashMap<Material, Integer> levelMaterials = new HashMap<>();
 		
 		if (configLoad.getString("Levelling.Materials") != null) {
 			for (String levelMaterialList : configLoad.getConfigurationSection("Levelling.Materials").getKeys(false)) {
 				levelMaterials.put(Material.valueOf(levelMaterialList), configLoad.getInt("Levelling.Materials." + levelMaterialList + ".Points"));
-			}	
+			}
 		}
 		
 		return levelMaterials;
@@ -405,7 +408,7 @@ public class Island {
 	
 	public IslandSettings getSetting(IslandSettings.Role role, String setting) {
 		if (islandSettings.containsKey(role)) {
-			HashMap<String, IslandSettings> roleSettings = islandSettings.get(role);
+			Map<String, IslandSettings> roleSettings = islandSettings.get(role);
 			
 			if (roleSettings.containsKey(setting)) {
 				return roleSettings.get(setting);
@@ -415,7 +418,7 @@ public class Island {
 		return null;
 	}
 	
-	public HashMap<String, IslandSettings> getSettings(IslandSettings.Role role) {
+	public Map<String, IslandSettings> getSettings(IslandSettings.Role role) {
 		if (islandSettings.containsKey(role)) {
 			return islandSettings.get(role);
 		}
@@ -428,7 +431,7 @@ public class Island {
 		Bukkit.getServer().getPluginManager().callEvent(islandOpenEvent);
 		
 		if (!islandOpenEvent.isCancelled()) {
-			plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml")).getFileConfiguration().set("Visitor.Open", open);	
+			plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml")).getFileConfiguration().set("Visitor.Open", open);
 			getVisit().setOpen(open);
 		}
 	}
@@ -438,8 +441,8 @@ public class Island {
 	}
 	
 	public List<UUID> getVisitors() {
-		HashMap<UUID, PlayerData> playerDataStorage = plugin.getPlayerDataManager().getPlayerData();
-		List<UUID> islandVisitors = new ArrayList<UUID>();
+		Map<UUID, PlayerData> playerDataStorage = plugin.getPlayerDataManager().getPlayerData();
+		List<UUID> islandVisitors = new ArrayList<>();
 		
 		for (UUID playerDataStorageList : playerDataStorage.keySet()) {
 			PlayerData playerData = playerDataStorage.get(playerDataStorageList);
@@ -448,8 +451,8 @@ public class Island {
 			if (islandOwnerUUID != null && islandOwnerUUID.equals(getOwnerUUID())) {
 				if (playerData.getOwner() == null || !playerData.getOwner().equals(getOwnerUUID())) {
 					if (Bukkit.getServer().getPlayer(playerDataStorageList) != null) {
-						islandVisitors.add(playerDataStorageList);	
-					}	
+						islandVisitors.add(playerDataStorageList);
+					}
 				}
 			}
 		}
@@ -458,7 +461,7 @@ public class Island {
 	}
 	
 	public List<String> getMessage(IslandMessage message) {
-		List<String> islandMessage = new ArrayList<String>();
+		List<String> islandMessage = new ArrayList<>();
 		
 		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
@@ -508,7 +511,7 @@ public class Island {
 		
 		for (IslandSettings.Role roleList : IslandSettings.Role.values()) {
 			if (islandSettings.containsKey(roleList)) {
-				HashMap<String, IslandSettings> roleSettings = islandSettings.get(roleList);
+				Map<String, IslandSettings> roleSettings = islandSettings.get(roleList);
 				
 				for (String roleSettingList : roleSettings.keySet()) {
 					configLoad.set("Settings." + roleList.name() + "." + roleSettingList, roleSettings.get(roleSettingList).getStatus());

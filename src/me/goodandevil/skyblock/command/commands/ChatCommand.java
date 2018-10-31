@@ -1,7 +1,7 @@
 package me.goodandevil.skyblock.command.commands;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -47,7 +47,7 @@ public class ChatCommand extends SubCommand {
 				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Chat.Team.Message")));
 				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			} else {
-				HashMap<UUID, PlayerData> playerDataStorage = playerDataManager.getPlayerData();
+				Map<UUID, PlayerData> playerDataStorage = playerDataManager.getPlayerData();
 				
 				for (UUID playerDataStorageList : playerDataStorage.keySet()) {
 					if (!playerDataStorageList.equals(player.getUniqueId())) {

@@ -2,7 +2,9 @@ package me.goodandevil.skyblock.config;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,14 +14,14 @@ import me.goodandevil.skyblock.Main;
 
 public class FileChecker {
 	
-	private HashMap<File.Type, File> loadedFiles;
+	private Map<File.Type, File> loadedFiles;
 	
 	public FileChecker(Main plugin, String configurationFileName) {
-		loadedFiles = new HashMap<File.Type, File>();
+		loadedFiles = new EnumMap<>(File.Type.class);
 		
 		java.io.File configFile = new java.io.File(plugin.getDataFolder(), configurationFileName);
-		loadedFiles.put(File.Type.Created, new File(configFile, YamlConfiguration.loadConfiguration(configFile)));
-		loadedFiles.put(File.Type.Resource, new File(null, YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(configurationFileName)))));
+		loadedFiles.put(File.Type.CREATED, new File(configFile, YamlConfiguration.loadConfiguration(configFile)));
+		loadedFiles.put(File.Type.RESOURCE, new File(null, YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(configurationFileName)))));
 	}
 	
 	public void loadSections() {
@@ -40,16 +42,16 @@ public class FileChecker {
 			File file = loadedFiles.get(fileType);
 			FileConfiguration configLoad = file.getFileConfiguration();
 			
-			if (fileType == File.Type.Created) {
-				File resourceFile = loadedFiles.get(File.Type.Resource);
+			if (fileType == File.Type.CREATED) {
+				File resourceFile = loadedFiles.get(File.Type.RESOURCE);
 				
 				for (String configKeysList : file.getKeys().keySet()) {
 					if (!resourceFile.getKeys().containsKey(configKeysList)) {
 						configLoad.set(configKeysList, null);
 					}
 				}
-			} else if (fileType == File.Type.Resource) {
-				File createdFile = loadedFiles.get(File.Type.Created);
+			} else if (fileType == File.Type.RESOURCE) {
+				File createdFile = loadedFiles.get(File.Type.CREATED);
 				FileConfiguration createdConfigLoad = createdFile.getFileConfiguration();
 				
 				for (String configKeysList : file.getKeys().keySet()) {
@@ -62,7 +64,7 @@ public class FileChecker {
 	}
 	
 	public void saveChanges() {
-		File file = loadedFiles.get(File.Type.Created);
+		File file = loadedFiles.get(File.Type.CREATED);
 		
 		try {
 			file.getFileConfiguration().save(file.getFile());
@@ -81,7 +83,7 @@ public class FileChecker {
 		public File(java.io.File configFile, FileConfiguration configLoad) {
 			this.configFile = configFile;
 			this.configLoad = configLoad;
-			configKeys = new HashMap<String, Object>();
+			configKeys = new HashMap<>();
 		}
 		
 		public java.io.File getFile() {
@@ -101,8 +103,8 @@ public class FileChecker {
 		}
 		
 		public enum Type {
-			Created,
-			Resource;
+			CREATED,
+			RESOURCE;
 		}
 	}
 }

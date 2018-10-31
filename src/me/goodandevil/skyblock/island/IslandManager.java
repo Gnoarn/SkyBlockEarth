@@ -3,8 +3,10 @@ package me.goodandevil.skyblock.island;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -47,8 +49,8 @@ public class IslandManager {
 	
 	private double x = 0, offset = 400;
 	
-	private HashMap<IslandLocation.World, Location> islandWorldLocations = new HashMap<IslandLocation.World, Location>();
-	private HashMap<UUID, Island> islandStorage = new HashMap<UUID, Island>();
+	private Map<IslandLocation.World, Location> islandWorldLocations = new EnumMap<>(IslandLocation.World.class);
+	private Map<UUID, Island> islandStorage = new HashMap<>();
 	
 	public IslandManager(Main plugin) {
 		this.plugin = plugin;
@@ -141,6 +143,7 @@ public class IslandManager {
 		scoreboard.run();
 		
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
 			}
@@ -200,7 +203,7 @@ public class IslandManager {
 			
 			Bukkit.getServer().getPluginManager().callEvent(new IslandOwnershipTransferEvent(island, islandOwnerUUID, uuid));
 			
-			ArrayList<UUID> islandMembers = new ArrayList<UUID>();
+			ArrayList<UUID> islandMembers = new ArrayList<>();
 			islandMembers.addAll(island.getRole(IslandRole.Member));
 			islandMembers.addAll(island.getRole(IslandRole.Operator));
 			islandMembers.add(uuid);
@@ -330,7 +333,7 @@ public class IslandManager {
 							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
 							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
 							
-							HashMap<String, String> displayVariables = new HashMap<String, String>();
+							HashMap<String, String> displayVariables = new HashMap<>();
 							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
 							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
 							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
@@ -394,7 +397,7 @@ public class IslandManager {
 							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
 							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 							
-							HashMap<String, String> displayVariables = new HashMap<String, String>();
+							HashMap<String, String> displayVariables = new HashMap<>();
 							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
 							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
 							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
@@ -404,7 +407,7 @@ public class IslandManager {
 						
 						scoreboard.run();
 					}
-				}	
+				}
 			}
 			
 			player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Visitor));
@@ -458,7 +461,7 @@ public class IslandManager {
 		islandStorage.remove(islandOwnerUUID);
 	}
 
-	public HashMap<UUID, Island> getIslands() {
+	public Map<UUID, Island> getIslands() {
 		return islandStorage;
 	}
 	
@@ -482,19 +485,8 @@ public class IslandManager {
 	}
 	
 	public boolean hasIsland(Player player) {
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-		
-		if (playerDataManager.hasPlayerData(player)) {
-			UUID islandOwnerUUID = playerDataManager.getPlayerData(player).getOwner();
-			
-			if (islandOwnerUUID == null) {
-				return false;
-			} else {
-				return islandStorage.containsKey(islandOwnerUUID);	
-			}
-		} else {
-			return hasIsland(player.getUniqueId());	
-		}
+		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+		return (playerData == null) ? hasIsland(player.getUniqueId()) : islandStorage.containsKey(playerData.getOwner());
 	}
 	
 	public boolean containsIsland(UUID uuid) {
@@ -528,7 +520,7 @@ public class IslandManager {
 					}
 					
 					return true;
-				}	
+				}
 			}
 		}
 		
@@ -546,7 +538,7 @@ public class IslandManager {
 	}
 	
 	public List<UUID> getMembersOnline(Island island) {
-		List<UUID> membersOnline = new ArrayList<UUID>();
+		List<UUID> membersOnline = new ArrayList<>();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) {
@@ -558,8 +550,8 @@ public class IslandManager {
 	}
 	
 	public List<UUID> getPlayersAtIsland(Island island) {
-		List<UUID> playersAtIsland = new ArrayList<UUID>();
-		HashMap<UUID, PlayerData> playerData = plugin.getPlayerDataManager().getPlayerData();
+		List<UUID> playersAtIsland = new ArrayList<>();
+		Map<UUID, PlayerData> playerData = plugin.getPlayerDataManager().getPlayerData();
 		
 		for (UUID playerDataList : playerData.keySet()) {
 			UUID islandOwnerUUID = playerData.get(playerDataList).getIsland();
@@ -573,7 +565,7 @@ public class IslandManager {
 	}
 	
 	public List<Player> getPlayersAtIsland(Island island, IslandLocation.World world) {
-		List<Player> playersAtIsland = new ArrayList<Player>();
+		List<Player> playersAtIsland = new ArrayList<>();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(world, IslandLocation.Environment.Island), 85)) {
@@ -586,6 +578,7 @@ public class IslandManager {
 	
 	public void loadPlayer(Player player) {
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName())) {
 					Island island = null;
@@ -607,7 +600,7 @@ public class IslandManager {
 								
 								break;
 							}
-						}	
+						}
 					}
 					
 					if (island != null) {
@@ -615,7 +608,7 @@ public class IslandManager {
 						player.setPlayerWeather(island.getWeather());
 						
 						if (plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.WorldBorder.Enable")) {
-							WorldBorder.send(player, 172, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island));	
+							WorldBorder.send(player, 172, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island));
 						}
 					}
 				}

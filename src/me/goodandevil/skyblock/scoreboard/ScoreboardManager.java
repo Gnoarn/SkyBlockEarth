@@ -2,6 +2,7 @@ package me.goodandevil.skyblock.scoreboard;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,10 +20,11 @@ import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 
 public class ScoreboardManager {
 
-	private HashMap<UUID, Scoreboard> scoreboardStorage = new HashMap<UUID, Scoreboard>();
+	private Map<UUID, Scoreboard> scoreboardStorage = new HashMap<>();
 	
 	public ScoreboardManager(Main plugin) {
 		new BukkitRunnable() {
+			@Override
 			public void run() {
 				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
 				IslandManager islandManager = plugin.getIslandManager();
@@ -54,7 +56,7 @@ public class ScoreboardManager {
 									scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 								}
 								
-								HashMap<String, String> displayVariables = new HashMap<String, String>();
+								Map<String, String> displayVariables = new HashMap<>();
 								displayVariables.put("%owner", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
 								displayVariables.put("%operator", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
 								displayVariables.put("%member", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
@@ -68,7 +70,7 @@ public class ScoreboardManager {
 						
 						scoreboard.run();
 						storeScoreboard(all, scoreboard);
-					}	
+					}
 				}
 			}
 		}.runTaskLater(plugin, 20L);

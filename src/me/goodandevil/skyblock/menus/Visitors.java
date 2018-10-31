@@ -59,7 +59,7 @@ public class Visitors implements Listener {
     	Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
     	
-		Map<Integer, UUID> sortedIslandVisitors = new TreeMap<Integer, UUID>();
+		Map<Integer, UUID> sortedIslandVisitors = new TreeMap<>();
 		List<UUID> islandVisitors = island.getVisitors();
 		
     	InventoryUtil inv = new InventoryUtil(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Title")), null, 6);
@@ -115,7 +115,7 @@ public class Visitors implements Listener {
 						islandVisitTimeFormatted = islandVisitTime[3] + " " + configLoad.getString("Menu.Visitors.Item.Visitor.Word.Seconds");
 					}
 					
-					List<String> itemLore = new ArrayList<String>();
+					List<String> itemLore = new ArrayList<>();
 					
 					if ((isOperator && canKick) || isOwner) {
 						if (banningEnabled && ((isOperator && canBan) || isOwner)) {
@@ -218,6 +218,7 @@ public class Visitors implements Listener {
 						}
 						
 						new BukkitRunnable() {
+							@Override
 							public void run() {
 								open(player);
 							}

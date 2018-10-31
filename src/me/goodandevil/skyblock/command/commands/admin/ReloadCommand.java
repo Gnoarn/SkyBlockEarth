@@ -1,7 +1,7 @@
 package me.goodandevil.skyblock.command.commands.admin;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,7 +32,7 @@ public class ReloadCommand extends SubCommand {
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.reload") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
-			HashMap<String, Config> configs = fileManager.getConfigs();
+			Map<String, Config> configs = fileManager.getConfigs();
 			
 			for (String configList : configs.keySet()) {
 				configs.get(configList).loadFile();;

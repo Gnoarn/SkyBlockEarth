@@ -139,12 +139,7 @@ public class PlayerData {
 	
 	public UUID getOwner() {
 		String islandOwnerUUID = getConfig().getFileConfiguration().getString("Island.Owner");
-		
-		if (islandOwnerUUID == null) {
-			return null;
-		} else {
-			return UUID.fromString(islandOwnerUUID);
-		}
+		return (islandOwnerUUID == null) ? null : UUID.fromString(islandOwnerUUID);
 	}
 	
 	public void setOwner(UUID islandOwnerUUID) {

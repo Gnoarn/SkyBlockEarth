@@ -16,7 +16,7 @@ import me.goodandevil.skyblock.utils.version.Materials;
 
 public class StructureManager {
 
-	private List<Structure> structureStorage = new ArrayList<Structure>();
+	private List<Structure> structureStorage = new ArrayList<>();
 	
 	public StructureManager(Main plugin) {
 		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "structures.yml"));

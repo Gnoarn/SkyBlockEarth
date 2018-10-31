@@ -2,6 +2,7 @@ package me.goodandevil.skyblock.ban;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,7 +20,7 @@ import me.goodandevil.skyblock.utils.world.LocationUtil;
 public class BanManager {
 
 	private final Main plugin;
-	private HashMap<UUID, Ban> banStorage = new HashMap<UUID, Ban>();
+	private Map<UUID, Ban> banStorage = new HashMap<>();
 	
 	public BanManager(Main plugin) {
 		this.plugin = plugin;
@@ -28,7 +29,7 @@ public class BanManager {
 	}
 	
 	public void onDisable() {
-		HashMap<UUID, Ban> banIslands = getIslands();
+		Map<UUID, Ban> banIslands = getIslands();
 		
 		for (UUID banIslandList : banIslands.keySet()) {
 			Ban ban = banIslands.get(banIslandList);
@@ -46,7 +47,7 @@ public class BanManager {
 				for (File fileList : configFile.listFiles()) {
 					UUID islandOwnerUUID = UUID.fromString(fileList.getName().replaceFirst("[.][^.]+$", ""));
 					createIsland(islandOwnerUUID);
-				}	
+				}
 			}
 		}
 	}
@@ -97,7 +98,7 @@ public class BanManager {
 		return null;
 	}
 	
-	public HashMap<UUID, Ban> getIslands() {
+	public Map<UUID, Ban> getIslands() {
 		return banStorage;
 	}
 	

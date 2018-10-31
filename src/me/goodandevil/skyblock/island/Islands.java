@@ -15,7 +15,7 @@ public class Islands {
 	private String displayName;
 	private String permission;
 	
-	private List<String> description = new ArrayList<String>();
+	private List<String> description = new ArrayList<>();
 	
 	public Islands(Material material, int data, String fileName, String islandName, String displayName, String permission, List<String> description) {
 		this.material = material;

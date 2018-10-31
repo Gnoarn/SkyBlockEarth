@@ -59,7 +59,7 @@ public class Visit implements Listener {
 		VisitManager visitManager = plugin.getVisitManager();
 		FileManager fileManager = plugin.getFileManager();
 		
-		HashMap<UUID, me.goodandevil.skyblock.visit.Visit> displayedIslands = new HashMap<UUID, me.goodandevil.skyblock.visit.Visit>();
+		Map<UUID, me.goodandevil.skyblock.visit.Visit> displayedIslands = new HashMap<>();
 		Map<UUID, me.goodandevil.skyblock.visit.Visit> visitIslands = visitManager.getOpenIslands();
 		
 		if (type == Visit.Type.Solo) {
@@ -79,7 +79,7 @@ public class Visit implements Listener {
 		if (sort == Visit.Sort.Default) {
 			displayedIslands.putAll(visitIslands);
 		} else if (sort == Visit.Sort.Players || sort == Visit.Sort.Level || sort == Visit.Sort.Members || sort == Visit.Sort.Visits || sort == Visit.Sort.Votes) {
-			Map<Integer, List<UUID>> sortedIslands = new TreeMap<Integer, List<UUID>>(Collections.reverseOrder());
+			Map<Integer, List<UUID>> sortedIslands = new TreeMap<>(Collections.reverseOrder());
 			
 			for (UUID visitIslandList : visitIslands.keySet()) {
 				int islandInteger = 0;
@@ -98,7 +98,7 @@ public class Visit implements Listener {
 					islandInteger = visitIslands.get(visitIslandList).getVoters().size();
 				}
 				
-				List<UUID> identicalIslands = new ArrayList<UUID>();
+				List<UUID> identicalIslands = new ArrayList<>();
 				
 				if (sortedIslands.containsKey(islandInteger)) {
 					identicalIslands.addAll(sortedIslands.get(islandInteger));
@@ -176,7 +176,7 @@ public class Visit implements Listener {
 						playersAtIsland = islandManager.getPlayersAtIsland(island).size();
 					}
 					
-					List<String> itemLore = new ArrayList<String>();
+					List<String> itemLore = new ArrayList<>();
 					
 					if (voteEnabled) {
 						String voteAction = "";
@@ -219,7 +219,7 @@ public class Visit implements Listener {
 							}
 						}
 						
-						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);	
+						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);
 					} else {
 						if (signatureEnabled) {
 							for (String itemLoreList : configLoad.getStringList("Menu.Visit.Item.Island.Vote.Disabled.Signature.Enabled.Lore")) {
