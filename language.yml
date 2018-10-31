@@ -644,6 +644,11 @@ Island:
                 Message: "&bSkyBlock &8| &aInfo&8: &eThe Island you were at is no longer open for visitors."
             Plugin:
                 Message: "&bSkyBlock &8| &cError&8: &eYou cannot teleport to the destination location because the Island isn't open for visitors."
+        Banned:
+            Island:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have been banned from the Island you were at."
+            Teleport:
+                Message: "&bSkyBlock &8| &cError&8: &eYou cannot teleport to the destination location because you are banned from that Island."
         Teleported:
             Message: "&bSkyBlock &8| &aInfo&8: &eYou have been teleported to &a%player's &eIsland."
         Unloaded:

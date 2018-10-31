@@ -16,6 +16,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
 import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
@@ -188,37 +189,42 @@ public class PlayerDataManager {
 			
 			HashMap<UUID, Visit> visitIslands = plugin.getVisitManager().getIslands();
 			
-			// TODO Check if player is banned from Island.
-			
 			for (UUID visitIslandList : visitIslands.keySet()) {
 				Visit visit = visitIslands.get(visitIslandList);
 				
 				for (IslandLocation.World worldList : IslandLocation.World.values()) {
 					if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), visit.getLocation(worldList), 85)) {
-						if (visit.isOpen()) {
-							PlayerData playerData = getPlayerData(player);
-							playerData.setIsland(visitIslandList);
-							
-							islandManager.loadIsland(visitIslandList);
+						FileManager fileManager = plugin.getFileManager();
+						BanManager banManager = plugin.getBanManager();
+						
+						Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+						FileConfiguration configLoad = config.getFileConfiguration();
+						
+			    		Player targetPlayer = Bukkit.getServer().getPlayer(visitIslandList);
+			    		String targetPlayerName;
+			    		
+			    		if (targetPlayer == null) {
+			    			targetPlayerName = new OfflinePlayer(visitIslandList).getName();
+			    		} else {
+			    			targetPlayerName = targetPlayer.getName();
+			    		}
+						
+						if (banManager.hasIsland(visitIslandList) && banManager.getIsland(visitIslandList).isBanned(player.getUniqueId())) {
+							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Teleport.Island.Message").replace("%player", targetPlayerName)));
 						} else {
-							FileManager fileManager = plugin.getFileManager();
-							
-							Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
-							FileConfiguration configLoad = config.getFileConfiguration();
-							
-				    		Player targetPlayer = Bukkit.getServer().getPlayer(visitIslandList);
-				    		String targetPlayerName;
-				    		
-				    		if (targetPlayer == null) {
-				    			targetPlayerName = new OfflinePlayer(visitIslandList).getName();
-				    		} else {
-				    			targetPlayerName = targetPlayer.getName();
-				    		}
-							
-				    		LocationUtil.teleportPlayerToSpawn(player);
-							
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Island.Message").replace("%player", targetPlayerName)));
+							if (visit.isOpen()) {
+								PlayerData playerData = getPlayerData(player);
+								playerData.setIsland(visitIslandList);
+								
+								islandManager.loadIsland(visitIslandList);
+								
+								return;
+							} else {
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Island.Message").replace("%player", targetPlayerName)));
+							}
 						}
+						
+			    		LocationUtil.teleportPlayerToSpawn(player);
 						
 						return;
 					}

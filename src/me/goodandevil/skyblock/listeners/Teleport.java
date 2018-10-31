@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +14,7 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager;
+import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandEnterEvent;
 import me.goodandevil.skyblock.events.IslandExitEvent;
 import me.goodandevil.skyblock.events.IslandSwitchEvent;
@@ -40,6 +42,9 @@ public class Teleport implements Listener {
     	IslandManager islandManager = plugin.getIslandManager();
     	FileManager fileManager = plugin.getFileManager();
     	
+    	Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+    	FileConfiguration configLoad = config.getFileConfiguration();
+    	
     	islandManager.loadPlayer(player);
     	
     	if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
@@ -47,7 +52,7 @@ public class Teleport implements Listener {
 				if (!islandManager.hasPermission(player, "Portal")) {
 					event.setCancelled(true);
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Settings.Permission.Message")));
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Permission.Message")));
 					player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					
 					return;
@@ -56,8 +61,6 @@ public class Teleport implements Listener {
     	}
     	
     	PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-    	
-    	// TODO Check if player is banned from Island.
     	
 		if (playerDataManager.hasPlayerData(player)) {
 			PlayerData playerData = playerDataManager.getPlayerData(player);
@@ -69,13 +72,22 @@ public class Teleport implements Listener {
 				
 				for (IslandLocation.World worldList : IslandLocation.World.values()) {
 					if (LocationUtil.isLocationAtLocationRadius(event.getTo(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-						if (!island.getOwnerUUID().equals(playerData.getOwner()) && !island.isOpen()) {
-							event.setCancelled(true);
-							
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Visit.Closed.Plugin.Message")));
-							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-						
-							return;
+						if (!island.getOwnerUUID().equals(playerData.getOwner())) {
+							if (!island.isOpen()) {
+								event.setCancelled(true);
+								
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Plugin.Message")));
+								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+								
+								return;
+							} else if (island.getBan().isBanned(player.getUniqueId())) {
+								event.setCancelled(true);
+								
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Banned.Teleport.Message")));
+								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+								
+								return;
+							}
 						}
 						
 						if (playerData.getIsland() != null && !playerData.getIsland().equals(island.getOwnerUUID())) {
