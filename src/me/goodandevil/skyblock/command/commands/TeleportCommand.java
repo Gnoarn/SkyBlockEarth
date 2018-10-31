@@ -39,49 +39,62 @@ public class TeleportCommand extends SubCommand {
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (args.length == 1) {
-			Player targetPlayer = Bukkit.getServer().getPlayer(args[0]);
-			UUID islandOwnerUUID = null;
-			String targetPlayerName;
-			
-			if (targetPlayer == null) {
-				OfflinePlayer targetOfflinePlayer = new OfflinePlayer(args[0]);
-				islandOwnerUUID = targetOfflinePlayer.getOwner();
-				targetPlayerName = targetOfflinePlayer.getName();
+			if (player.hasPermission("skyblock.teleport") || player.hasPermission("skyblock.*")) {
+				Player targetPlayer = Bukkit.getServer().getPlayer(args[0]);
+				UUID islandOwnerUUID = null;
+				String targetPlayerName;
+				
+				if (targetPlayer == null) {
+					OfflinePlayer targetOfflinePlayer = new OfflinePlayer(args[0]);
+					islandOwnerUUID = targetOfflinePlayer.getOwner();
+					targetPlayerName = targetOfflinePlayer.getName();
+				} else {
+					islandOwnerUUID = playerDataManager.getPlayerData(targetPlayer).getOwner();
+					targetPlayerName = targetPlayer.getName();
+				}
+				
+				if (islandOwnerUUID == null) {
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
+					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					
+					return;
+				} else if (!islandOwnerUUID.equals(playerDataManager.getPlayerData(player).getOwner())) {
+					if (visitManager.hasIsland(islandOwnerUUID)) {
+		    			me.goodandevil.skyblock.visit.Visit visit = visitManager.getIsland(islandOwnerUUID);
+		    			
+		    			if (visit.isOpen()) {
+		    				if (!islandManager.containsIsland(islandOwnerUUID)) {
+		    					islandManager.loadIsland(islandOwnerUUID);
+		    				}
+		    				
+		    				islandManager.visitIsland(player, islandManager.getIsland(islandOwnerUUID));
+		    				
+							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Teleported.Other.Message").replace("%player", targetPlayerName)));
+							player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
+		    			} else {
+							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.Closed.Message")));
+							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+		    			}
+		    			
+		    			return;
+		    		}
+					
+					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
+					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					
+					return;
+				}
 			} else {
-				islandOwnerUUID = playerDataManager.getPlayerData(targetPlayer).getOwner();
-				targetPlayerName = targetPlayer.getName();
+				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Permission.Message")));
+				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+				
+				return;
 			}
+		} else if (args.length != 0) {
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Invalid.Message")));
+			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			
-			if (islandOwnerUUID == null) {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
-				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-				
-				return;
-			} else if (!islandOwnerUUID.equals(playerDataManager.getPlayerData(player).getOwner())) {
-				if (visitManager.hasIsland(islandOwnerUUID)) {
-	    			me.goodandevil.skyblock.visit.Visit visit = visitManager.getIsland(islandOwnerUUID);
-	    			
-	    			if (visit.isOpen()) {
-	    				if (!islandManager.containsIsland(islandOwnerUUID)) {
-	    					islandManager.loadIsland(islandOwnerUUID);
-	    				}
-	    				
-	    				islandManager.visitIsland(player, islandManager.getIsland(islandOwnerUUID));
-	    				
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Teleported.Other.Message").replace("%player", targetPlayerName)));
-						player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
-	    			} else {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.Closed.Message")));
-						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-	    			}
-	    			
-	    			return;
-	    		}
-				
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Island.None.Message")));
-				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-				return;
-			}
+			return;
 		}
 		
 		if (islandManager.hasIsland(player)) {
@@ -94,17 +107,6 @@ public class TeleportCommand extends SubCommand {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Owner.Message")));
 			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		}
-		
-		/*if (islandManager.hasIsland(player)) {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Teleported.Message")));
-			player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
-			
-			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
-			player.teleport(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Main));
-		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Teleport.Owner.Message")));
-			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-		}*/
 	}
 
 	@Override
