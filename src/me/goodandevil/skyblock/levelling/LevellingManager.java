@@ -24,8 +24,8 @@ import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
-import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class LevellingManager {

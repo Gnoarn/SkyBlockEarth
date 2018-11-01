@@ -18,8 +18,8 @@ import org.bukkit.material.Colorable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.EulerAngle;
 
-import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.item.ItemStackUtil;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
 

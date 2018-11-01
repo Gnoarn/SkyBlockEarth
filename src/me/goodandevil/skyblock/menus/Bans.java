@@ -134,6 +134,14 @@ public class Bans implements Listener {
 				
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(playerData.getOwner());
+					
+					if (!fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning")) {
+						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Bans.Disabled.Message")));
+						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+						player.closeInventory();
+						
+						return;
+					}
 				} else {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Bans.Owner.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);

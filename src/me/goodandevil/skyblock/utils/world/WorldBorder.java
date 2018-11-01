@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import me.goodandevil.skyblock.utils.NMSUtil;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 public final class WorldBorder {
 	

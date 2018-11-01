@@ -19,9 +19,9 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.material.Stairs;
 import org.bukkit.potion.PotionEffectType;
 
-import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.item.ItemStackUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 @SuppressWarnings("deprecation")
 public final class BlockUtil {

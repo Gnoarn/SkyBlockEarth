@@ -10,7 +10,7 @@ import java.math.BigInteger;
 
 import org.bukkit.inventory.ItemStack;
 
-import me.goodandevil.skyblock.utils.NMSUtil;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 public final class ItemStackUtil {
 

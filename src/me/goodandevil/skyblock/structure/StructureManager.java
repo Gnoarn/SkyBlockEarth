@@ -11,8 +11,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
-import me.goodandevil.skyblock.utils.NMSUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 public class StructureManager {
 

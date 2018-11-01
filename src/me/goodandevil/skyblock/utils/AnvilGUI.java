@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 public class AnvilGUI {
 	

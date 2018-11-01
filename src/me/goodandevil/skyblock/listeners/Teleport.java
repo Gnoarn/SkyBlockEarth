@@ -80,7 +80,7 @@ public class Teleport implements Listener {
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 								
 								return;
-							} else if (island.getBan().isBanned(player.getUniqueId())) {
+							} else if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning") && island.getBan().isBanned(player.getUniqueId())) {
 								event.setCancelled(true);
 								
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Banned.Teleport.Message")));

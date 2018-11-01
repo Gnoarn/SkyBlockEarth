@@ -209,7 +209,7 @@ public class PlayerDataManager {
 			    			targetPlayerName = targetPlayer.getName();
 			    		}
 						
-						if (banManager.hasIsland(visitIslandList) && banManager.getIsland(visitIslandList).isBanned(player.getUniqueId())) {
+						if (banManager.hasIsland(visitIslandList) && fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning") && banManager.getIsland(visitIslandList).isBanned(player.getUniqueId())) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Teleport.Island.Message").replace("%player", targetPlayerName)));
 						} else {
 							if (visit.isOpen()) {

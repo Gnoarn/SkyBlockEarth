@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import com.google.common.io.ByteStreams;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.utils.NMSUtil;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

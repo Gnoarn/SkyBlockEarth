@@ -1,4 +1,4 @@
-package me.goodandevil.skyblock.utils;
+package me.goodandevil.skyblock.utils.version;
 
 import java.lang.reflect.Field;
 

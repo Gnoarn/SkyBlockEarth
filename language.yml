@@ -293,6 +293,8 @@ Command:
                 Message: "&bSkyBlock &8| &cError&8: &eInvalid: /island unban <player>"
             Owner:
                 Message: "&bSkyBlock &8| &cError&8: &eYou are not an Island owner."
+            Disabled:
+                Message: "&bSkyBlock &8| &cError&8: &eYou cannot perform this command because Island banning has been disabled."
             Permission:
                 Message: "&bSkyBlock &8| &cError&8: &eYou do not have the right to unban Island members."
             Found:
