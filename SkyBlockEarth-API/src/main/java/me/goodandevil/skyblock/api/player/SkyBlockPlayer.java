@@ -23,6 +23,12 @@ public interface SkyBlockPlayer {
 	
 	public void setPendingInvitation(IslandInvitation invitation);
 	
+	public IslandInvitation sendIslandInvitationTo(SkyBlockPlayer player);
+	
+	public IslandInvitation sendIslandInvitationTo(OfflinePlayer player);
+	
+	public IslandInvitation sendIslandInvitationTo(UUID playerUUID);
+	
 	public boolean hasChatEnabled();
 	
 	public void setChatEnabled(boolean enabled);
