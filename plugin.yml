@@ -1,9 +1,9 @@
 name: SkyBlock
 main: me.goodandevil.skyblock.Main
-version: 3
+version: 4
 api-version: 1.13
 author: GoodAndEvil
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, MVdWPlaceholderAPI]
 commands:
     island:
         aliases: [is]

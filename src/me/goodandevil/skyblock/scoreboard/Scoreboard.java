@@ -96,6 +96,10 @@ public class Scoreboard {
 									    	 
 									    	 displayLine = replaceDisplayLine(displayLine);
 									    	 
+									    	 if (displayLine.length() > 32) {
+									    		 displayLine = "&cLine too long...";
+									    	 }
+									    	 
 									    	 if (displayLine.length() >= 16) {
 								    			 String prefixLine = displayLine.substring(0, Math.min(displayLine.length(), 16));
 								    			 String suffixLine = displayLine.substring(16, Math.min(displayLine.length(), displayLine.length()));

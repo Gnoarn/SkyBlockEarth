@@ -16,5 +16,9 @@ public class PlaceholderManager {
 		if (pluginManager.getPlugin("PlaceholderAPI") != null) {
 			new EZPlaceholder(plugin).register();
 		}
+		
+		if (pluginManager.getPlugin("MVdWPlaceholderAPI") != null) {
+			new MVdWPlaceholder(plugin).register();
+		}
 	}
 }

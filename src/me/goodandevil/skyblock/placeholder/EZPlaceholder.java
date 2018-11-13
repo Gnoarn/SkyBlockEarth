@@ -1,5 +1,8 @@
 package me.goodandevil.skyblock.placeholder;
 
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -7,6 +10,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
+import me.goodandevil.skyblock.island.Role;
 
 public class EZPlaceholder extends PlaceholderExpansion {
 	
@@ -47,7 +51,36 @@ public class EZPlaceholder extends PlaceholderExpansion {
     		} else if (identifier.equalsIgnoreCase("island_points")) {
     			return "" + island.getLevel().getPoints();
     		} else if (identifier.equalsIgnoreCase("island_role")) {
+    			for (Role roleList : Role.values()) {
+    				if (island.isRole(roleList, player.getUniqueId())) {
+    					return roleList.name();
+    				}
+    			}
+    		} else if (identifier.equalsIgnoreCase("island_owner")) {
+    			UUID islandOwnerUUID = island.getOwnerUUID();
+    			Player targetPlayer = Bukkit.getServer().getPlayer(islandOwnerUUID);
     			
+    			if (targetPlayer == null) {
+    				return Bukkit.getServer().getOfflinePlayer(islandOwnerUUID).getName();
+    			} else {
+    				return targetPlayer.getName();
+    			}
+    		} else if (identifier.equalsIgnoreCase("island_biome")) {
+    			return island.getBiomeName();
+    		} else if (identifier.equalsIgnoreCase("island_time")) {
+    			return "" + island.getTime();
+    		} else if (identifier.equalsIgnoreCase("island_weather")) {
+    			return "" + island.getWeatherName();
+    		} else if (identifier.equalsIgnoreCase("island_bans")) {
+    			return "" + island.getBan().getBans().size();
+    		} else if (identifier.equalsIgnoreCase("island_members_total")) {
+    			return "" + (island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1);
+    		} else if (identifier.equalsIgnoreCase("island_members")) {
+    			return "" + island.getRole(Role.Member).size();
+    		} else if (identifier.equalsIgnoreCase("island_operators")) {
+    			return "" + island.getRole(Role.Operator).size();
+    		} else if (identifier.equalsIgnoreCase("island_visitors")) {
+    			return "" + island.getVisitors().size();
     		}
     	}
         
