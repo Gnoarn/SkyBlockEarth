@@ -8,6 +8,15 @@ Command:
         Aliases:
             Enable: true
 Island:
+    Creation:
+        Cooldown:
+            # When enabled cooldown will start when a player creates an Island.
+            Creation:
+                Enable: true
+            # When enabled cooldown will start when a player deletes their Island.
+            Deletion:
+                Enable: true
+            Time: 300
     World:
         Normal:
             Name: "island_normal_world"

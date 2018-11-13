@@ -63,7 +63,8 @@ public class Join implements Listener {
 		
 		playerDataManager.storeIsland(player);
 		
-		plugin.getBiomeManager().loadBiome(player);
+		plugin.getBiomeManager().loadPlayer(player);
+		//plugin.getCreationManager().loadPlayer(player);
 		
 		FileManager fileManager = plugin.getFileManager();
 		

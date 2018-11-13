@@ -8,11 +8,18 @@ public class StructureStorage {
     
     private long time;
     
-    public StructureStorage(String blocks, String entities, String originLocation, long time) {
+	private int version;
+    
+    public StructureStorage(String blocks, String entities, String originLocation, long time, int version) {
     	this.blocks = blocks;
     	this.entities = entities;
     	this.originLocation = originLocation;
     	this.time = time;
+    	this.version = version;
+    }
+    
+    public int getVersion() {
+    	return version;
     }
     
     public String getBlocks() {

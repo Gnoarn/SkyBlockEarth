@@ -157,14 +157,14 @@ public class Biome implements Listener {
 		    		if (is.getItemMeta().hasEnchant(Enchantment.THORNS)) {
 		    			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		    		} else {
-						if (biomeManager.hasBiome(player)) {
-							me.goodandevil.skyblock.biome.Biome biome = biomeManager.getBiome(player);
+						if (biomeManager.hasPlayer(player)) {
+							me.goodandevil.skyblock.biome.Biome biome = biomeManager.getPlayer(player);
 							
 							if (biome.getTime() < 60) {
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", biome.getTime() + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Island.Biome.Cooldown.Message").replace("%time", biome.getTime() + " " + config.getFileConfiguration().getString("Island.Biome.Cooldown.Word.Second"))));
 							} else {
 								long[] durationTime = NumberUtil.getDuration(biome.getTime());
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Biome.Cooldown.Word.Second"))));
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Island.Biome.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Island.Biome.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Island.Biome.Cooldown.Word.Second"))));
 							}
 							
 							player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
@@ -190,7 +190,7 @@ public class Biome implements Listener {
 		    				selectedBiomeType = Biomes.ROOFED_FOREST.bukkitBiome();
 		    			}
 		    			
-		    			biomeManager.createBiome(player, plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Biome.Cooldown"));
+		    			biomeManager.createPlayer(player, plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Biome.Cooldown"));
 			    		biomeManager.setBiome(player, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), selectedBiomeType);
 			    		
 			    		island.setBiome(selectedBiomeType);

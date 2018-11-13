@@ -39,6 +39,7 @@ public class BlockData {
     
     private Map<Integer, String> inventory = new HashMap<>();
 	
+    private int version;
     private int x = 0;
     private int y = 0;
     private int z = 0;
@@ -216,6 +217,14 @@ public class BlockData {
 	
 	public void setFacing(String facing) {
 		this.facing = facing;
+	}
+	
+	public int getVersion() {
+		return version;
+	}
+	
+	public void setVersion(int version) {
+		this.version = version;
 	}
 	
 	public int getX() {

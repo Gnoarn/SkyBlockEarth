@@ -37,13 +37,13 @@ public class BiomeManager {
 		new BiomeTask(plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
-			loadBiome(all);
+			loadPlayer(all);
 		}
 	}
 	
 	public void onDisable() {
 		for (Player all : Bukkit.getOnlinePlayers()) {
-			saveBiome(all);
+			savePlayer(all);
 		}
 	}
 	
@@ -105,7 +105,7 @@ public class BiomeManager {
     	}
 	}
 	
-	public void createBiome(Player player, int time) {
+	public void createPlayer(Player player, int time) {
 		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
@@ -122,7 +122,7 @@ public class BiomeManager {
 		playerBiomeStorage.put(player.getUniqueId(), biome);
 	}
 	
-	public void loadBiome(Player player) {
+	public void loadPlayer(Player player) {
 		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
@@ -132,8 +132,8 @@ public class BiomeManager {
 		}
 	}
 	
-	public void removeBiome(Player player) {
-		if (hasBiome(player)) {
+	public void removePlayer(Player player) {
+		if (hasPlayer(player)) {
 			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 			File configFile = config.getFile();
 			FileConfiguration configLoad = config.getFileConfiguration();
@@ -150,9 +150,9 @@ public class BiomeManager {
 		}
 	}
 	
-	public void saveBiome(Player player) {
-		if (hasBiome(player)) {
-			me.goodandevil.skyblock.biome.Biome biome = getBiome(player);
+	public void savePlayer(Player player) {
+		if (hasPlayer(player)) {
+			me.goodandevil.skyblock.biome.Biome biome = getPlayer(player);
 			
 			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), player.getUniqueId().toString() + ".yml"));
 			File configFile = config.getFile();
@@ -168,21 +168,21 @@ public class BiomeManager {
 		}
 	}
 	
-	public void unloadBiome(Player player) {
-		if (hasBiome(player)) {
+	public void unloadPlayer(Player player) {
+		if (hasPlayer(player)) {
 			playerBiomeStorage.remove(player.getUniqueId());
 		}
 	}
 
-	public me.goodandevil.skyblock.biome.Biome getBiome(Player player) {
-		if (hasBiome(player)) {
+	public me.goodandevil.skyblock.biome.Biome getPlayer(Player player) {
+		if (hasPlayer(player)) {
 			return playerBiomeStorage.get(player.getUniqueId());
 		}
 		
 		return null;
 	}
 	
-	public boolean hasBiome(Player player) {
+	public boolean hasPlayer(Player player) {
 		return playerBiomeStorage.containsKey(player.getUniqueId());
 	}
 }

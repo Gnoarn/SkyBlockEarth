@@ -92,7 +92,11 @@ public class Quit implements Listener {
 		}
 		
 		BiomeManager biomeManager = plugin.getBiomeManager();
-		biomeManager.saveBiome(player);
-		biomeManager.unloadBiome(player);
+		biomeManager.savePlayer(player);
+		biomeManager.unloadPlayer(player);
+		
+		/*CreationManager creationManager = plugin.getCreationManager();
+		creationManager.savePlayer(player);
+		creationManager.unloadPlayer(player);*/
 	}
 }

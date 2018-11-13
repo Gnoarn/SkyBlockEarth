@@ -56,11 +56,13 @@ public class FileManager {
 		for (String configFileList : configFiles.keySet()) {
 			File configFile = configFiles.get(configFileList);
 	        
-	        if (configFile.exists() && (configFileList.equals("config.yml") || configFileList.equals("language.yml"))) {
-				FileChecker fileChecker = new FileChecker(plugin, configFileList);
-				fileChecker.loadSections();
-				fileChecker.compareFiles();
-				fileChecker.saveChanges();
+	        if (configFile.exists()) {
+	        	if (configFileList.equals("config.yml") || configFileList.equals("language.yml")) {
+					FileChecker fileChecker = new FileChecker(plugin, configFileList);
+					fileChecker.loadSections();
+					fileChecker.compareFiles();
+					fileChecker.saveChanges();	
+	        	}
 	        } else {
 	            try {
 	                configFile.createNewFile();

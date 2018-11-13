@@ -19,12 +19,12 @@ public class BiomeTask extends BukkitRunnable {
 		BiomeManager biomeManager = plugin.getBiomeManager();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
-			if (biomeManager.hasBiome(all)) {
-				me.goodandevil.skyblock.biome.Biome biome = biomeManager.getBiome(all);
+			if (biomeManager.hasPlayer(all)) {
+				me.goodandevil.skyblock.biome.Biome biome = biomeManager.getPlayer(all);
 				biome.setTime(biome.getTime() - 1);
 				
 				if (biome.getTime() == 0) {
-					biomeManager.removeBiome(all);
+					biomeManager.removePlayer(all);
 				}
 			}
 		}

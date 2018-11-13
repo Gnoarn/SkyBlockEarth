@@ -323,11 +323,6 @@ Command:
                 Message: "&bSkyBlock &8| &cError&8: &eYou do not have the right to change your Island's biome."
             Owner:
                 Message: "&bSkyBlock &8| &cError&8: &eYou are not an Island owner."
-            Cooldown:
-                Word:
-                    Minute: "minute(s)"
-                    Second: "second(s)"
-                Message: "&bSkyBlock &8| &cError&8: &eYou must wait &c&o%time &ebefore changing your Island biome."
         Weather:
             Info:
                 Message: "&f&oOpens the Island Weather menu."
@@ -619,6 +614,17 @@ Island:
                 Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to use that Structure."
             File:
                 Message: "&bSkyBlock &8| &cError&8: &eThe File for that Structure does not exist."
+            Cooldown:
+                Word:
+                    Minute: "minute(s)"
+                    Second: "second(s)"
+                Message: "&bSkyBlock &8| &cError&8: &eYou must wait &c&o%time &ebefore creating an Island."
+    Biome:
+        Cooldown:
+            Word:
+                Minute: "minute(s)"
+                Second: "second(s)"
+            Message: "&bSkyBlock &8| &cError&8: &eYou must wait &c&o%time &ebefore changing your Island biome."
     Settings:
         Permission:
             Message: "&bSkyBlock &8| &cError&8: &eYou do not have the right to do that on this Island."

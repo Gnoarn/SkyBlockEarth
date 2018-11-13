@@ -120,8 +120,17 @@ public class IslandManager {
 	}
 	
 	public void createIsland(Player player, Structure structure) {
+		FileManager fileManager = plugin.getFileManager();
+		
 		Island island = new Island(player.getUniqueId(), prepareNextAvailableLocation(IslandLocation.World.Normal), prepareNextAvailableLocation(IslandLocation.World.Nether), new File(new File(plugin.getDataFolder().toString() + "/structures"), structure.getFileName()));
 		islandStorage.put(player.getUniqueId(), island);
+		
+		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
+		
+		/*if (configLoad.getBoolean("Island.Creation.Cooldown.Creation.Enable")) {
+			plugin.getCreationManager().createPlayer(player, configLoad.getInt("Island.Creation.Cooldown.Time"));
+		}*/
 		
 		Bukkit.getServer().getPluginManager().callEvent(new IslandCreateEvent(player, island));
 		
@@ -133,8 +142,8 @@ public class IslandManager {
 		
 		plugin.getPlayerDataManager().getPlayerData(player).setIsland(player.getUniqueId());
 		
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
-		FileConfiguration configLoad = config.getFileConfiguration();
+		config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		configLoad = config.getFileConfiguration();
 		
 		Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
 		scoreboard.cancel();
@@ -251,8 +260,17 @@ public class IslandManager {
 			}
 		}
 		
+		FileManager fileManager = plugin.getFileManager();
+		
 		plugin.getVisitManager().removeVisitors(island, VisitManager.Removal.Deleted);
-		plugin.getFileManager().deleteConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
+		fileManager.deleteConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
+		
+		/*Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
+		
+		if (configLoad.getBoolean("Island.Creation.Cooldown.Deletion.Enable")) {
+			plugin.getCreationManager().createPlayer(island.getOwnerUUID(), configLoad.getInt("Island.Creation.Cooldown.Time"));
+		}*/
 		
 		Bukkit.getServer().getPluginManager().callEvent(new IslandDeleteEvent(island));
 		

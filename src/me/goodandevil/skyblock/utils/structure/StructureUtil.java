@@ -7,6 +7,7 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.utils.GZipUtil;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.utils.world.block.BlockData;
 import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
@@ -72,7 +73,7 @@ public final class StructureUtil {
             entityData.add(EntityUtil.convertEntityToEntityData(entityList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
         }
     	
-    	String JSONString = new Gson().toJson(new StructureStorage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis()), new TypeToken<StructureStorage>(){}.getType());
+    	String JSONString = new Gson().toJson(new StructureStorage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis(), NMSUtil.getVersionNumber()), new TypeToken<StructureStorage>(){}.getType());
         
         FileOutputStream fileOutputStream = new FileOutputStream(configFile, false);
         fileOutputStream.write(GZipUtil.compress(JSONString.getBytes(StandardCharsets.UTF_8)));
@@ -112,22 +113,30 @@ public final class StructureUtil {
         List<BlockData> blockData = (List<BlockData>) new Gson().fromJson(bs.getBlocks(), new TypeToken<List<BlockData>>(){}.getType());
         
         for (BlockData blockDataList : blockData) {
-            Location blockRotationLocation = LocationUtil.rotateLocation(new Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
-            Location blockLocation = new Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
-            blockLocation.add(blockRotationLocation);
-            
-            if (originLocationPositions != null) {
-            	if (blockDataList.getX() == Integer.valueOf(originLocationPositions[0]) && blockDataList.getY() == Integer.valueOf(originLocationPositions[1]) && blockDataList.getZ() == Integer.valueOf(originLocationPositions[2])) {
-            		originLocation = blockLocation;
-            	}
-            }
-            
-            BlockUtil.convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);
+        	try {
+                Location blockRotationLocation = LocationUtil.rotateLocation(new Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
+                Location blockLocation = new Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
+                blockLocation.add(blockRotationLocation);
+                
+                if (originLocationPositions != null) {
+                	if (blockDataList.getX() == Integer.valueOf(originLocationPositions[0]) && blockDataList.getY() == Integer.valueOf(originLocationPositions[1]) && blockDataList.getZ() == Integer.valueOf(originLocationPositions[2])) {
+                		originLocation = blockLocation;
+                	}
+                }
+                
+                BlockUtil.convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);	
+        	} catch (Exception e) {
+        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+        	}
         }
         
         for (EntityData entityDataList : (List<EntityData>) new Gson().fromJson(bs.getEntities(), new TypeToken<List<EntityData>>(){}.getType())) {
-        	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
-            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
+	    	try {
+	        	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
+	            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
+        	} catch (Exception e) {
+        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+	    	}
         }
         
         return new StructureIsland(location, originLocation);

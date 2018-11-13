@@ -28,8 +28,10 @@ public final class BlockUtil {
     
     public static BlockData convertBlockToBlockData(Block block, int x, int y, int z) {
         BlockData blockData = new BlockData(block.getType().toString(), block.getData(), x, y, z, block.getBiome().toString());
-    	int NMSVersion = NMSUtil.getVersionNumber();
-        
+    	
+        int NMSVersion = NMSUtil.getVersionNumber();
+    	blockData.setVersion(NMSVersion);
+    	
         if (NMSVersion > 12) {
         	blockData.setBlockData(block.getBlockData().getAsString());
         }
@@ -200,10 +202,23 @@ public final class BlockUtil {
     	if (NMSVersion < 13) {
         	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), Material.valueOf(blockData.getMaterial().toUpperCase()), blockData.getData());
     	} else {
-    		block.setBlockData(Bukkit.createBlockData(blockData.getBlockData()));
+    		if (blockData.getBlockData() == null || blockData.getBlockData().isEmpty()) {
+    			if (blockData.getVersion() < 13) {
+    				try {
+        				block.setType(Materials.requestMaterials(blockData.getMaterial(), block.getData()).getPostMaterial());	
+    				} catch (Exception e) {
+    					e.printStackTrace();
+    				}
+    			} else {
+    				block.setType(Material.valueOf(blockData.getMaterial()));
+    			}
+    		} else {
+    			block.setBlockData(Bukkit.createBlockData(blockData.getBlockData()));
+    		}
     	}
     	
-        block.setBiome(Biome.valueOf(blockData.getBiome().toUpperCase()));
+    	// TODO Create a class to support biome changes
+        //block.setBiome(Biome.valueOf(blockData.getBiome().toUpperCase()));
         
         BlockStateType blockTypeState = BlockStateType.valueOf(blockData.getStateType());
         

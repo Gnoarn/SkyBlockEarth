@@ -56,6 +56,7 @@ public class Main extends JavaPlugin {
 	private VisitManager visitManager;
 	private BanManager banManager;
 	private IslandManager islandManager;
+	//private CreationManager creationManager;
 	private PlayerDataManager playerDataManager;
 	private ScoreboardManager scoreboardManager;
 	private InviteManager inviteManager;
@@ -73,6 +74,7 @@ public class Main extends JavaPlugin {
 		visitManager = new VisitManager(this);
 		banManager = new BanManager(this);
 		islandManager = new IslandManager(this);
+		//creationManager = new CreationManager(this);
 		playerDataManager = new PlayerDataManager(this);
 		scoreboardManager = new ScoreboardManager(this);
 		inviteManager = new InviteManager(this);
@@ -151,6 +153,10 @@ public class Main extends JavaPlugin {
 	public IslandManager getIslandManager() {
 		return islandManager;
 	}
+	
+	/*public CreationManager getCreationManager() {
+		return creationManager;
+	}*/
 	
 	public PlayerDataManager getPlayerDataManager() {
 		return playerDataManager;

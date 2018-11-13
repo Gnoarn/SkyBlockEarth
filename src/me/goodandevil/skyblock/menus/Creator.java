@@ -111,6 +111,7 @@ public class Creator implements Listener {
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Creator.Selector.Title")))) {
 				event.setCancelled(true);
 				
+				//CreationManager creationManager = plugin.getCreationManager();
 				IslandManager islandManager = plugin.getIslandManager();
 				
 				if (islandManager.hasIsland(player)) {
@@ -139,6 +140,21 @@ public class Creator implements Listener {
 							
 							return;
 						}
+						
+						/*if (creationManager.hasPlayer(player)) {
+							Creation creation = creationManager.getPlayer(player);
+							
+							if (creation.getTime() < 60) {
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Island.Creator.Selector.Cooldown.Message").replace("%time", creation.getTime() + " " + config.getFileConfiguration().getString("Island.Creator.Selector.Cooldown.Word.Second"))));
+							} else {
+								long[] durationTime = NumberUtil.getDuration(creation.getTime());
+								player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Island.Creator.Selector.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Island.Creator.Selector.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Island.Creator.Selector.Cooldown.Word.Second"))));
+							}
+							
+							player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
+							
+							return;
+						}*/
 						
 						islandManager.createIsland(player, structureList);
 						
