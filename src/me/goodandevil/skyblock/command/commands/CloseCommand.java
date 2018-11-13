@@ -12,8 +12,8 @@ import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class CloseCommand extends SubCommand {
@@ -35,7 +35,7 @@ public class CloseCommand extends SubCommand {
 		if (islandManager.hasIsland(player)) {
 			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 			
-			if (island.isRole(IslandRole.Owner, player.getUniqueId()) || (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Visitor").getStatus())) {
+			if (island.isRole(Role.Owner, player.getUniqueId()) || (island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Visitor").getStatus())) {
 				if (island.isOpen()) {
 					islandManager.closeIsland(island);
 					

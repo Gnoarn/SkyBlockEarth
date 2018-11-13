@@ -12,9 +12,8 @@ import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
-import me.goodandevil.skyblock.menus.Settings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class SettingsCommand extends SubCommand {
@@ -36,9 +35,9 @@ public class SettingsCommand extends SubCommand {
 		if (islandManager.hasIsland(player)) {
 			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 			
-			if (island.isRole(IslandRole.Operator, player.getUniqueId()) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
-				if ((island.isRole(IslandRole.Operator, player.getUniqueId()) && (island.getSetting(IslandSettings.Role.Operator, "Visitor").getStatus() || island.getSetting(IslandSettings.Role.Operator, "Member").getStatus())) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
-					Settings.getInstance().open(player, Settings.Type.Categories, null, null);
+			if (island.isRole(Role.Operator, player.getUniqueId()) || island.isRole(Role.Owner, player.getUniqueId())) {
+				if ((island.isRole(Role.Operator, player.getUniqueId()) && (island.getSetting(Settings.Role.Operator, "Visitor").getStatus() || island.getSetting(Settings.Role.Operator, "Member").getStatus())) || island.isRole(Role.Owner, player.getUniqueId())) {
+					me.goodandevil.skyblock.menus.Settings.getInstance().open(player, me.goodandevil.skyblock.menus.Settings.Type.Categories, null, null);
 					player.playSound(player.getLocation(), Sounds.CHEST_OPEN.bukkitSound(), 1.0F, 1.0F);
 				} else {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Settings.Permission.Default.Message")));

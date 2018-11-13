@@ -703,7 +703,7 @@ Scoreboard:
         - ""
         - "&bProfile&f:"
         - " &8- &7Rank&8: &fDefault"
-        - " &8- &7Balance&8: &f$%money_balance"
+        - " &8- &7Balance&8: &f$0"
         - ""
         - "&ewww.example.net"
     Island:
@@ -718,7 +718,7 @@ Scoreboard:
                 - ""
                 - "&bProfile&f:"
                 - " &8- &7Rank&8: &fDefault"
-                - " &8- &7Balance&8: &f$%money_balance"
+                - " &8- &7Balance&8: &f$0"
                 - ""
                 - "&ewww.example.net"
             Empty:
@@ -729,7 +729,7 @@ Scoreboard:
                 - ""
                 - "&bProfile&f:"
                 - " &8- &7Rank&8: &fDefault"
-                - " &8- &7Balance&8: &f$%money_balance"
+                - " &8- &7Balance&8: &f$0"
                 - ""
                 - "&ewww.example.net"
         Team:
@@ -749,7 +749,7 @@ Scoreboard:
                 - ""
                 - "&bProfile&f:"
                 - " &8- &7Rank&8: &fDefault"
-                - " &8- &7Balance&8: &f$%money_balance"
+                - " &8- &7Balance&8: &f$0"
                 - ""
                 - "&ewww.example.net"
             Empty:
@@ -762,7 +762,7 @@ Scoreboard:
                 - ""
                 - "&bProfile&f:"
                 - " &8- &7Rank&8: &fDefault"
-                - " &8- &7Balance&8: &f$%money_balance"
+                - " &8- &7Balance&8: &f$0"
                 - ""
                 - "&ewww.example.net"
 Menu:

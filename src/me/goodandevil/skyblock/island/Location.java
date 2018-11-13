@@ -1,14 +1,12 @@
 package me.goodandevil.skyblock.island;
 
-import org.bukkit.Location;
-
-public class IslandLocation {
+public class Location {
 
 	private World world;
 	private Environment environment;
-	private Location location;
+	private org.bukkit.Location location;
 	
-	public IslandLocation(World world, Environment environment, Location location) {
+	public Location(World world, Environment environment, org.bukkit.Location location) {
 		this.world = world;
 		this.environment = environment;
 		this.location = location;
@@ -22,11 +20,11 @@ public class IslandLocation {
 		return environment;
 	}
 	
-	public Location getLocation() {
+	public org.bukkit.Location getLocation() {
 		return location;
 	}
 	
-	public void setLocation(Location location) {
+	public void setLocation(org.bukkit.Location location) {
 		this.location = location;
 	}
 	

@@ -1,6 +1,6 @@
 package me.goodandevil.skyblock.utils.structure;
 
-public class StructureLocation {
+public class Location {
 
     private int x;
     private int y;
@@ -8,7 +8,7 @@ public class StructureLocation {
     
     private boolean originLocation;
 
-    public StructureLocation(int x, int y, int z, boolean originLocation) {
+    public Location(int x, int y, int z, boolean originLocation) {
         this.x = x;
         this.y = y;
         this.z = z;

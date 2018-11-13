@@ -2,7 +2,6 @@ package me.goodandevil.skyblock.utils.structure;
 
 import java.util.LinkedHashMap;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
@@ -12,12 +11,12 @@ import org.bukkit.entity.Vehicle;
 
 public final class SelectionLocation {
 	
-    public static LinkedHashMap<Entity, StructureLocation> getEntities(Location originLocation, Location location1, Location location2) throws Exception {
-        LinkedHashMap<Location, StructureLocation> locations = getLocations(originLocation, location1, location2);
-        LinkedHashMap<Entity, StructureLocation> entities = new LinkedHashMap<>();
+    public static LinkedHashMap<Entity, Location> getEntities(org.bukkit.Location originLocation, org.bukkit.Location location1, org.bukkit.Location location2) throws Exception {
+        LinkedHashMap<org.bukkit.Location, Location> locations = getLocations(originLocation, location1, location2);
+        LinkedHashMap<Entity, Location> entities = new LinkedHashMap<>();
         
         for (Entity entityList : location2.getWorld().getEntities()) {
-            for (Location locationList : locations.keySet()){
+            for (org.bukkit.Location locationList : locations.keySet()){
                 if (locationList.getBlockX() == entityList.getLocation().getBlockX() && locationList.getBlockY() == entityList.getLocation().getBlockY() && locationList.getBlockZ() == entityList.getLocation().getBlockZ()) {
                     if (entityList instanceof Player || !(entityList instanceof LivingEntity || entityList instanceof Vehicle || entityList instanceof Hanging)){
                         continue;
@@ -31,19 +30,19 @@ public final class SelectionLocation {
         return entities;
     }
 
-    public static LinkedHashMap<Block, StructureLocation> getBlocks(Location originLocation, Location location1, Location location2) throws Exception {
-        LinkedHashMap<Location, StructureLocation> locations = getLocations(originLocation, location1, location2);
-        LinkedHashMap<Block, StructureLocation> blocks = new LinkedHashMap<>();
+    public static LinkedHashMap<Block, Location> getBlocks(org.bukkit.Location originLocation, org.bukkit.Location location1, org.bukkit.Location location2) throws Exception {
+        LinkedHashMap<org.bukkit.Location, Location> locations = getLocations(originLocation, location1, location2);
+        LinkedHashMap<Block, Location> blocks = new LinkedHashMap<>();
         
-        for (Location locationList : locations.keySet()){
+        for (org.bukkit.Location locationList : locations.keySet()){
         	blocks.put(locationList.getBlock(), locations.get(locationList));
         }
         
         return blocks;
     }
 
-    private static LinkedHashMap<Location, StructureLocation> getLocations(Location originLocation, Location location1, Location location2) throws Exception {
-        LinkedHashMap<Location, StructureLocation> locations = new LinkedHashMap<>();
+    private static LinkedHashMap<org.bukkit.Location, Location> getLocations(org.bukkit.Location originLocation, org.bukkit.Location location1, org.bukkit.Location location2) throws Exception {
+        LinkedHashMap<org.bukkit.Location, Location> locations = new LinkedHashMap<>();
         
 	    int MinX = Math.min(location2.getBlockX(), location1.getBlockX());
 	    int MinY = Math.min(location2.getBlockY(), location1.getBlockY());
@@ -68,7 +67,7 @@ public final class SelectionLocation {
                     	isOriginLocation = true;
                     }
                     
-                    locations.put(block.getLocation(), new StructureLocation(offsetX, offsetY, offsetZ, isOriginLocation));
+                    locations.put(block.getLocation(), new Location(offsetX, offsetY, offsetZ, isOriginLocation));
 	            }
 	        }
 	    }

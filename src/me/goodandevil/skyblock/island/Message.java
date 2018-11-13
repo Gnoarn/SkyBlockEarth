@@ -1,6 +1,6 @@
 package me.goodandevil.skyblock.island;
 
-public enum IslandMessage {
+public enum Message {
 
 	Welcome,
 	Signature,

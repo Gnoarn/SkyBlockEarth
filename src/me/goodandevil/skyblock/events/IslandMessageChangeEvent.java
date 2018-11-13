@@ -6,17 +6,17 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandMessage;
+import me.goodandevil.skyblock.island.Message;
 
 public class IslandMessageChangeEvent extends Event {
 	
 	private Island island;
-	private IslandMessage message;
+	private Message message;
 	private List<String> lines;
 	private String author;
 	private boolean cancel = false;
 	
-	public IslandMessageChangeEvent(Island island, IslandMessage message, List<String> lines, String author) {
+	public IslandMessageChangeEvent(Island island, Message message, List<String> lines, String author) {
 		this.island = island;
 		this.message = message;
 		this.lines = lines;
@@ -27,7 +27,7 @@ public class IslandMessageChangeEvent extends Event {
 		return island;
 	}
 	
-	public IslandMessage getMessage() {
+	public Message getMessage() {
 		return message;
 	}
 	

@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -27,7 +27,7 @@ public class Bucket implements Listener {
 		Player player = event.getPlayer();
 
 		if (event.getBlockClicked().getType() == Material.WATER || event.getBlockClicked().getType() == Materials.LEGACY_STATIONARY_WATER.getPostMaterial() || event.getBlockClicked().getType() == Material.LAVA || event.getBlockClicked().getType() == Materials.LEGACY_STATIONARY_LAVA.getPostMaterial()) {
-			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
 				if (!plugin.getIslandManager().hasPermission(player, "Bucket")) {
 					event.setCancelled(true);
 					

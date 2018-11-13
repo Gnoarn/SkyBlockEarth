@@ -18,7 +18,8 @@ import org.bukkit.scoreboard.Team;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Level;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.utils.NumberUtil;
 
@@ -145,26 +146,27 @@ public class Scoreboard {
 		
 		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 		IslandManager islandManager = plugin.getIslandManager();
-		displayLine = displayLine.replace("%players_online", "" + Bukkit.getServer().getOnlinePlayers().size()).replace("%players_max", "" + Bukkit.getServer().getMaxPlayers()).replace("%money_balance", "" + playerData.getMoneyBalance());
+		displayLine = displayLine.replace("%players_online", "" + Bukkit.getServer().getOnlinePlayers().size()).replace("%players_max", "" + Bukkit.getServer().getMaxPlayers());
 		
 		if (islandManager.hasIsland(player)) {
 			Island island = islandManager.getIsland(playerData.getOwner());
+			Level level = island.getLevel();
 			
-			if (island.getRole(IslandRole.Member).size() == 0 && island.getRole(IslandRole.Operator).size() == 0) {
-				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null").replace("%island_visitors", "" + island.getVisitors().size());
+			if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
+				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(level.getLevel())).replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null").replace("%island_visitors", "" + island.getVisitors().size());
 			} else {
-				int islandMembers = 1 + island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size();
+				int islandMembers = 1 + island.getRole(Role.Member).size() + island.getRole(Role.Operator).size();
 				String islandRole = "";
 				
-				if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+				if (island.isRole(Role.Owner, player.getUniqueId())) {
 					islandRole = displayVariables.get("%owner");
-				} else if (island.isRole(IslandRole.Operator, player.getUniqueId())) {
+				} else if (island.isRole(Role.Operator, player.getUniqueId())) {
 					islandRole = displayVariables.get("%operator");
-				} else if (island.isRole(IslandRole.Member, player.getUniqueId())) {
+				} else if (island.isRole(Role.Member, player.getUniqueId())) {
 					islandRole = displayVariables.get("%member");
 				}
 				
-				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(island.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());
+				displayLine = displayLine.replace("%island_level", "" + NumberUtil.formatNumber(level.getLevel())).replace("%island_members", "" + islandMembers).replace("%island_role", islandRole).replace("%island_visitors", "" + island.getVisitors().size());
 			}
 		} else {
 			displayLine = displayLine.replace("%island_level", ChatColor.RED + "0").replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null");

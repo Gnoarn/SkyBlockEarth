@@ -16,7 +16,7 @@ import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandChatEvent;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 
@@ -46,11 +46,11 @@ public class Chat implements Listener {
 			Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
 			String islandRole = "";
 			
-			if (island.isRole(IslandRole.Member, player.getUniqueId())) {
+			if (island.isRole(Role.Member, player.getUniqueId())) {
 				islandRole = configLoad.getString("Island.Chat.Format.Role.Member");
-			} else if (island.isRole(IslandRole.Operator, player.getUniqueId())) {
+			} else if (island.isRole(Role.Operator, player.getUniqueId())) {
 				islandRole = configLoad.getString("Island.Chat.Format.Role.Operator");
-			} else if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+			} else if (island.isRole(Role.Owner, player.getUniqueId())) {
 				islandRole = configLoad.getString("Island.Chat.Format.Role.Owner");
 			}
 			

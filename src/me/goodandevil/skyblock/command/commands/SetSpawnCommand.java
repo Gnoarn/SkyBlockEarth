@@ -16,10 +16,9 @@ import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
-import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -29,7 +28,7 @@ public class SetSpawnCommand extends SubCommand {
 	private final Main plugin;
 	
 	private String info;
-	private IslandLocation.Environment locationEnvironment;
+	private me.goodandevil.skyblock.island.Location.Environment locationEnvironment;
 	
 	public SetSpawnCommand(Main plugin) {
 		this.plugin = plugin;
@@ -46,9 +45,9 @@ public class SetSpawnCommand extends SubCommand {
 		if (args.length == 1) {
 			if (islandManager.hasIsland(player)) {
 				if (args[0].equalsIgnoreCase("Main")) {
-					locationEnvironment = IslandLocation.Environment.Main;
+					locationEnvironment = me.goodandevil.skyblock.island.Location.Environment.Main;
 				} else if (args[0].equalsIgnoreCase("Visitor")) {
-					locationEnvironment = IslandLocation.Environment.Visitor;
+					locationEnvironment = me.goodandevil.skyblock.island.Location.Environment.Visitor;
 				} else {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.SetSpawn.Spawn.Message")));
 					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
@@ -58,10 +57,10 @@ public class SetSpawnCommand extends SubCommand {
 				
 				me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 				
-				if (island.isRole(IslandRole.Operator, player.getUniqueId()) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
-					if ((island.isRole(IslandRole.Operator, player.getUniqueId()) && (island.getSetting(IslandSettings.Role.Operator, locationEnvironment.name() + "Spawn").getStatus())) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
-						for (IslandLocation.World worldList : IslandLocation.World.values()) {
-							if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+				if (island.isRole(Role.Operator, player.getUniqueId()) || island.isRole(Role.Owner, player.getUniqueId())) {
+					if ((island.isRole(Role.Operator, player.getUniqueId()) && (island.getSetting(Settings.Role.Operator, locationEnvironment.name() + "Spawn").getStatus())) || island.isRole(Role.Owner, player.getUniqueId())) {
+						for (me.goodandevil.skyblock.island.Location.World worldList : me.goodandevil.skyblock.island.Location.World.values()) {
+							if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, me.goodandevil.skyblock.island.Location.Environment.Island), 85)) {
 								Location location = player.getLocation();
 								
 								if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Spawn.Protection")) {

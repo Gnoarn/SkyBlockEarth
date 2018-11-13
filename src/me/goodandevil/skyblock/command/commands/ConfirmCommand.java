@@ -16,9 +16,9 @@ import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.confirmation.Confirmation;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
@@ -50,11 +50,11 @@ public class ConfirmCommand extends SubCommand {
 				Confirmation confirmation = playerData.getConfirmation();
 				
 				if (confirmation == Confirmation.Ownership || confirmation == Confirmation.Deletion) {
-					if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+					if (island.isRole(Role.Owner, player.getUniqueId())) {
 						if (confirmation == Confirmation.Ownership) {
 							UUID targetPlayerUUID = playerData.getOwnership();
 							
-							if (island.isRole(IslandRole.Member, targetPlayerUUID) || island.isRole(IslandRole.Operator, targetPlayerUUID)) {
+							if (island.isRole(Role.Member, targetPlayerUUID) || island.isRole(Role.Operator, targetPlayerUUID)) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Confirmation.Confirmed.Message")));
 								
 								String targetPlayerName;
@@ -69,7 +69,7 @@ public class ConfirmCommand extends SubCommand {
 								}
 								
 								for (Player all : Bukkit.getOnlinePlayers()) {
-									if ((island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) && (!all.getUniqueId().equals(targetPlayerUUID))) {
+									if ((island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) && (!all.getUniqueId().equals(targetPlayerUUID))) {
 										all.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Ownership.Assigned.Broadcast.Message").replace("%player", targetPlayerName)));
 										all.playSound(all.getLocation(), Sounds.ANVIL_USE.bukkitSound(), 1.0F, 1.0F);
 									}
@@ -92,15 +92,15 @@ public class ConfirmCommand extends SubCommand {
 							boolean hasSpawnPoint = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
 							
 							for (Player all : Bukkit.getOnlinePlayers()) {
-								if (island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) {
+								if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
 									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
 									scoreboard.cancel();
 									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
 									scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
 									scoreboard.run();
 									
-									for (IslandLocation.World worldList : IslandLocation.World.values()) {
-										if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+									for (Location.World worldList : Location.World.values()) {
+										if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
 											if (hasSpawnPoint) {
 												LocationUtil.teleportPlayerToSpawn(all);
 											} else {
@@ -111,7 +111,7 @@ public class ConfirmCommand extends SubCommand {
 										}
 									}
 									
-									if (!island.isRole(IslandRole.Owner, all.getUniqueId())) {
+									if (!island.isRole(Role.Owner, all.getUniqueId())) {
 										all.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Confirmation.Deletion.Broadcast.Message")));
 										all.playSound(all.getLocation(), Sounds.EXPLODE.bukkitSound(), 10.0F, 10.0F);
 									}

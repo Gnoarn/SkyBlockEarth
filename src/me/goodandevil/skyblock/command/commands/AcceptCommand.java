@@ -23,7 +23,7 @@ import me.goodandevil.skyblock.invite.Invite;
 import me.goodandevil.skyblock.invite.InviteManager;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
@@ -99,10 +99,10 @@ public class AcceptCommand extends SubCommand {
 							playerData.setMemberSince(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
 							playerData.save();
 							
-							island.setRole(IslandRole.Member, player.getUniqueId());
+							island.setRole(Role.Member, player.getUniqueId());
 							island.save();
 							
-							if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) >= fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity")) {
+							if ((island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1) >= fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity")) {
 								Map<UUID, Invite> invites = inviteManager.getInvites();
 								
 								for (UUID inviteList : invites.keySet()) {
@@ -128,11 +128,11 @@ public class AcceptCommand extends SubCommand {
 									playerData = playerDataManager.getPlayerData(all);
 									island = islandManager.getIsland(playerData.getOwner());
 									
-									if (island.isRole(IslandRole.Member, all.getUniqueId()) || island.isRole(IslandRole.Operator, all.getUniqueId()) || island.isRole(IslandRole.Owner, all.getUniqueId())) {
+									if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
 										all.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Accept.Accepted.Broadcast.Message").replace("%player", player.getName())));
 										all.playSound(all.getLocation(), Sounds.FIREWORK_BLAST.bukkitSound(), 1.0F, 1.0F);
 										
-										if (island.getRole(IslandRole.Member).size() == 1 && island.getRole(IslandRole.Operator).size() == 0) {
+										if (island.getRole(Role.Member).size() == 1 && island.getRole(Role.Operator).size() == 0) {
 											Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
 											scoreboard.cancel();
 											scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));

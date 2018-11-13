@@ -97,8 +97,8 @@ public class StructureCommand extends SubCommand {
 					if (args.length == 2) {
 						PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
 						
-						Location position1Location = playerData.getStructureArea().getPosition(1);
-						Location position2Location = playerData.getStructureArea().getPosition(2);
+						Location position1Location = playerData.getArea().getPosition(1);
+						Location position2Location = playerData.getArea().getPosition(2);
 						
 						if (position1Location == null && position2Location == null) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Structure.Save.Position.Message")));

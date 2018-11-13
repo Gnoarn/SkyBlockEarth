@@ -1,21 +1,20 @@
 package me.goodandevil.skyblock.levelling;
 
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class LevellingMaterial {
+public class Material {
 
-	private Material material;
+	private org.bukkit.Material material;
 	private int data;
 	private int points;
 	
-	public LevellingMaterial(Material material, int data, int points) {
+	public Material(org.bukkit.Material material, int data, int points) {
 		this.material = material;
 		this.data = data;
 		this.points = points;
 	}
 	
-	public Material getMaterial() {
+	public org.bukkit.Material getMaterial() {
 		return material;
 	}
 	

@@ -13,9 +13,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class Death implements Listener {
@@ -30,7 +30,7 @@ public class Death implements Listener {
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		Player player = event.getEntity();
 		
-		for (IslandLocation.World worldList : IslandLocation.World.values()) {
+		for (Location.World worldList : Location.World.values()) {
 			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 				Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 				FileConfiguration configLoad = config.getFileConfiguration();
@@ -42,8 +42,8 @@ public class Death implements Listener {
 				for (UUID islandList : islandManager.getIslands().keySet()) {
 					Island island = islandManager.getIslands().get(islandList);
 					
-					if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-						if (island.getSetting(IslandSettings.Role.Owner, "KeepItemsOnDeath").getStatus()) {
+					if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+						if (island.getSetting(Settings.Role.Owner, "KeepItemsOnDeath").getStatus()) {
 							keepInventory = true;
 						}
 						

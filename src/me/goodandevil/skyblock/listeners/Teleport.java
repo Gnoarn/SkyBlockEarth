@@ -19,7 +19,7 @@ import me.goodandevil.skyblock.events.IslandEnterEvent;
 import me.goodandevil.skyblock.events.IslandExitEvent;
 import me.goodandevil.skyblock.events.IslandSwitchEvent;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
@@ -47,7 +47,7 @@ public class Teleport implements Listener {
     	
     	islandManager.loadPlayer(player);
     	
-    	if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+    	if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
     		if(event.getCause() == TeleportCause.ENDER_PEARL || event.getCause() == TeleportCause.NETHER_PORTAL) {
 				if (!islandManager.hasPermission(player, "Portal")) {
 					event.setCancelled(true);
@@ -70,8 +70,8 @@ public class Teleport implements Listener {
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.isLocationAtLocationRadius(event.getTo(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+				for (Location.World worldList : Location.World.values()) {
+					if (LocationUtil.isLocationAtLocationRadius(event.getTo(), island.getLocation(worldList, Location.Environment.Island), 85)) {
 						if (!island.getOwnerUUID().equals(playerData.getOwner())) {
 							if (!island.isOpen()) {
 								event.setCancelled(true);
@@ -97,7 +97,7 @@ public class Teleport implements Listener {
 							playerData.setVisitTime(0);
 						}
 						
-						if (worldList == IslandLocation.World.Normal) {
+						if (worldList == Location.World.Normal) {
 							if (!island.isWeatherSynchronised()) {
 			    				player.setPlayerTime(island.getTime(), false);
 			    				player.setPlayerWeather(island.getWeather());

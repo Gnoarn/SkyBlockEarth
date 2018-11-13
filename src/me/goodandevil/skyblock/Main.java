@@ -39,6 +39,7 @@ import me.goodandevil.skyblock.menus.Structure;
 import me.goodandevil.skyblock.menus.Visit;
 import me.goodandevil.skyblock.menus.Visitors;
 import me.goodandevil.skyblock.menus.Weather;
+import me.goodandevil.skyblock.placeholder.PlaceholderManager;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.playtime.PlaytimeTask;
 import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
@@ -88,6 +89,7 @@ public class Main extends JavaPlugin {
 		new ConfirmationTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		
 		PluginManager pluginManager = getServer().getPluginManager();
+		new PlaceholderManager(this).registerPlaceholders(pluginManager);;
 		
 		pluginManager.registerEvents(new Join(this), this);
 		pluginManager.registerEvents(new Quit(this), this);

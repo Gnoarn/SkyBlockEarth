@@ -21,7 +21,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.utils.version.NMSUtil;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -89,7 +88,7 @@ public class BiomeManager {
 		Class<?> packetPlayOutMapChunkClass = NMSUtil.getNMSClass("PacketPlayOutMapChunk");
 		Class<?> chunkClass = NMSUtil.getNMSClass("Chunk");
 		
-    	for (Player all : plugin.getIslandManager().getPlayersAtIsland(island, IslandLocation.World.Normal)) {
+    	for (Player all : plugin.getIslandManager().getPlayersAtIsland(island, me.goodandevil.skyblock.island.Location.World.Normal)) {
     	    for (Chunk chunkList : chunks) {
     			try {
     				if (NMSUtil.getVersionNumber() < 10) {

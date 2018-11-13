@@ -16,8 +16,8 @@ import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
@@ -48,7 +48,7 @@ public class UnbanCommand extends SubCommand {
 				if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning")) {
 					me.goodandevil.skyblock.island.Island island = islandManager.getIsland(playerData.getOwner());
 					
-					if (island.isRole(IslandRole.Owner, player.getUniqueId()) || (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Unban").getStatus())) {
+					if (island.isRole(Role.Owner, player.getUniqueId()) || (island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Unban").getStatus())) {
 						UUID targetPlayerUUID = null;
 						String targetPlayerName = null;
 						
@@ -69,7 +69,7 @@ public class UnbanCommand extends SubCommand {
 						} else if (targetPlayerUUID.equals(player.getUniqueId())) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Unban.Yourself.Message")));
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-						} else if (island.isRole(IslandRole.Member, targetPlayerUUID) || island.isRole(IslandRole.Operator, targetPlayerUUID) || island.isRole(IslandRole.Owner, targetPlayerUUID)) {
+						} else if (island.isRole(Role.Member, targetPlayerUUID) || island.isRole(Role.Operator, targetPlayerUUID) || island.isRole(Role.Owner, targetPlayerUUID)) {
 							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Unban.Member.Message")));
 							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 						} else if (!island.getBan().isBanned(targetPlayerUUID)) {

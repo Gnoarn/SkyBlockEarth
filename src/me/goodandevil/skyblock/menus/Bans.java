@@ -20,8 +20,8 @@ import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
@@ -169,7 +169,7 @@ public class Bans implements Listener {
 		    			open(player);
 		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else {
-		    			if ((island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Unban").getStatus()) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
+		    			if ((island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Unban").getStatus()) || island.isRole(Role.Owner, player.getUniqueId())) {
 			    			String playerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 			    			Bukkit.getServer().dispatchCommand(player, "island unban " + playerName);
 			    			

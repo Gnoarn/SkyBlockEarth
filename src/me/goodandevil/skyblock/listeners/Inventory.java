@@ -10,7 +10,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.HorseInventory;
 
 import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class Inventory implements Listener {
@@ -25,7 +25,7 @@ public class Inventory implements Listener {
 	public void onInventoryOpen(InventoryOpenEvent event) {
 		Player player = (Player) event.getPlayer();
 		
-		if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+		if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
 			if (event.getInventory() instanceof HorseInventory) {
 				if (!plugin.getIslandManager().hasPermission(player, "HorseInventory")) {
 					event.setCancelled(true);

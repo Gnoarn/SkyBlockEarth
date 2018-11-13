@@ -4,24 +4,24 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 
 public class IslandLocationChangeEvent extends Event {
 	
-	private IslandLocation oldLocation, newLocation;
+	private Location oldLocation, newLocation;
 	private Island island;
 	
-	public IslandLocationChangeEvent(Island island, IslandLocation oldLocation, IslandLocation newLocation) {
+	public IslandLocationChangeEvent(Island island, Location oldLocation, Location newLocation) {
 		this.island = island;
 		this.oldLocation = oldLocation;
 		this.newLocation = newLocation;
 	}
 	
-	public IslandLocation getOldLocation() {
+	public Location getOldLocation() {
 		return oldLocation;
 	}
 	
-	public IslandLocation getNewLocation() {
+	public Location getNewLocation() {
 		return newLocation;
 	}
 	

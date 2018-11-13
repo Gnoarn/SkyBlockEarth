@@ -2,12 +2,12 @@ package me.goodandevil.skyblock.utils.structure;
 
 import org.bukkit.Location;
 
-public class StructureIsland {
+public class Island {
 
 	private Location centerLocation;
 	private Location originLocation;
 	
-	public StructureIsland(Location centerLocation, Location originLocation) {
+	public Island(Location centerLocation, Location originLocation) {
 		this.centerLocation = centerLocation;
 		this.originLocation = originLocation;
 	}

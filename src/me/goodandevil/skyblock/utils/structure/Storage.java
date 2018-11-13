@@ -1,6 +1,6 @@
 package me.goodandevil.skyblock.utils.structure;
 
-public class StructureStorage {
+public class Storage {
 	
     private String blocks;
     private String entities;
@@ -10,7 +10,7 @@ public class StructureStorage {
     
 	private int version;
     
-    public StructureStorage(String blocks, String entities, String originLocation, long time, int version) {
+    public Storage(String blocks, String entities, String originLocation, long time, int version) {
     	this.blocks = blocks;
     	this.entities = entities;
     	this.originLocation = originLocation;

@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,7 +31,7 @@ public class LevellingManager {
 	
 	private final Main plugin;
 	
-	private List<LevellingMaterial> levellingMaterialStorage = new ArrayList<>();
+	private List<Material> materialStorage = new ArrayList<>();
 	private Map<UUID, Levelling> islandLevellingStorage = new HashMap<>();
 	
 	public LevellingManager(Main plugin) {
@@ -40,7 +39,7 @@ public class LevellingManager {
 		
 		new LevellingTask(this, plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
 		
-		registerLevellingMaterials();
+		registerMaterials();
 		
 		IslandManager islandManager = plugin.getIslandManager();
 		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
@@ -70,30 +69,30 @@ public class LevellingManager {
 	}
 	
 	public void calculatePoints(Player player, Island island) {
-		LevellingChunk levellingChunk = new LevellingChunk(plugin, island);
-		levellingChunk.prepare();
+		Chunk chunk = new Chunk(plugin, island);
+		chunk.prepare();
 		
 		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (levellingChunk.isComplete()) {
+				if (chunk.isComplete()) {
 					cancel();
 					
-		    		HashMap<Material, Integer> levelMaterials = new HashMap<>();
+		    		HashMap<org.bukkit.Material, Integer> materials = new HashMap<>();
 		    		
 		    		Method getBlockTypeMethod = null;
 		    		Method getBlockTypeIdMethod = null;
 		    		Method getBlockTypeDataMethod = null;
 		    		Method getMaterialMethod = null;
 		    		
-	    			for (ChunkSnapshot chunkSnapshotList : levellingChunk.getChunkSnapshots()) {
+	    			for (ChunkSnapshot chunkSnapshotList : chunk.getChunkSnapshots()) {
 	    				for (int x = 0; x < 16; x++) {
 	    					for (int z = 0; z < 16; z++) {
 	    						for (int y = 0; y < 256; y++) {
 									try {
-										Material blockMaterial = Material.AIR;
+										org.bukkit.Material blockMaterial = org.bukkit.Material.AIR;
 										int blockData = 0;
 										
 		    							if (NMSVersion > 12) {
@@ -101,7 +100,7 @@ public class LevellingManager {
 		    									getBlockTypeMethod = chunkSnapshotList.getClass().getMethod("getBlockType", int.class, int.class, int.class);
 		    								}
 		    								
-		    								blockMaterial = (Material) getBlockTypeMethod.invoke(chunkSnapshotList, x, y, z);
+		    								blockMaterial = (org.bukkit.Material) getBlockTypeMethod.invoke(chunkSnapshotList, x, y, z);
 		    							} else {
 		    								if (getBlockTypeIdMethod == null) {
 		    									getBlockTypeIdMethod = chunkSnapshotList.getClass().getMethod("getBlockTypeId", int.class, int.class, int.class);
@@ -115,25 +114,25 @@ public class LevellingManager {
 		    									getMaterialMethod = blockMaterial.getClass().getMethod("getMaterial", int.class);
 		    								}
 		    								
-		    								blockMaterial = (Material) getMaterialMethod.invoke(blockMaterial, (int) getBlockTypeIdMethod.invoke(chunkSnapshotList, x, y, z));
+		    								blockMaterial = (org.bukkit.Material) getMaterialMethod.invoke(blockMaterial, (int) getBlockTypeIdMethod.invoke(chunkSnapshotList, x, y, z));
 											blockData = (int) getBlockTypeDataMethod.invoke(chunkSnapshotList, x, y, z);
 		    							}
 		    							
-		    							if (blockMaterial != Material.AIR) {
-				    	            		for (LevellingMaterial levellingMaterialList : levellingMaterialStorage) {
-				    	            			if (blockMaterial == levellingMaterialList.getMaterial()) {
+		    							if (blockMaterial != org.bukkit.Material.AIR) {
+				    	            		for (Material materialList : materialStorage) {
+				    	            			if (blockMaterial == materialList.getMaterial()) {
 				    	            				if (NMSVersion < 13) {
-					    	            				if (levellingMaterialList.getData() != -1) {
-					    	            					if (!(blockData == levellingMaterialList.getData())) {
+					    	            				if (materialList.getData() != -1) {
+					    	            					if (!(blockData == materialList.getData())) {
 					    	            						continue;
 					    	            					}
 					    	            				}
 				    	            				}
 				    	            				
-				    	            				if (levelMaterials.containsKey(levellingMaterialList.getMaterial())) {
-				    	            					levelMaterials.put(levellingMaterialList.getMaterial(), levelMaterials.get(levellingMaterialList.getMaterial()) + levellingMaterialList.getPoints());
+				    	            				if (materials.containsKey(materialList.getMaterial())) {
+				    	            					materials.put(materialList.getMaterial(), materials.get(materialList.getMaterial()) + materialList.getPoints());
 				    	            				} else {
-				    	            					levelMaterials.put(levellingMaterialList.getMaterial(), levellingMaterialList.getPoints());
+				    	            					materials.put(materialList.getMaterial(), materialList.getPoints());
 				    	            				}
 				    	            			}
 				    	            		}
@@ -148,16 +147,17 @@ public class LevellingManager {
 	    			
 		    	    int totalPointsEarned = 0;
 		    	    
-		    	    for (Material pointsEarnedList : levelMaterials.keySet()) {
-		    	    	totalPointsEarned = totalPointsEarned + levelMaterials.get(pointsEarnedList);
+		    	    for (org.bukkit.Material pointsEarnedList : materials.keySet()) {
+		    	    	totalPointsEarned = totalPointsEarned + materials.get(pointsEarnedList);
 		    	    }
 		    	    
 		    	    if (totalPointsEarned == 0) {
 		    	    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Level.Materials.Message")));
 		    	    	player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		    	    } else {
-			    	    island.setLevelPoints(totalPointsEarned);
-			    	    island.setLevelMaterials(levelMaterials);
+		    	    	me.goodandevil.skyblock.island.Level level = island.getLevel();
+			    	    level.setPoints(totalPointsEarned);
+			    	    level.setMaterials(materials);
 			    	    
 			    	    if (player != null) {
 			    	    	me.goodandevil.skyblock.menus.Levelling.getInstance().open(player);
@@ -168,7 +168,7 @@ public class LevellingManager {
 		}.runTaskTimerAsynchronously(plugin, 0L, 1L);
 	}
 	
-	public void registerLevellingMaterials() {
+	public void registerMaterials() {
 		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "levelling.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
@@ -176,11 +176,11 @@ public class LevellingManager {
 		
 		for (String materialList : configLoad.getConfigurationSection("Materials").getKeys(false)) {
 			try {
-				Material material;
+				org.bukkit.Material material;
 				int data = 0;
 				
 				if (NMSVersion < 13) {
-					material = Material.valueOf(materialList);
+					material = org.bukkit.Material.valueOf(materialList);
 					data = configLoad.getInt("Materials." + materialList + ".Data");
 				} else {
 					material = Materials.fromString(materialList).parseMaterial();
@@ -188,7 +188,7 @@ public class LevellingManager {
 				
 				int points = configLoad.getInt("Materials." + materialList + ".Points");
 				
-				addLevellingMaterial(material, data, points);
+				addMaterial(material, data, points);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: The material '" + materialList + "' is not a Material type. Please correct this in the 'levelling.yml' file.");
@@ -196,12 +196,12 @@ public class LevellingManager {
 		}
 	}
 	
-	public void addLevellingMaterial(Material material, int data, int points) {
-		levellingMaterialStorage.add(new LevellingMaterial(material, data, points));
+	public void addMaterial(org.bukkit.Material material, int data, int points) {
+		materialStorage.add(new Material(material, data, points));
 	}
 	
-	public void removeLevellingMaterial(LevellingMaterial levellingMaterial) {
-		levellingMaterialStorage.remove(levellingMaterial);
+	public void removeMaterial(Material material) {
+		materialStorage.remove(material);
 	}
 	
 	public void createLevelling(UUID playerUUID) {

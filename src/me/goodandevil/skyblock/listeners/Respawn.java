@@ -17,9 +17,8 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class Respawn implements Listener {
@@ -34,7 +33,7 @@ public class Respawn implements Listener {
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		Player player = event.getPlayer();
 		
-		for (IslandLocation.World worldList : IslandLocation.World.values()) {
+		for (me.goodandevil.skyblock.island.Location.World worldList : me.goodandevil.skyblock.island.Location.World.values()) {
 			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 				FileManager fileManager = plugin.getFileManager();
 				Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
@@ -46,13 +45,13 @@ public class Respawn implements Listener {
 					for (UUID islandList : islandManager.getIslands().keySet()) {
 						Island island = islandManager.getIslands().get(islandList);
 						
-						if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+						if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, me.goodandevil.skyblock.island.Location.Environment.Island), 85)) {
 							Location playerLocation = player.getLocation().clone(), islandLocation;
 							
-							if (island.isRole(IslandRole.Member, player.getUniqueId()) || island.isRole(IslandRole.Operator, player.getUniqueId()) || island.isRole(IslandRole.Owner, player.getUniqueId())) {
-								islandLocation = island.getLocation(worldList, IslandLocation.Environment.Main);
+							if (island.isRole(Role.Member, player.getUniqueId()) || island.isRole(Role.Operator, player.getUniqueId()) || island.isRole(Role.Owner, player.getUniqueId())) {
+								islandLocation = island.getLocation(worldList, me.goodandevil.skyblock.island.Location.Environment.Main);
 							} else {
-								islandLocation = island.getLocation(worldList, IslandLocation.Environment.Visitor);
+								islandLocation = island.getLocation(worldList, me.goodandevil.skyblock.island.Location.Environment.Visitor);
 							}
 							
 							Bukkit.getServer().getPluginManager().callEvent(new PlayerTeleportEvent(player, playerLocation, islandLocation));

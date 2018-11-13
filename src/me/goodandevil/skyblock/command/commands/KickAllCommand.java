@@ -17,8 +17,8 @@ import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandKickEvent;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -45,7 +45,7 @@ public class KickAllCommand extends SubCommand {
 			PlayerData playerData = playerDataManager.getPlayerData(player);
 			Island island = islandManager.getIsland(playerData.getOwner());
 			
-			if (island.isRole(IslandRole.Owner, player.getUniqueId()) || (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Kick").getStatus())) {
+			if (island.isRole(Role.Owner, player.getUniqueId()) || (island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Kick").getStatus())) {
 				if (island.isOpen()) {
 					List<UUID> islandVisitors = island.getVisitors();
 					
@@ -56,7 +56,7 @@ public class KickAllCommand extends SubCommand {
 						for (UUID islandVisitorList : islandVisitors) {
 							Player targetPlayer = Bukkit.getServer().getPlayer(islandVisitorList);
 							
-							IslandKickEvent islandKickEvent = new IslandKickEvent(island, IslandRole.Visitor, islandVisitorList, player);
+							IslandKickEvent islandKickEvent = new IslandKickEvent(island, Role.Visitor, islandVisitorList, player);
 							Bukkit.getServer().getPluginManager().callEvent(islandKickEvent);
 							
 							if (!islandKickEvent.isCancelled()) {

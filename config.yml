@@ -1,7 +1,3 @@
-PlayerData:
-    Money:
-        # Money balance player receives when they first join
-        Balance: 1000
 Command:
     Help:
         # Shows all aliases of the commands.

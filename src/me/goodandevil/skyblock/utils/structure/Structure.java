@@ -2,16 +2,16 @@ package me.goodandevil.skyblock.utils.structure;
 
 public class Structure {
 	
-	private StructureStorage structureStorage;
+	private Storage storage;
     private String file;
     
-    public Structure(StructureStorage structureStorage, String file) {
-        this.structureStorage = structureStorage;
+    public Structure(Storage storage, String file) {
+        this.storage = storage;
     	this.file = file;
     }
     
-    public StructureStorage getStructureStorage() {
-    	return structureStorage;
+    public Storage getStructureStorage() {
+    	return storage;
     }
 
     public String getStructureFile(){

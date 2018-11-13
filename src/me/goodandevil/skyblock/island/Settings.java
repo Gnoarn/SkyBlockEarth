@@ -1,10 +1,10 @@
 package me.goodandevil.skyblock.island;
 
-public class IslandSettings {
+public class Settings {
 	
 	private boolean status;
 	
-	public IslandSettings(boolean status) {
+	public Settings(boolean status) {
 		this.status = status;
 	}
 	

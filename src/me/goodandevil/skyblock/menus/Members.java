@@ -28,8 +28,8 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
@@ -60,8 +60,8 @@ public class Members implements Listener {
 		
 		List<UUID> displayedMembers = new ArrayList<>();
 		
-		List<UUID> islandMembers = island.getRole(IslandRole.Member);
-		List<UUID> islandOperators = island.getRole(IslandRole.Operator);
+		List<UUID> islandMembers = island.getRole(Role.Member);
+		List<UUID> islandOperators = island.getRole(Role.Operator);
 		
 		if (type == Members.Type.Default) {
 			displayedMembers.add(island.getOwnerUUID());
@@ -143,10 +143,10 @@ public class Members implements Listener {
 		
 		boolean[] operatorActions = new boolean[] { false, false };
 		
-		if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+		if (island.isRole(Role.Owner, player.getUniqueId())) {
 			operatorActions = new boolean[] { true, true };
-		} else if (island.isRole(IslandRole.Operator, player.getUniqueId())) {
-			if (island.getSetting(IslandSettings.Role.Operator, "Kick").getStatus()) {
+		} else if (island.isRole(Role.Operator, player.getUniqueId())) {
+			if (island.getSetting(Settings.Role.Operator, "Kick").getStatus()) {
 				operatorActions = new boolean[] { false, true };
 			}
 		}
@@ -269,12 +269,12 @@ public class Members implements Listener {
 						itemLore.addAll(configLoad.getStringList("Menu.Members.Item.Member.LastOnline.Lore"));
 					}
 					
-					if (!(playerUUID.equals(player.getUniqueId()) || island.isRole(IslandRole.Owner, playerUUID))) {
+					if (!(playerUUID.equals(player.getUniqueId()) || island.isRole(Role.Owner, playerUUID))) {
 						if (operatorActions[0] && operatorActions[1]) {
-							if (!island.isRole(IslandRole.Owner, playerUUID)) {
+							if (!island.isRole(Role.Owner, playerUUID)) {
 								itemLore.add("");
 								
-								if (island.isRole(IslandRole.Member, playerUUID)) {
+								if (island.isRole(Role.Member, playerUUID)) {
 									itemLore.add(configLoad.getString("Menu.Members.Item.Member.Action.Lore").replace("%click", configLoad.getString("Menu.Members.Item.Member.Word.Left-Click")).replace("%action", configLoad.getString("Menu.Members.Item.Member.Action.Word.Promote")));
 								} else {
 									itemLore.add(configLoad.getString("Menu.Members.Item.Member.Action.Lore").replace("%click", configLoad.getString("Menu.Members.Item.Member.Word.Left-Click")).replace("%action", configLoad.getString("Menu.Members.Item.Member.Action.Word.Demote")));
@@ -283,7 +283,7 @@ public class Members implements Listener {
 								itemLore.add(configLoad.getString("Menu.Members.Item.Member.Action.Lore").replace("%click", configLoad.getString("Menu.Members.Item.Member.Word.Right-Click")).replace("%action", configLoad.getString("Menu.Members.Item.Member.Action.Word.Kick")));
 							}
 						} else if (!operatorActions[0] && operatorActions[1]) {
-							if (!(playerUUID.equals(player.getUniqueId()) && island.getRole(IslandRole.Operator).contains(playerUUID) && island.isRole(IslandRole.Owner, playerUUID))) {
+							if (!(playerUUID.equals(player.getUniqueId()) && island.getRole(Role.Operator).contains(playerUUID) && island.isRole(Role.Owner, playerUUID))) {
 								itemLore.add("");
 								itemLore.add(configLoad.getString("Menu.Members.Item.Member.Action.Lore").replace("%click", configLoad.getString("Menu.Members.Item.Member.Word.Click")).replace("%action", configLoad.getString("Menu.Members.Item.Member.Action.Word.Kick")));
 							}
@@ -383,10 +383,10 @@ public class Members implements Listener {
 		    				playerUUID = targetPlayer.getUniqueId();
 		    			}
 		    			
-		    			if (!(playerUUID.equals(player.getUniqueId()) || island.isRole(IslandRole.Owner, playerUUID))) {
-		    				if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+		    			if (!(playerUUID.equals(player.getUniqueId()) || island.isRole(Role.Owner, playerUUID))) {
+		    				if (island.isRole(Role.Owner, player.getUniqueId())) {
 		    					if (event.getClick() == ClickType.LEFT) {
-		    						if (island.isRole(IslandRole.Member, playerUUID)) {
+		    						if (island.isRole(Role.Member, playerUUID)) {
 		    							Bukkit.getServer().dispatchCommand(player, "island promote " + playerName);
 		    						} else {
 		    							Bukkit.getServer().dispatchCommand(player, "island demote " + playerName);
@@ -412,7 +412,7 @@ public class Members implements Listener {
 		    						
 				    				return;
 		    					}
-		    				} else if (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Kick").getStatus()) {
+		    				} else if (island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Kick").getStatus()) {
 		    					Bukkit.getServer().dispatchCommand(player, "island kick " + playerName);
 
 	    						new BukkitRunnable() {

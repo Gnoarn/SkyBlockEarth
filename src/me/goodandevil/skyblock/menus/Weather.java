@@ -16,10 +16,10 @@ import org.bukkit.inventory.ItemStack;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -115,7 +115,7 @@ public class Weather implements Listener {
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
-					if (!((island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Biome").getStatus()) || island.isRole(IslandRole.Owner, player.getUniqueId()))) {
+					if (!((island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Biome").getStatus()) || island.isRole(Role.Owner, player.getUniqueId()))) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Weather.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
@@ -152,7 +152,7 @@ public class Weather implements Listener {
 		    		}
 		    		
 		    		if (!island.isWeatherSynchronised()) {
-		    			for (Player all : islandManager.getPlayersAtIsland(island, IslandLocation.World.Normal)) {
+		    			for (Player all : islandManager.getPlayersAtIsland(island, Location.World.Normal)) {
 		    				all.setPlayerTime(island.getTime(), false);
 		    			}
 		    		}
@@ -167,7 +167,7 @@ public class Weather implements Listener {
 		    		}
 		    		
 		    		if (!island.isWeatherSynchronised()) {
-		    			for (Player all : islandManager.getPlayersAtIsland(island, IslandLocation.World.Normal)) {
+		    			for (Player all : islandManager.getPlayersAtIsland(island, Location.World.Normal)) {
 		    				all.setPlayerWeather(island.getWeather());
 		    			}
 		    		}
@@ -181,14 +181,14 @@ public class Weather implements Listener {
 		    			int islandTime = island.getTime();
 		    			WeatherType islandWeather = island.getWeather();
 		    			
-		    			for (Player all : islandManager.getPlayersAtIsland(island, IslandLocation.World.Normal)) {
+		    			for (Player all : islandManager.getPlayersAtIsland(island, Location.World.Normal)) {
 		    				all.setPlayerTime(islandTime, false);
 		    				all.setPlayerWeather(islandWeather);
 		    			}
 		    		} else {
 		    			island.setWeatherSynchronised(true);
 		    			
-		    			for (Player all : islandManager.getPlayersAtIsland(island, IslandLocation.World.Normal)) {
+		    			for (Player all : islandManager.getPlayersAtIsland(island, Location.World.Normal)) {
 		    				all.resetPlayerTime();
 		    				all.resetPlayerWeather();
 		    			}

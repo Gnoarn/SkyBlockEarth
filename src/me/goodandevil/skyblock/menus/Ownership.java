@@ -21,7 +21,7 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.AnvilGUI;
@@ -109,7 +109,7 @@ public class Ownership implements Listener {
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 					
-					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
+					if (!island.isRole(Role.Owner, player.getUniqueId())) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
@@ -148,7 +148,7 @@ public class Ownership implements Listener {
 		        				if (islandManager.hasIsland(player)) {
 		        					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 		        					
-		        					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
+		        					if (!island.isRole(Role.Owner, player.getUniqueId())) {
 		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 		        						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		        						
@@ -214,7 +214,7 @@ public class Ownership implements Listener {
 		        				if (islandManager.hasIsland(player)) {
 		        					island = islandManager.getIsland(playerDataManager.getPlayerData(player).getOwner());
 		        					
-		        					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
+		        					if (!island.isRole(Role.Owner, player.getUniqueId())) {
 		        						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Ownership.Role.Message")));
 		        						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		        						player.closeInventory();

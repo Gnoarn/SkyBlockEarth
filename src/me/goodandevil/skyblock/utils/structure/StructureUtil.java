@@ -16,7 +16,6 @@ import me.goodandevil.skyblock.utils.world.entity.EntityData;
 import me.goodandevil.skyblock.utils.world.entity.EntityUtil;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -33,13 +32,13 @@ import java.util.List;
 
 public final class StructureUtil {
 	
-    public static void saveStructure(File configFile, Location originLocation, Location[] positions) throws Exception {
+    public static void saveStructure(File configFile, org.bukkit.Location originLocation, org.bukkit.Location[] positions) throws Exception {
         if (!configFile.exists()) {
         	configFile.createNewFile();
         }
         
-        LinkedHashMap<Block, StructureLocation> blocks = SelectionLocation.getBlocks(originLocation, positions[0], positions[1]);
-        LinkedHashMap<Entity, StructureLocation> entities = SelectionLocation.getEntities(originLocation, positions[0], positions[1]);
+        LinkedHashMap<Block, Location> blocks = SelectionLocation.getBlocks(originLocation, positions[0], positions[1]);
+        LinkedHashMap<Entity, Location> entities = SelectionLocation.getEntities(originLocation, positions[0], positions[1]);
         
         List<BlockData> blockData = new ArrayList<>();
         List<EntityData> entityData = new ArrayList<>();
@@ -47,13 +46,13 @@ public final class StructureUtil {
         String originBlockLocation = "";
         
         for (Block blockList : blocks.keySet()) {
-        	StructureLocation structureLocation = blocks.get(blockList);
+        	Location location = blocks.get(blockList);
         	
-        	if (structureLocation.isOriginLocation()) {
-        		originBlockLocation = structureLocation.getX() + ":" + structureLocation.getY() + ":" + structureLocation.getZ() + ":" + positions[0].getWorld().getName();
+        	if (location.isOriginLocation()) {
+        		originBlockLocation = location.getX() + ":" + location.getY() + ":" + location.getZ() + ":" + positions[0].getWorld().getName();
         	
         		if (blockList.getType() == Material.AIR) {
-                    blockData.add(BlockUtil.convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+                    blockData.add(BlockUtil.convertBlockToBlockData(blockList, location.getX(), location.getY(), location.getZ()));
         		}
         	}
         	
@@ -61,7 +60,7 @@ public final class StructureUtil {
                 continue;
             }
             
-            blockData.add(BlockUtil.convertBlockToBlockData(blockList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+            blockData.add(BlockUtil.convertBlockToBlockData(blockList, location.getX(), location.getY(), location.getZ()));
         }
         
         for (Entity entityList : entities.keySet()) {
@@ -69,11 +68,11 @@ public final class StructureUtil {
                 continue;
             }
             
-            StructureLocation structureLocation = entities.get(entityList);
+            Location structureLocation = entities.get(entityList);
             entityData.add(EntityUtil.convertEntityToEntityData(entityList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
         }
     	
-    	String JSONString = new Gson().toJson(new StructureStorage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis(), NMSUtil.getVersionNumber()), new TypeToken<StructureStorage>(){}.getType());
+    	String JSONString = new Gson().toJson(new Storage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis(), NMSUtil.getVersionNumber()), new TypeToken<Storage>(){}.getType());
         
         FileOutputStream fileOutputStream = new FileOutputStream(configFile, false);
         fileOutputStream.write(GZipUtil.compress(JSONString.getBytes(StandardCharsets.UTF_8)));
@@ -93,29 +92,29 @@ public final class StructureUtil {
         fileInputStream.close();
         
         String JSONString = new String(GZipUtil.decompress(content));
-        StructureStorage structureStorage = new Gson().fromJson(JSONString, new TypeToken<StructureStorage>(){}.getType());
+        Storage storage = new Gson().fromJson(JSONString, new TypeToken<Storage>(){}.getType());
         
-        return new Structure(structureStorage, configFile.getName());
+        return new Structure(storage, configFile.getName());
     }
     
     @SuppressWarnings("unchecked")
-	public static StructureIsland pasteStructure(Structure s, Location location, BlockDegreesType type) throws Exception {
-        StructureStorage bs = s.getStructureStorage();
+	public static Island pasteStructure(Structure structure, org.bukkit.Location location, BlockDegreesType type) throws Exception {
+        Storage storage = structure.getStructureStorage();
         
         String[] originLocationPositions = null;
         
-        if (!bs.getOriginLocation().isEmpty()) {
-        	originLocationPositions = bs.getOriginLocation().split(":");
+        if (!storage.getOriginLocation().isEmpty()) {
+        	originLocationPositions = storage.getOriginLocation().split(":");
         }
         
-        Location originLocation = location;
+        org.bukkit.Location originLocation = location;
         
-        List<BlockData> blockData = (List<BlockData>) new Gson().fromJson(bs.getBlocks(), new TypeToken<List<BlockData>>(){}.getType());
+        List<BlockData> blockData = (List<BlockData>) new Gson().fromJson(storage.getBlocks(), new TypeToken<List<BlockData>>(){}.getType());
         
         for (BlockData blockDataList : blockData) {
         	try {
-                Location blockRotationLocation = LocationUtil.rotateLocation(new Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
-                Location blockLocation = new Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
+        		org.bukkit.Location blockRotationLocation = LocationUtil.rotateLocation(new org.bukkit.Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
+        		org.bukkit.Location blockLocation = new org.bukkit.Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
                 blockLocation.add(blockRotationLocation);
                 
                 if (originLocationPositions != null) {
@@ -130,7 +129,7 @@ public final class StructureUtil {
         	}
         }
         
-        for (EntityData entityDataList : (List<EntityData>) new Gson().fromJson(bs.getEntities(), new TypeToken<List<EntityData>>(){}.getType())) {
+        for (EntityData entityDataList : (List<EntityData>) new Gson().fromJson(storage.getEntities(), new TypeToken<List<EntityData>>(){}.getType())) {
 	    	try {
 	        	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
 	            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
@@ -139,7 +138,7 @@ public final class StructureUtil {
 	    	}
         }
         
-        return new StructureIsland(location, originLocation);
+        return new Island(location, originLocation);
     }
 
     public static ItemStack getTool() throws Exception {
@@ -166,9 +165,9 @@ public final class StructureUtil {
     	return is;
     }
     
-    public static Location[] getFixedLocations(Location location1, Location location2) {
-    	Location location1Fixed = location1.clone();
-    	Location location2Fixed = location2.clone();
+    public static org.bukkit.Location[] getFixedLocations(org.bukkit.Location location1, org.bukkit.Location location2) {
+    	org.bukkit.Location location1Fixed = location1.clone();
+    	org.bukkit.Location location2Fixed = location2.clone();
     	
     	if (location1.getX() > location2.getX()) {
     		location1Fixed.setX(location2.getX());
@@ -180,6 +179,6 @@ public final class StructureUtil {
     		location2Fixed.setZ(location1.getZ());
     	}
     	
-    	return new Location[] { location1Fixed, location2Fixed };
+    	return new org.bukkit.Location[] { location1Fixed, location2Fixed };
     }
 }

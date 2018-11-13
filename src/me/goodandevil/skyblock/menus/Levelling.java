@@ -21,6 +21,7 @@ import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
+import me.goodandevil.skyblock.island.Level;
 import me.goodandevil.skyblock.levelling.LevellingManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.utils.NumberUtil;
@@ -48,7 +49,9 @@ public class Levelling implements Listener {
     	PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
     	
     	Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
-		HashMap<Material, Integer> islandMaterials = island.getLevelMaterials();
+    	Level level = island.getLevel();
+    	
+		HashMap<Material, Integer> islandMaterials = level.getMaterials();
 		
 		int playerMenuPage = playerData.getPage(), nextEndIndex = islandMaterials.size() - playerMenuPage * 36;
     	
@@ -58,7 +61,7 @@ public class Levelling implements Listener {
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Levelling.Title"), null, 6);
 		inv.addItem(inv.createItem(Materials.OAK_FENCE_GATE.parseItem(), configLoad.getString("Menu.Levelling.Item.Exit.Displayname"), null, null, null, null), 0, 8);
 		inv.addItem(inv.createItem(Materials.FIREWORK_STAR.parseItem(), configLoad.getString("Menu.Levelling.Item.Rescan.Displayname"), configLoad.getStringList("Menu.Levelling.Item.Rescan.Lore"), null, null, new ItemFlag[] { ItemFlag.HIDE_POTION_EFFECTS }), 3, 5);
-		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Levelling.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Levelling.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%level_points#" + NumberUtil.formatNumber(island.getLevelPoints()), "%level#" + NumberUtil.formatNumber(island.getLevel()) }), null, null), 4);
+		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Levelling.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Levelling.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%level_points#" + NumberUtil.formatNumber(level.getPoints()), "%level#" + NumberUtil.formatNumber(level.getLevel()) }), null, null), 4);
 		inv.addItem(inv.createItem(Materials.BLACK_STAINED_GLASS_PANE.parseItem(), configLoad.getString("Menu.Levelling.Item.Barrier.Displayname"), null, null, null, null), 9, 10, 11, 12, 13, 14, 15, 16, 17);
 		
 		if (playerMenuPage != 1) {

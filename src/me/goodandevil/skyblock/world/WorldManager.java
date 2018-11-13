@@ -11,7 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.generator.VoidWorld;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 
 public class WorldManager {
 	
@@ -59,10 +59,10 @@ public class WorldManager {
 		Bukkit.getServer().getConsoleSender().sendMessage("SkyBlock | Info: Loaded Nether world: '" + netherWorldName + "'.");
 	}
 	
-	public org.bukkit.World getWorld(IslandLocation.World world) {
-		if (world == IslandLocation.World.Normal) {
+	public org.bukkit.World getWorld(Location.World world) {
+		if (world == Location.World.Normal) {
 			return normalWorld;
-		} else if (world == IslandLocation.World.Nether) {
+		} else if (world == Location.World.Nether) {
 			return netherWorld;
 		}
 		

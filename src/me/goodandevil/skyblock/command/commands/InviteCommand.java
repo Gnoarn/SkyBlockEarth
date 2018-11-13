@@ -15,8 +15,8 @@ import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandInviteEvent;
 import me.goodandevil.skyblock.invite.Invite;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.ChatComponent;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -46,10 +46,10 @@ public class InviteCommand extends SubCommand {
 			if (islandManager.hasIsland(player)) {
 				me.goodandevil.skyblock.island.Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 				
-				if (island.isRole(IslandRole.Owner, player.getUniqueId()) || (island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Invite").getStatus())) {
+				if (island.isRole(Role.Owner, player.getUniqueId()) || (island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Invite").getStatus())) {
 					Config mainConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
 					
-					if ((island.getRole(IslandRole.Member).size() + island.getRole(IslandRole.Operator).size() + 1) >= mainConfig.getFileConfiguration().getInt("Island.Member.Capacity")) {
+					if ((island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1) >= mainConfig.getFileConfiguration().getInt("Island.Member.Capacity")) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Invite.Capacity.Message")));
 						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					} else {
@@ -67,7 +67,7 @@ public class InviteCommand extends SubCommand {
 							} else if (targetPlayer.getName().equalsIgnoreCase(player.getName())) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Invite.Yourself.Message")));
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-							} else if (island.isRole(IslandRole.Member, targetPlayer.getUniqueId()) || island.isRole(IslandRole.Operator, targetPlayer.getUniqueId()) || island.isRole(IslandRole.Owner, targetPlayer.getUniqueId())) {
+							} else if (island.isRole(Role.Member, targetPlayer.getUniqueId()) || island.isRole(Role.Operator, targetPlayer.getUniqueId()) || island.isRole(Role.Owner, targetPlayer.getUniqueId())) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Invite.Member.Message")));
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							} else if (plugin.getInviteManager().hasInvite(targetPlayer.getUniqueId())) {

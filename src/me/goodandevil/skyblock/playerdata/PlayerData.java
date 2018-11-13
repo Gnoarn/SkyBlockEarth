@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.confirmation.Confirmation;
-import me.goodandevil.skyblock.utils.structure.StructureArea;
+import me.goodandevil.skyblock.utils.structure.Area;
 
 public class PlayerData {
 
@@ -28,8 +28,7 @@ public class PlayerData {
 	private Object type;
 	private Object sort;
 	
-	private StructureArea structureArea;
-	
+	private Area area;
 	private boolean chat;
 	
 	public PlayerData(Player player) {
@@ -40,17 +39,8 @@ public class PlayerData {
 		confirmationTime = 0;
 		playTime = getConfig().getFileConfiguration().getInt("Statistics.Island.Playtime");
 		
-		structureArea = new StructureArea();
-		
+		area = new Area();
 		chat = false;
-	}
-	
-	public int getMoneyBalance() {
-		return getConfig().getFileConfiguration().getInt("Statistics.Money.Balance");
-	}
-	
-	public void setMoneyBalance(int balance) {
-		getConfig().getFileConfiguration().set("Statistics.Money.Balance", balance);
 	}
 	
 	public void setPage(int page) {
@@ -169,8 +159,8 @@ public class PlayerData {
 		getConfig().getFileConfiguration().set("Statistics.Island.LastOnline", date);
 	}
 	
-	public StructureArea getStructureArea() {
-		return structureArea;
+	public Area getArea() {
+		return area;
 	}
 	
 	public boolean isChat() {

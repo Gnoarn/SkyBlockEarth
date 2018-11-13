@@ -5,11 +5,11 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
-public class StructureArea {
+public class Area {
 
 	private Map<Integer, Location> positions;
 	
-	public StructureArea() {
+	public Area() {
 		positions = new HashMap<>();
 	}
 	

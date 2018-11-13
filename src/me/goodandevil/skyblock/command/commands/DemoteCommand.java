@@ -15,7 +15,7 @@ import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -41,12 +41,12 @@ public class DemoteCommand extends SubCommand {
 			if (islandManager.hasIsland(player)) {
 				me.goodandevil.skyblock.island.Island island = islandManager.getIsland(playerData.getOwner());
 				
-				if (island.isRole(IslandRole.Owner, player.getUniqueId())) {
+				if (island.isRole(Role.Owner, player.getUniqueId())) {
 					if (Bukkit.getServer().getPlayer(args[0]) == null) {
 						OfflinePlayer targetPlayer = new OfflinePlayer(args[0]);
-						List<UUID> islandMembers = island.getRole(IslandRole.Member);
+						List<UUID> islandMembers = island.getRole(Role.Member);
 						
-						if (targetPlayer.getUniqueId() != null && (islandMembers.contains(targetPlayer.getUniqueId()) || island.getRole(IslandRole.Operator).contains(targetPlayer.getUniqueId()))) {
+						if (targetPlayer.getUniqueId() != null && (islandMembers.contains(targetPlayer.getUniqueId()) || island.getRole(Role.Operator).contains(targetPlayer.getUniqueId()))) {
 							if (islandMembers.contains(targetPlayer.getUniqueId())) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Demote.Role.Message")));
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
@@ -54,8 +54,8 @@ public class DemoteCommand extends SubCommand {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Demote.Promoted.Sender.Message").replace("%player", targetPlayer.getName())));
 								player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 								
-								island.removeRole(IslandRole.Operator, targetPlayer.getUniqueId());
-								island.setRole(IslandRole.Member, targetPlayer.getUniqueId());
+								island.removeRole(Role.Operator, targetPlayer.getUniqueId());
+								island.setRole(Role.Member, targetPlayer.getUniqueId());
 								island.save();
 							}
 						} else {
@@ -65,8 +65,8 @@ public class DemoteCommand extends SubCommand {
 					} else {
 						Player targetPlayer = Bukkit.getServer().getPlayer(args[0]);
 						
-						if (island.isRole(IslandRole.Member, targetPlayer.getUniqueId()) || island.isRole(IslandRole.Operator, targetPlayer.getUniqueId())) {
-							if (island.isRole(IslandRole.Member, targetPlayer.getUniqueId())) {
+						if (island.isRole(Role.Member, targetPlayer.getUniqueId()) || island.isRole(Role.Operator, targetPlayer.getUniqueId())) {
+							if (island.isRole(Role.Member, targetPlayer.getUniqueId())) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Demote.Role.Message")));
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							} else {
@@ -75,8 +75,8 @@ public class DemoteCommand extends SubCommand {
 								player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 								targetPlayer.playSound(targetPlayer.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 								
-								island.removeRole(IslandRole.Operator, targetPlayer.getUniqueId());
-								island.setRole(IslandRole.Member, targetPlayer.getUniqueId());
+								island.removeRole(Role.Operator, targetPlayer.getUniqueId());
+								island.setRole(Role.Member, targetPlayer.getUniqueId());
 								island.save();
 							}
 						} else {

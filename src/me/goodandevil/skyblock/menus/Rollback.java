@@ -21,7 +21,7 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
+import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -119,7 +119,7 @@ public class Rollback implements Listener {
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
-					if (!island.isRole(IslandRole.Owner, player.getUniqueId())) {
+					if (!island.isRole(Role.Owner, player.getUniqueId())) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Rollback.Role.Message")));
 						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
@@ -141,8 +141,8 @@ public class Rollback implements Listener {
 		    	} else if ((event.getCurrentItem().getType() == Materials.WRITABLE_BOOK.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Save.Displayname"))))) {
 		    		/*new BukkitRunnable() {
 		    			public void run() {
-				    		for (IslandLocation.World worldList : IslandLocation.World.values()) {
-				    			Location islandLocation = island.getLocation(worldList, IslandLocation.Environment.Island);
+				    		for (Location.World worldList : Location.World.values()) {
+				    			Location islandLocation = island.getLocation(worldList, Location.Environment.Island);
 				    			
 				    			try {
 									Schematic.getInstance().save(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), worldList.name() + ".schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, islandLocation.getBlockY(), islandLocation.getBlockZ() + 85), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, islandLocation.getBlockY(), islandLocation.getBlockZ() - 85));
@@ -157,8 +157,8 @@ public class Rollback implements Listener {
 		    	} else if ((event.getCurrentItem().getType() == Material.ENCHANTED_BOOK) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Load.Displayname"))))) {
 		    		/*new BukkitRunnable() {
 		    			public void run() {
-				    		for (IslandLocation.World worldList : IslandLocation.World.values()) {
-				    			Location islandLocation = island.getLocation(worldList, IslandLocation.Environment.Island);
+				    		for (Location.World worldList : Location.World.values()) {
+				    			Location islandLocation = island.getLocation(worldList, Location.Environment.Island);
 				    			
 					    		try {
 									Schematic.getInstance().paste(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), "Normal.schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85), true);

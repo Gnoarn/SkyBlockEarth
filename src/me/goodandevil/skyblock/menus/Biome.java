@@ -18,10 +18,10 @@ import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.biome.BiomeManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.version.Biomes;
@@ -134,7 +134,7 @@ public class Biome implements Listener {
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
 					
-					if (!((island.isRole(IslandRole.Operator, player.getUniqueId()) && island.getSetting(IslandSettings.Role.Operator, "Biome").getStatus()) || island.isRole(IslandRole.Owner, player.getUniqueId()))) {
+					if (!((island.isRole(Role.Operator, player.getUniqueId()) && island.getSetting(Settings.Role.Operator, "Biome").getStatus()) || island.isRole(Role.Owner, player.getUniqueId()))) {
 						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Biome.Permission.Message")));
 						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
@@ -191,15 +191,15 @@ public class Biome implements Listener {
 		    			}
 		    			
 		    			biomeManager.createPlayer(player, plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Biome.Cooldown"));
-			    		biomeManager.setBiome(player, island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), selectedBiomeType);
+			    		biomeManager.setBiome(player, island.getLocation(Location.World.Normal, Location.Environment.Island), selectedBiomeType);
 			    		
 			    		island.setBiome(selectedBiomeType);
 			    		island.save();
-			    		island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island).getWorld().playSound(island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), Sounds.SPLASH.bukkitSound(), 1.0F, 1.0F);
+			    		island.getLocation(Location.World.Normal, Location.Environment.Island).getWorld().playSound(island.getLocation(Location.World.Normal, Location.Environment.Island), Sounds.SPLASH.bukkitSound(), 1.0F, 1.0F);
 			    		
 		    			open(player);
 		    			
-		    			if (!LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(IslandLocation.World.Normal, IslandLocation.Environment.Island), 85)) {
+		    			if (!LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(Location.World.Normal, Location.Environment.Island), 85)) {
 		    				player.playSound(player.getLocation(), Sounds.SPLASH.bukkitSound(), 1.0F, 1.0F);
 		    			}
 		    		}

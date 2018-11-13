@@ -3,6 +3,7 @@ main: me.goodandevil.skyblock.Main
 version: 3
 api-version: 1.13
 author: GoodAndEvil
+softdepend: [PlaceholderAPI]
 commands:
     island:
         aliases: [is]

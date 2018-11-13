@@ -21,9 +21,9 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
-import me.goodandevil.skyblock.island.IslandLocation;
+import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -40,7 +40,7 @@ public class Block implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		
-		for (IslandLocation.World worldList : IslandLocation.World.values()) {
+		for (Location.World worldList : Location.World.values()) {
 			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 				IslandManager islandManager = plugin.getIslandManager();
 				
@@ -48,8 +48,8 @@ public class Block implements Listener {
 					for (UUID islandList : islandManager.getIslands().keySet()) {
 						Island island = islandManager.getIslands().get(islandList);
 						
-						if (LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-							if (LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main).clone().add(0.0D, 1.0D, 0.0D)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main).clone().subtract(0.0D, 1.0D, 0.0D))) {
+						if (LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+							if (LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main).clone().add(0.0D, 1.0D, 0.0D)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main).clone().subtract(0.0D, 1.0D, 0.0D))) {
 								if (plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Spawn.Protection")) {
 									event.setCancelled(true);	
 								}
@@ -76,7 +76,7 @@ public class Block implements Listener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player player = event.getPlayer();
 		
-		for (IslandLocation.World worldList : IslandLocation.World.values()) {
+		for (Location.World worldList : Location.World.values()) {
 			if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 				IslandManager islandManager = plugin.getIslandManager();
 				
@@ -84,23 +84,23 @@ public class Block implements Listener {
 					for (UUID islandList : islandManager.getIslands().keySet()) {
 						Island island = islandManager.getIslands().get(islandList);
 						
-						if (LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
+						if (LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
 							Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
 							FileConfiguration configLoad = config.getFileConfiguration();
 							
 							if (configLoad.getBoolean("Island.WorldBorder.Block")) {
 								if (event.getBlock().getType() == Materials.PISTON.parseMaterial() || event.getBlock().getType() == Materials.STICKY_PISTON.parseMaterial()) {
-									if (!LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 73)) {
+									if (!LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Island), 73)) {
 										event.setCancelled(true);
 									}
 								} else if (event.getBlock().getType() == Material.DISPENSER) {
-									if (!LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 83)) {
+									if (!LocationUtil.isLocationAtLocationRadius(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Island), 83)) {
 										event.setCancelled(true);
 									}
 								}
 							}
 							
-							if (LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main).clone().add(0.0D, 1.0D, 0.0D)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, IslandLocation.Environment.Main).clone().subtract(0.0D, 1.0D, 0.0D))) {
+							if (LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main).clone().add(0.0D, 1.0D, 0.0D)) || LocationUtil.isLocationLocation(event.getBlock().getLocation(), island.getLocation(worldList, Location.Environment.Main).clone().subtract(0.0D, 1.0D, 0.0D))) {
 								if (plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Spawn.Protection")) {
 									event.setCancelled(true);	
 								}
@@ -126,7 +126,7 @@ public class Block implements Listener {
 	@EventHandler
 	public void onBlockPistonExtend(BlockPistonExtendEvent event) {
 		if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Piston.Connected.Extend")) {
-			for (IslandLocation.World worldList : IslandLocation.World.values()) {
+			for (Location.World worldList : Location.World.values()) {
 				if (event.getBlock().getLocation().getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 					for (org.bukkit.block.Block blockList : event.getBlocks()) {
 						if (blockList.getType() == Materials.PISTON.parseMaterial() || blockList.getType() == Materials.STICKY_PISTON.parseMaterial()) {
@@ -143,7 +143,7 @@ public class Block implements Listener {
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
 		if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Piston.Connected.Retract")) {
-			for (IslandLocation.World worldList : IslandLocation.World.values()) {
+			for (Location.World worldList : Location.World.values()) {
 				if (event.getBlock().getLocation().getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 					for (org.bukkit.block.Block blockList : event.getBlocks()) {
 						if (blockList.getType() == Materials.PISTON.parseMaterial() || blockList.getType() == Materials.STICKY_PISTON.parseMaterial()) {
@@ -161,7 +161,7 @@ public class Block implements Listener {
 	public void onBlockForm(BlockFormEvent event) {
 		if (event.getBlock().getType() == Material.ICE || event.getBlock().getType() == Material.SNOW) {
 			if (!plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Weather.IceAndSnow")) {
-				for (IslandLocation.World worldList : IslandLocation.World.values()) {
+				for (Location.World worldList : Location.World.values()) {
 					if (event.getBlock().getLocation().getWorld().getName().equals(plugin.getWorldManager().getWorld(worldList).getName())) {
 						event.setCancelled(true);
 					}
@@ -174,15 +174,15 @@ public class Block implements Listener {
     public void onBlockBurn(BlockBurnEvent event) {
 		org.bukkit.block.Block block = event.getBlock();
 		
-		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
 			IslandManager islandManager = plugin.getIslandManager();
 			
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-						if (!island.getSetting(IslandSettings.Role.Owner, "FireSpread").getStatus()) {
+				for (Location.World worldList : Location.World.values()) {
+					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+						if (!island.getSetting(Settings.Role.Owner, "FireSpread").getStatus()) {
 							event.setCancelled(true);
 						}
 						
@@ -199,15 +199,15 @@ public class Block implements Listener {
     public void onBlockSpread(BlockSpreadEvent event) {
 		org.bukkit.block.Block block = event.getBlock();
 		
-		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
 			IslandManager islandManager = plugin.getIslandManager();
 			
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-						if (!island.getSetting(IslandSettings.Role.Owner, "FireSpread").getStatus()) {
+				for (Location.World worldList : Location.World.values()) {
+					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+						if (!island.getSetting(Settings.Role.Owner, "FireSpread").getStatus()) {
 							event.setCancelled(true);
 						}
 						
@@ -224,15 +224,15 @@ public class Block implements Listener {
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		org.bukkit.block.Block block = event.getBlock();
 		
-		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(IslandLocation.World.Nether).getName())) {
+		if (block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || block.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
 			IslandManager islandManager = plugin.getIslandManager();
 			
 			for (UUID islandList : islandManager.getIslands().keySet()) {
 				Island island = islandManager.getIslands().get(islandList);
 				
-				for (IslandLocation.World worldList : IslandLocation.World.values()) {
-					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, IslandLocation.Environment.Island), 85)) {
-						if (!island.getSetting(IslandSettings.Role.Owner, "LeafDecay").getStatus()) {
+				for (Location.World worldList : Location.World.values()) {
+					if (LocationUtil.isLocationAtLocationRadius(block.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+						if (!island.getSetting(Settings.Role.Owner, "LeafDecay").getStatus()) {
 							event.setCancelled(true);
 						}
 						

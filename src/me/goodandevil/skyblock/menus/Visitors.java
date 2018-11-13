@@ -24,8 +24,8 @@ import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
-import me.goodandevil.skyblock.island.IslandRole;
-import me.goodandevil.skyblock.island.IslandSettings;
+import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
@@ -90,7 +90,7 @@ public class Visitors implements Listener {
 		if (islandVisitors.size() == 0) {
 			inv.addItem(inv.createItem(new ItemStack(Material.BARRIER), configLoad.getString("Menu.Visitors.Item.Nothing.Displayname"), null, null, null, null), 31);
 		} else {
-			boolean isOperator = island.isRole(IslandRole.Operator, player.getUniqueId()), isOwner = island.isRole(IslandRole.Owner, player.getUniqueId()), canKick = island.getSetting(IslandSettings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(IslandSettings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
+			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
 			int index = playerMenuPage * 36 - 36, endIndex = index >= islandVisitors.size() ? islandVisitors.size() - 1 : index + 36, inventorySlot = 17;
 			
 			for (; index < endIndex; index++) {
@@ -191,7 +191,7 @@ public class Visitors implements Listener {
 		    		} else {
 		    			String playerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 		    			
-		    			boolean isOperator = island.isRole(IslandRole.Operator, player.getUniqueId()), isOwner = island.isRole(IslandRole.Owner, player.getUniqueId()), canKick = island.getSetting(IslandSettings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(IslandSettings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
+		    			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
 		    			
 						if ((isOperator && canKick) || isOwner) {
 							if (banningEnabled && ((isOperator && canBan) || isOwner)) {

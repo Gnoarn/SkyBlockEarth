@@ -11,7 +11,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import me.goodandevil.skyblock.Main;
 import me.goodandevil.skyblock.config.FileManager.Config;
-import me.goodandevil.skyblock.island.IslandLocation;
 
 public class Visit {
 
@@ -46,10 +45,10 @@ public class Visit {
 		this.islandOwnerUUID = islandOwnerUUID;
 	}
 	
-	public Location getLocation(IslandLocation.World world) {
-		if (world == IslandLocation.World.Normal) {
+	public Location getLocation(me.goodandevil.skyblock.island.Location.World world) {
+		if (world == me.goodandevil.skyblock.island.Location.World.Normal) {
 			return islandLocations[0];
-		} else if (world == IslandLocation.World.Nether) {
+		} else if (world == me.goodandevil.skyblock.island.Location.World.Nether) {
 			return islandLocations[1];
 		}
 		
