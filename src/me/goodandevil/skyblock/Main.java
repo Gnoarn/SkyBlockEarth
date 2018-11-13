@@ -65,6 +65,7 @@ public class Main extends JavaPlugin {
 	private LevellingManager levellingManager;
 	private CommandManager commandManager;
 	private StructureManager structureManager;
+	private PlaceholderManager placeholderManager;
 	
 	@Override
 	public void onEnable() {
@@ -84,13 +85,14 @@ public class Main extends JavaPlugin {
 		commandManager = new CommandManager(this);
 		structureManager = new StructureManager(this);
 		
+		placeholderManager = new PlaceholderManager(this);
+		placeholderManager.registerPlaceholders();
+		
 		new PlaytimeTask(playerDataManager, islandManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		new VisitTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		new ConfirmationTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		
 		PluginManager pluginManager = getServer().getPluginManager();
-		new PlaceholderManager(this).registerPlaceholders(pluginManager);;
-		
 		pluginManager.registerEvents(new Join(this), this);
 		pluginManager.registerEvents(new Quit(this), this);
 		pluginManager.registerEvents(new Block(this), this);
@@ -186,5 +188,9 @@ public class Main extends JavaPlugin {
 	
 	public StructureManager getStructureManager() {
 		return structureManager;
+	}
+	
+	public PlaceholderManager getPlaceholderManager() {
+		return placeholderManager;
 	}
 }

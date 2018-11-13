@@ -20,6 +20,7 @@ import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Level;
 import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.placeholder.PlaceholderManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.utils.NumberUtil;
 
@@ -174,6 +175,12 @@ public class Scoreboard {
 			}
 		} else {
 			displayLine = displayLine.replace("%island_level", ChatColor.RED + "0").replace("%island_members", ChatColor.RED + "0").replace("%island_role", ChatColor.RED + "null");
+		}
+		
+		PlaceholderManager placeholderManager = plugin.getPlaceholderManager();
+		
+		if (placeholderManager.isPlaceholderAPIEnabled()) {
+			displayLine = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, displayLine);
 		}
 		
 		return displayLine;
