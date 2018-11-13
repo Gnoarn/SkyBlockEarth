@@ -126,12 +126,29 @@ public class Main extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		this.levellingManager.onDisable();
-		this.islandManager.onDisable();
-		this.visitManager.onDisable();
-		this.banManager.onDisable();
-		this.biomeManager.onDisable();
-		this.playerDataManager.onDisable();
+		if (this.levellingManager != null) {
+			this.levellingManager.onDisable();
+		}
+		
+		if (this.islandManager != null) {
+			this.islandManager.onDisable();
+		}
+		
+		if (this.visitManager != null) {
+			this.visitManager.onDisable();
+		}
+		
+		if (this.banManager != null) {
+			this.banManager.onDisable();
+		}
+		
+		if (this.biomeManager != null) {
+			this.biomeManager.onDisable();
+		}
+		
+		if (this.playerDataManager != null) {
+			this.playerDataManager.onDisable();
+		}
 	}
 	
 	public static Main getInstance() {

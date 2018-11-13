@@ -33,27 +33,29 @@ public class WorldManager {
 		String netherWorldName = configLoad.getString("Island.World.Nether.Name");
 		String normalWorldName = configLoad.getString("Island.World.Normal.Name");
 	
-		if (Bukkit.getServer().getWorld(normalWorldName) == null && Bukkit.getServer().getWorld(netherWorldName) == null) {
+		if (Bukkit.getServer().getWorld(normalWorldName) == null) {
 			Bukkit.getServer().getConsoleSender().sendMessage("SkyBlock | Info: Generating Normal world VoidWorld '" + normalWorldName + "'.");
 			WorldCreator worldCreator = new WorldCreator(normalWorldName);
 			worldCreator.generateStructures(false);
 			worldCreator.generator(new VoidWorld());
 			Bukkit.getServer().createWorld(worldCreator);
-			
+		}
+		
+		if (Bukkit.getServer().getWorld(netherWorldName) == null) {
 			Bukkit.getServer().getConsoleSender().sendMessage("SkyBlock | Info: Generating World world VoidWorld '" + netherWorldName + "'.");
-			worldCreator = new WorldCreator(netherWorldName);
+			WorldCreator worldCreator = new WorldCreator(netherWorldName);
 			worldCreator.environment(Environment.NETHER);
 			worldCreator.generateStructures(false);
 			worldCreator.generator(new VoidWorld());
 			Bukkit.getServer().createWorld(worldCreator);
 		}
 		
-		normalWorld = Bukkit.getWorld(normalWorldName);
+		normalWorld = Bukkit.getServer().getWorld(normalWorldName);
 		normalWorld.setDifficulty(Difficulty.NORMAL);
 		
 		Bukkit.getServer().getConsoleSender().sendMessage("SkyBlock | Info: Loaded Normal world: '" + normalWorldName + "'.");
 		
-		netherWorld = Bukkit.getWorld(netherWorldName);
+		netherWorld = Bukkit.getServer().getWorld(netherWorldName);
 		netherWorld.setDifficulty(Difficulty.NORMAL);
 		
 		Bukkit.getServer().getConsoleSender().sendMessage("SkyBlock | Info: Loaded Nether world: '" + netherWorldName + "'.");
