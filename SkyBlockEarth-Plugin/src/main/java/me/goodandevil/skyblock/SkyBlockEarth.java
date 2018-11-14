@@ -1,5 +1,7 @@
 package me.goodandevil.skyblock;
 
+import java.io.File;
+
 import me.goodandevil.skyblock.api.SkyBlockEarthAPI;
 import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.biome.BiomeManager;
@@ -67,7 +69,10 @@ public class SkyBlockEarth extends JavaPlugin {
 		islandManager = new IslandManager(this);
 		//creationManager = new CreationManager(this);
 		playerDataManager = new PlayerDataManager(this);
-		scoreboardManager = new ScoreboardManager(this);
+		
+		if (fileManager.getConfig(new File(getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+			scoreboardManager = new ScoreboardManager(this);
+		}
 		inviteManager = new InviteManager(this);
 		biomeManager = new BiomeManager(this);
 		levellingManager = new LevellingManager(this);
