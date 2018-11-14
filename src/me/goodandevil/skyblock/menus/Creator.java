@@ -43,8 +43,8 @@ public class Creator implements Listener {
 		List<Structure> availableStructures = new ArrayList<>();
 		
 		for (Structure structureList : plugin.getStructureManager().getStructures()) {
-			if (structureList.getPermission() != null) {
-				if (!(structureList.getPermission().isEmpty() && player.hasPermission(structureList.getPermission()))) {
+			if (structureList.getPermission() != null && !structureList.getPermission().isEmpty()) {
+				if (!(player.hasPermission(structureList.getPermission()))) {
 					continue;
 				}
 			}
@@ -123,8 +123,8 @@ public class Creator implements Listener {
 				
 				for (Structure structureList : plugin.getStructureManager().getStructures()) {
 					if ((event.getCurrentItem().getType() == structureList.getMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Creator.Selector.Item.Island.Displayname").replace("%displayname", structureList.getDisplayname()))))) {
-						if (structureList.getPermission() != null) {
-							if (!(structureList.getPermission().isEmpty() && player.hasPermission(structureList.getPermission()))) {
+						if (structureList.getPermission() != null && !structureList.getPermission().isEmpty()) {
+							if (!(player.hasPermission(structureList.getPermission()))) {
 								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Creator.Selector.Permission.Message")));
 								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 								
