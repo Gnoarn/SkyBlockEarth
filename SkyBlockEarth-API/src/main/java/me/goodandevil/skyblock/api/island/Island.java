@@ -5,8 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import me.goodandevil.skyblock.api.level.Level;
+
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.WeatherType;
 import org.bukkit.block.Biome;
@@ -61,15 +62,7 @@ public interface Island {
 
 	public boolean hasRole(UUID playerUUID, IslandRole role);
 	
-	public void setLevelPoints(int points);
-	
-	public void setLevelMaterials(Map<Material, Integer> materials);
-	
-	public int getLevelPoints();
-	
-	public Map<Material, Integer> getLevelMaterials();
-	
-	public int getLevel();
+	public Level getLevelData();
 	
 	public <T> T getSettingValue(IslandSetting<T> setting);
 	

@@ -1,46 +1,23 @@
 package me.goodandevil.skyblock.api.event.island;
 
-import java.util.Map;
-
 import me.goodandevil.skyblock.api.island.Island;
+import me.goodandevil.skyblock.api.level.Level;
 
-import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
 
 public class IslandLevelChangeEvent extends IslandEvent {
 	
     private static final HandlerList HANDLERS = new HandlerList();
 	
-	private final int oldLevel, newLevel, oldPoints, newPoints;
-	private final Map<Material, Integer> materials;
-	
-	public IslandLevelChangeEvent(Island island, int oldLevel, int newLevel, int oldPoints, int newPoints, Map<Material, Integer> materials) {
+    private final Level level;
+    
+	public IslandLevelChangeEvent(Island island, Level level) {
 		super(island);
-		this.oldLevel = oldLevel;
-		this.newLevel = newLevel;
-		this.oldPoints = oldPoints;
-		this.newPoints = newPoints;
-		this.materials = materials;
+		this.level = level;
 	}
 	
-	public int getOldLevel() {
-		return oldLevel;
-	}
-	
-	public int getNewLevel() {
-		return newLevel;
-	}
-	
-	public int getOldPoints() {
-		return oldPoints;
-	}
-	
-	public int getNewPoints() {
-		return newPoints;
-	}
-	
-	public Map<Material, Integer> getMaterials() {
-		return materials;
+	public Level getLevelData() {
+		return level;
 	}
     
 	@Override
