@@ -24,12 +24,21 @@ public final class ItemStackUtil {
             Class<?> NBTTagCompoundClass = NMSUtil.getNMSClass("NBTTagCompound");
             Class<?> NMSItemStackClass = NMSUtil.getNMSClass("ItemStack");
             Object NBTTagCompound = NMSUtil.getNMSClass("NBTCompressedStreamTools").getMethod("a", DataInputStream.class).invoke(null, dataInputStream);
-            Object craftItemStack = NMSItemStackClass.getMethod("createStack", NBTTagCompoundClass).invoke(null, NBTTagCompound);
+            Object craftItemStack;
+            
+            if (NMSUtil.getVersionNumber() > 12) {
+            	craftItemStack = NMSItemStackClass.getMethod("a", NBTTagCompoundClass).invoke(null, NBTTagCompound);
+            } else if (NMSUtil.getVersionNumber() > 10) {
+            	craftItemStack = NMSItemStackClass.getConstructor(NBTTagCompoundClass).newInstance(NBTTagCompound);
+            } else {
+            	craftItemStack = NMSItemStackClass.getMethod("createStack", NBTTagCompoundClass).invoke(null, NBTTagCompound);
+            }
+            
             itemStack = (ItemStack) NMSUtil.getCraftClass("inventory.CraftItemStack").getMethod("asBukkitCopy", NMSItemStackClass).invoke(null, craftItemStack);
         } catch(Exception e) {
             e.printStackTrace();
         }
-      
+        
         return itemStack;
     }
    

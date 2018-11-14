@@ -204,11 +204,7 @@ public final class BlockUtil {
     	} else {
     		if (blockData.getBlockData() == null || blockData.getBlockData().isEmpty()) {
     			if (blockData.getVersion() < 13) {
-    				try {
-        				block.setType(Materials.requestMaterials(blockData.getMaterial(), block.getData()).getPostMaterial());	
-    				} catch (Exception e) {
-    					e.printStackTrace();
-    				}
+    				block.setType(Materials.requestMaterials(blockData.getMaterial(), block.getData()).getPostMaterial());	
     			} else {
     				block.setType(Material.valueOf(blockData.getMaterial()));
     			}
@@ -230,8 +226,6 @@ public final class BlockUtil {
                 String[] pattern = patternList.split(":");
                 banner.addPattern(new Pattern(DyeColor.valueOf(pattern[1].toUpperCase()), PatternType.valueOf(pattern[0].toUpperCase())));
             }
-            
-            banner.update();
         } else if (blockTypeState == BlockStateType.BEACON) {
             Beacon beacon = (Beacon) block.getState();
             String[] potionEffect = blockData.getPotionEffect().split(":");
@@ -242,18 +236,14 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	beacon.getInventory().setItem(slotList, is);
             }
-            
-            beacon.update();
         } else if (blockTypeState == BlockStateType.BREWINGSTAND) {
             BrewingStand brewingStand = (BrewingStand) block.getState();
             brewingStand.setBrewingTime(blockData.getBrewingTime());
             brewingStand.setFuelLevel(blockData.getFuelLevel());
-            brewingStand.update();
         } else if (blockTypeState == BlockStateType.COMMANDBLOCK) {
             CommandBlock commandBlock = (CommandBlock) block.getState();
             commandBlock.setCommand(blockData.getCommand());
             commandBlock.setName(blockData.getCommandBlockName());
-            commandBlock.update();
         } else if (blockTypeState == BlockStateType.CHEST) {
             Chest chest = (Chest) block.getState();
             
@@ -261,8 +251,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	chest.getInventory().setItem(slotList, is);
             }
-            
-            chest.update();
         } else if (blockTypeState == BlockStateType.DISPENSER) {
             Dispenser dispenser = (Dispenser) block.getState();
             
@@ -270,8 +258,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dispenser.getInventory().setItem(slotList, is);
             }
-            
-            dispenser.update();
         } else if (blockTypeState == BlockStateType.DROPPER) {
             Dropper dropper = (Dropper) block.getState();
             
@@ -279,8 +265,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dropper.getInventory().setItem(slotList, is);
             }
-            
-            dropper.update();
         } else if (blockTypeState == BlockStateType.HOPPER) {
             Hopper hopper = (Hopper) block.getState();
             
@@ -288,13 +272,10 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	hopper.getInventory().setItem(slotList, is);
             }
-            
-            hopper.update();
         } else if (blockTypeState == BlockStateType.CREATURESPAWNER) {
             CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
             creatureSpawner.setDelay(blockData.getDelay());
             creatureSpawner.setSpawnedType(EntityType.valueOf(blockData.getEntity().toUpperCase()));
-            creatureSpawner.update();
         } else if (blockTypeState == BlockStateType.FURNACE) {
             Furnace furnace = (Furnace) block.getState();
             furnace.setBurnTime(blockData.getBurnTime());
@@ -304,12 +285,9 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	furnace.getInventory().setItem(slotList, is);
             }
-            
-            furnace.update();
         } else if (blockTypeState == BlockStateType.JUKEBOX) {
             Jukebox jukebox = (Jukebox) block.getState();
             jukebox.setPlaying(Material.valueOf(blockData.getPlaying().toUpperCase()));
-            jukebox.update();
         } else if (blockTypeState == BlockStateType.SIGN) {
             Sign sign = (Sign) block.getState();
             int signLine = 0;
@@ -318,14 +296,11 @@ public final class BlockUtil {
                 sign.setLine(signLine, signLineList);
                 signLine++;
             }
-            
-            sign.update();
         } else if (blockTypeState == BlockStateType.SKULL) {
             Skull skull = (Skull) block.getState();
             skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(blockData.getSkullOwner()));
             skull.setRotation(BlockFace.valueOf(blockData.getRotateFace().toUpperCase()));
             skull.setSkullType(SkullType.valueOf(blockData.getSkullType().toUpperCase()));
-            skull.update();
         } else {
         	if (NMSVersion > 8) {
                 if (blockTypeState == BlockStateType.ENDGATEWAY) {
@@ -340,13 +315,11 @@ public final class BlockUtil {
                     double exitLocationZ = Double.parseDouble(exitLocation[2]);
                     
                     endGateway.setExitLocation(new Location(exitLocationWorld, exitLocationX, exitLocationY, exitLocationZ));
-                    endGateway.update();
                 } else if (blockTypeState == BlockStateType.FLOWERPOT) {
                     FlowerPot flowerPot = (FlowerPot) block.getState();
                     String[] flower = blockData.getFlower().split(":");
                     Bukkit.broadcastMessage(flower[0] + " | " + flower[1]);
                     flowerPot.setContents(new MaterialData(Material.valueOf(flower[0].toUpperCase()), (byte) Integer.parseInt(flower[1])));
-                    flowerPot.update();
                 }
                 
                 if (NMSVersion > 10) {
@@ -357,11 +330,13 @@ public final class BlockUtil {
                         	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
                         	shulkerBox.getInventory().setItem(slotList, is);
                         }
-                        
-                        shulkerBox.update();
                     }
                 }
         	}
+        }
+        
+        if (NMSVersion < 13) {
+        	block.getState().update();
         }
         
         BlockDataType blockDataType = BlockDataType.valueOf(blockData.getDataType());

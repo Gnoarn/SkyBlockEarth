@@ -125,7 +125,7 @@ public final class StructureUtil {
                 
                 BlockUtil.convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);	
         	} catch (Exception e) {
-        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+        		e.printStackTrace();
         	}
         }
         
@@ -134,7 +134,7 @@ public final class StructureUtil {
 	        	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
 	            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
         	} catch (Exception e) {
-        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+        		e.printStackTrace();
 	    	}
         }
         

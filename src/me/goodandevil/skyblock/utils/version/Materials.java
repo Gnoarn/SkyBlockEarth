@@ -914,16 +914,31 @@ public enum Materials {
     }
    
     private static HashMap<String, Materials> cachedSearch = new HashMap<>();
+    
     public static Materials requestMaterials(String name, byte data){
         if(cachedSearch.containsKey(name.toUpperCase()+","+data)){
             return cachedSearch.get(name.toUpperCase()+","+data);
         }
-        for(Materials mat:Materials.values()){
-            if(name.toUpperCase().equals(mat.m) && ((byte)mat.data) == data){
-                cachedSearch.put(mat.m+","+data,mat);
-                return mat;
+        
+        Materials pmat = null;
+        
+        for(Materials mat : Materials.values()){
+            if(name.toUpperCase().equals(mat.m)) {
+            	if (pmat == null) {
+            		pmat = mat;
+            	}
+            	
+            	if (((byte)mat.data) == data) {
+                    cachedSearch.put(mat.m+","+data,mat);
+                    return mat;	
+            	}
             }
         }
+        
+        if (pmat != null) {
+        	return pmat;
+        }
+        
         return null;
     }
    

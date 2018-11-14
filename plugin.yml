@@ -1,6 +1,6 @@
 name: SkyBlock
 main: me.goodandevil.skyblock.Main
-version: 4
+version: 5
 api-version: 1.13
 author: GoodAndEvil
 softdepend: [PlaceholderAPI, MVdWPlaceholderAPI]

@@ -180,7 +180,7 @@ public class Scoreboard {
 		PlaceholderManager placeholderManager = plugin.getPlaceholderManager();
 		
 		if (placeholderManager.isPlaceholderAPIEnabled()) {
-			displayLine = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, displayLine);
+			displayLine = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, displayLine.replace("&", "clr")).replace("clr", "&");
 		}
 		
 		return displayLine;
