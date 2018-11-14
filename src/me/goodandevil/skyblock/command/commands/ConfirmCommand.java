@@ -21,6 +21,7 @@ import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -36,6 +37,7 @@ public class ConfirmCommand extends SubCommand {
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		IslandManager islandManager = plugin.getIslandManager();
 		FileManager fileManager = plugin.getFileManager();
 		
@@ -93,11 +95,13 @@ public class ConfirmCommand extends SubCommand {
 							
 							for (Player all : Bukkit.getOnlinePlayers()) {
 								if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
-									scoreboard.cancel();
-									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
-									scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
-									scoreboard.run();
+									if (scoreboardManager != null) {
+										Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+										scoreboard.cancel();
+										scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
+										scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
+										scoreboard.run();	
+									}
 									
 									for (Location.World worldList : Location.World.values()) {
 										if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {

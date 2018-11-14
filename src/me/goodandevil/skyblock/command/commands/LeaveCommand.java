@@ -21,6 +21,7 @@ import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
@@ -36,6 +37,7 @@ public class LeaveCommand extends SubCommand {
 	@Override
 	public void onCommand(Player player, String[] args) {
 		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		IslandManager islandManager = plugin.getIslandManager();
 		FileManager fileManager = plugin.getFileManager();
 		
@@ -100,18 +102,20 @@ public class LeaveCommand extends SubCommand {
 								all.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Broadcast.Message").replace("%player", player.getName())));
 								all.playSound(all.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 								
-								if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
-									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
-									scoreboard.cancel();
-									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
+								if (scoreboardManager != null) {
+									if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
+										Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+										scoreboard.cancel();
+										scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 
-									if (island.getVisitors().size() == 0) {
-										scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-									} else {
-										scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
-									}
-									
-									scoreboard.run();
+										if (island.getVisitors().size() == 0) {
+											scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+										} else {
+											scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+										}
+										
+										scoreboard.run();
+									}	
 								}
 							}
 						}
@@ -120,11 +124,13 @@ public class LeaveCommand extends SubCommand {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Sender.Message")));
 					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 					
-					Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
-					scoreboard.cancel();
-					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
-					scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
-					scoreboard.run();
+					if (scoreboardManager != null) {
+						Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
+						scoreboard.cancel();
+						scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
+						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
+						scoreboard.run();
+					}
 				}
 			}
 		} else {

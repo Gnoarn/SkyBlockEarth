@@ -23,6 +23,7 @@ import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 
 public class Join implements Listener {
 
@@ -69,10 +70,11 @@ public class Join implements Listener {
 		plugin.getBiomeManager().loadPlayer(player);
 		//plugin.getCreationManager().loadPlayer(player);
 		
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		FileManager fileManager = plugin.getFileManager();
-		
-		if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
-			Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+
+		if (scoreboardManager != null) {
+			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 			Scoreboard scoreboard = new Scoreboard(player);
 			
 			if (islandManager.hasIsland(player)) {
@@ -81,36 +83,36 @@ public class Join implements Listener {
 				plugin.getLevellingManager().loadLevelling(island.getOwnerUUID());
 				
 				if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
-					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
+					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 					
 					if (island.getVisitors().size() == 0) {
-						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+						scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
 					} else {
-						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+						scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
 					}
 				} else {
-					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Displayname")));
+					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Team.Displayname")));
 					
 					if (island.getVisitors().size() == 0) {
-						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+						scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
 					} else {
-						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+						scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
 					}
 					
 					Map<String, String> displayVariables = new HashMap<>();
-					displayVariables.put("%owner", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
-					displayVariables.put("%operator", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
-					displayVariables.put("%member", languageConfig.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
+					displayVariables.put("%owner", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
+					displayVariables.put("%operator", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
+					displayVariables.put("%member", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
 					
 					scoreboard.setDisplayVariables(displayVariables);
 				}
 			} else {
-				scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
-				scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
+				scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
+				scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
 			}
 			
 			scoreboard.run();
-			plugin.getScoreboardManager().storeScoreboard(player, scoreboard);
+			scoreboardManager.storeScoreboard(player, scoreboard);	
 		}
 	}
 }

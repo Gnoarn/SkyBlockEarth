@@ -132,46 +132,50 @@ public class AcceptCommand extends SubCommand {
 										all.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Accept.Accepted.Broadcast.Message").replace("%player", player.getName())));
 										all.playSound(all.getLocation(), Sounds.FIREWORK_BLAST.bukkitSound(), 1.0F, 1.0F);
 										
-										if (island.getRole(Role.Member).size() == 1 && island.getRole(Role.Operator).size() == 0) {
-											Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-											scoreboard.cancel();
-											scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-											
-											if (island.getVisitors().size() == 0) {
-												scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
-											} else {
-												scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
-											}
-											
-											Map<String, String> displayVariables = new HashMap<>();
-											displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-											displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-											displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
-											
-											scoreboard.setDisplayVariables(displayVariables);
-											scoreboard.run();
+										if (scoreboardManager != null) {
+											if (island.getRole(Role.Member).size() == 1 && island.getRole(Role.Operator).size() == 0) {
+												Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+												scoreboard.cancel();
+												scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+												
+												if (island.getVisitors().size() == 0) {
+													scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+												} else {
+													scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+												}
+												
+												Map<String, String> displayVariables = new HashMap<>();
+												displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+												displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+												displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+												
+												scoreboard.setDisplayVariables(displayVariables);
+												scoreboard.run();
+											}	
 										}
 									}
 								}
 							}
 							
-							Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-							
-							if (island.getVisitors().size() == 0) {
-								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
-							} else {
-								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+							if (scoreboardManager != null) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+								
+								if (island.getVisitors().size() == 0) {
+									scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+								} else {
+									scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+								}
+								
+								Map<String, String> displayVariables = new HashMap<>();
+								displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+								
+								scoreboard.setDisplayVariables(displayVariables);
+								scoreboard.run();
 							}
-							
-							Map<String, String> displayVariables = new HashMap<>();
-							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
-							
-							scoreboard.setDisplayVariables(displayVariables);
-							scoreboard.run();
 						}
 					}
 				} else {

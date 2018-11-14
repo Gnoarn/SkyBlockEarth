@@ -119,6 +119,7 @@ public class IslandManager {
 	}
 	
 	public void createIsland(Player player, Structure structure) {
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		FileManager fileManager = plugin.getFileManager();
 		
 		Island island = new Island(player.getUniqueId(), prepareNextAvailableLocation(Location.World.Normal), prepareNextAvailableLocation(Location.World.Nether), new File(new File(plugin.getDataFolder().toString() + "/structures"), structure.getFileName()));
@@ -144,11 +145,13 @@ public class IslandManager {
 		config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		configLoad = config.getFileConfiguration();
 		
-		Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
-		scoreboard.cancel();
-		scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-		scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-		scoreboard.run();
+		if (scoreboardManager != null) {
+			Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
+			scoreboard.cancel();
+			scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+			scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+			scoreboard.run();
+		}
 		
 		new BukkitRunnable() {
 			@Override
@@ -329,40 +332,42 @@ public class IslandManager {
 			
 			int islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1, islandVisitors = island.getVisitors().size();
 			
-			try {
-				for (Player all : Bukkit.getOnlinePlayers()) {
-					if (!uuid.equals(islandOwnerUUID)) {
-						if (all.getUniqueId().equals(uuid)) {
-							continue;
-						}
-					}
-					
-					if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-						if (islandMembers == 1 && islandVisitors == 0) {
-							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-							scoreboard.run();
-						} else if (islandVisitors == 0) {
-							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
-							
-							HashMap<String, String> displayVariables = new HashMap<>();
-							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
-							
-							scoreboard.setDisplayVariables(displayVariables);
-							scoreboard.run();
+			if (scoreboardManager != null) {
+				try {
+					for (Player all : Bukkit.getOnlinePlayers()) {
+						if (!uuid.equals(islandOwnerUUID)) {
+							if (all.getUniqueId().equals(uuid)) {
+								continue;
+							}
 						}
 						
-						return;
+						if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
+							if (islandMembers == 1 && islandVisitors == 0) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+								scoreboard.run();
+							} else if (islandVisitors == 0) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+								
+								HashMap<String, String> displayVariables = new HashMap<>();
+								displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+								
+								scoreboard.setDisplayVariables(displayVariables);
+								scoreboard.run();
+							}
+							
+							return;
+						}
 					}
-				}
-			} catch (IllegalPluginAccessException e) {}
+				} catch (IllegalPluginAccessException e) {}	
+			}
 			
 			boolean unloadIsland = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload");
 			
@@ -387,6 +392,7 @@ public class IslandManager {
 	}
 	
 	public void visitIsland(Player player, Island island) {
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		FileManager fileManager = plugin.getFileManager();
 		
 		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
@@ -395,36 +401,36 @@ public class IslandManager {
 		if (island.isRole(Role.Member, player.getUniqueId()) || island.isRole(Role.Operator, player.getUniqueId()) || island.isRole(Role.Owner, player.getUniqueId())) {
 			player.teleport(island.getLocation(Location.World.Normal, Location.Environment.Visitor));
 		} else {
-			int islandVisitors = island.getVisitors().size(), islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1;
-			
-			if (islandVisitors == 0) {
-				ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+			if (scoreboardManager != null) {
+				int islandVisitors = island.getVisitors().size(), islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1;
 				
-				for (Player all : Bukkit.getOnlinePlayers()) {
-					PlayerData targetPlayerData = plugin.getPlayerDataManager().getPlayerData(all);
-					
-					if (targetPlayerData.getOwner() != null && targetPlayerData.getOwner().equals(island.getOwnerUUID())) {
-						Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-						scoreboard.cancel();
+				if (islandVisitors == 0) {
+					for (Player all : Bukkit.getOnlinePlayers()) {
+						PlayerData targetPlayerData = plugin.getPlayerDataManager().getPlayerData(all);
 						
-						if (islandMembers == 1) {
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
-						} else {
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+						if (targetPlayerData.getOwner() != null && targetPlayerData.getOwner().equals(island.getOwnerUUID())) {
+							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+							scoreboard.cancel();
 							
-							HashMap<String, String> displayVariables = new HashMap<>();
-							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+							if (islandMembers == 1) {
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+							} else {
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+								
+								HashMap<String, String> displayVariables = new HashMap<>();
+								displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+								
+								scoreboard.setDisplayVariables(displayVariables);
+							}
 							
-							scoreboard.setDisplayVariables(displayVariables);
+							scoreboard.run();
 						}
-						
-						scoreboard.run();
 					}
-				}
+				}	
 			}
 			
 			player.teleport(island.getLocation(Location.World.Normal, Location.Environment.Visitor));

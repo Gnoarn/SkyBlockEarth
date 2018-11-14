@@ -20,6 +20,7 @@ import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
@@ -35,8 +36,9 @@ public class DeleteCommand extends SubCommand {
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		FileManager fileManager = plugin.getFileManager();
+		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
 		IslandManager islandManager = plugin.getIslandManager();
+		FileManager fileManager = plugin.getFileManager();
 		
 		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
@@ -64,11 +66,13 @@ public class DeleteCommand extends SubCommand {
 					
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-							Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
-							scoreboard.run();
+							if (scoreboardManager != null) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
+								scoreboard.run();
+							}
 							
 							for (Location.World worldList : Location.World.values()) {
 								if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {

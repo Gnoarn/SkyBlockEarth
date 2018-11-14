@@ -28,6 +28,7 @@ public final class EntityUtil {
 	
 	public static EntityData convertEntityToEntityData(Entity entity, int x, int y, int z) {
         EntityData entityData = new EntityData(entity.getType().toString(), x, y, z, entity.getCustomName(), entity.isCustomNameVisible(), entity.getFireTicks(), entity.getTicksLived());
+        entityData.setVersion(NMSUtil.getVersionNumber());
         
         if (entity instanceof ArmorStand) {
             ArmorStand armorStand = (ArmorStand) entity;

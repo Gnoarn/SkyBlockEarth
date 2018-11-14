@@ -34,8 +34,14 @@ public class ReloadCommand extends SubCommand {
 		if (player.hasPermission("skyblock.admin.reload") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
 			Map<String, Config> configs = fileManager.getConfigs();
 			
-			for (String configList : configs.keySet()) {
-				configs.get(configList).loadFile();;
+			for (int i = 0; i < configs.size(); i++) {
+				String configFileName = (String) configs.keySet().toArray()[i];
+				Config configFileConfig = configs.get(configFileName);
+				String configFilePath = configFileName.replace(configFileConfig.getFile().getName(), "");
+				
+				if (configFilePath.equals(plugin.getDataFolder().toString() + "\\")) {
+					configFileConfig.loadFile();
+				}
 			}
 			
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Reload.Reloaded.Message")));
