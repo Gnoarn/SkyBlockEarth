@@ -20,6 +20,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.goodandevil.skyblock.SkyBlockEarth;
+import me.goodandevil.skyblock.api.impl.island.EarthIsland;
 import me.goodandevil.skyblock.ban.Ban;
 import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.config.FileManager;
@@ -51,6 +52,8 @@ public class Island {
 	private Level level;
 	
 	int r = 85;
+	
+	public final EarthIsland apiWrapper;
 	
 	public Island(UUID ownerUUID, org.bukkit.Location islandNormalLocation, org.bukkit.Location islandNetherLocation, File structureFile) {
 		this.plugin = SkyBlockEarth.getInstance();
@@ -162,6 +165,8 @@ public class Island {
 		if (!banManager.hasIsland(getOwnerUUID())) {
 			banManager.createIsland(getOwnerUUID());
 		}
+		
+		this.apiWrapper = new EarthIsland(this);
 	}
 	
 	public UUID getOwnerUUID() {

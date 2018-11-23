@@ -117,7 +117,7 @@ public class SkyBlockEarth extends JavaPlugin {
 		pluginManager.registerEvents(new Creator(), this);
 		pluginManager.registerEvents(new Structure(), this);
 		
-		Bukkit.getServicesManager().register(SkyBlockEarthAPI.class, SkyBlockEarthAPIProvider.get(), this, ServicePriority.Normal);
+		Bukkit.getServicesManager().register(SkyBlockEarthAPI.class, SkyBlockEarthAPIProvider.get(this), this, ServicePriority.Normal);
 	}
 	
 	@Override

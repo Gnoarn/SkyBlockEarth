@@ -46,7 +46,7 @@ public interface Island {
 	
 	public WeatherType getWeather();
 	
-	public WeatherType setWeather(WeatherType weather);
+	public void setWeather(WeatherType weather);
 	
 	public IslandRole getRole(OfflinePlayer player);
 

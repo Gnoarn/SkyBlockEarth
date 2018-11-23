@@ -8,6 +8,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.goodandevil.skyblock.SkyBlockEarth;
+import me.goodandevil.skyblock.api.impl.player.EarthSkyBlockPlayer;
+import me.goodandevil.skyblock.api.player.SkyBlockPlayer;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.confirmation.Confirmation;
 import me.goodandevil.skyblock.utils.structure.Area;
@@ -31,6 +33,8 @@ public class PlayerData {
 	private Area area;
 	private boolean chat;
 	
+	public final SkyBlockPlayer apiWrapper;
+	
 	public PlayerData(Player player) {
 		uuid = player.getUniqueId();
 		islandOwnerUUID = null;
@@ -41,6 +45,7 @@ public class PlayerData {
 		
 		area = new Area();
 		chat = false;
+		this.apiWrapper = new EarthSkyBlockPlayer(this);
 	}
 	
 	public void setPage(int page) {
