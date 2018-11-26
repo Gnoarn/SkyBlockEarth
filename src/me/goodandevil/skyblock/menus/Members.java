@@ -24,13 +24,14 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.StringUtil;
@@ -52,11 +53,11 @@ public class Members implements Listener {
     }
     
     public void open(Player player, Members.Type type, Members.Sort sort) {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-    	PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+    	PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
     	
-		Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
+		Island island = skyblock.getIslandManager().getIsland(playerData.getOwner());
 		
 		List<UUID> displayedMembers = new ArrayList<>();
 		
@@ -82,9 +83,9 @@ public class Members implements Listener {
 				Player targetPlayer = Bukkit.getServer().getPlayer(displayedMemberList);
 				
 				if (targetPlayer == null) {
-					sortedPlaytimes.put(YamlConfiguration.loadConfiguration(new File(new File(plugin.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getInt("Statistics.Island.Playtime"), displayedMemberList);
+					sortedPlaytimes.put(YamlConfiguration.loadConfiguration(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getInt("Statistics.Island.Playtime"), displayedMemberList);
 				} else {
-					sortedPlaytimes.put(plugin.getPlayerDataManager().getPlayerData(targetPlayer).getPlaytime(), displayedMemberList);
+					sortedPlaytimes.put(skyblock.getPlayerDataManager().getPlayerData(targetPlayer).getPlaytime(), displayedMemberList);
 				}
 			}
 			
@@ -101,9 +102,9 @@ public class Members implements Listener {
 				
 				try {
 					if (targetPlayer == null) {
-						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(YamlConfiguration.loadConfiguration(new File(new File(plugin.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getString("Statistics.Island.Join")), displayedMemberList);
+						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(YamlConfiguration.loadConfiguration(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getString("Statistics.Island.Join")), displayedMemberList);
 					} else {
-						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(plugin.getPlayerDataManager().getPlayerData(targetPlayer).getMemberSince()), displayedMemberList);
+						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(skyblock.getPlayerDataManager().getPlayerData(targetPlayer).getMemberSince()), displayedMemberList);
 					}
 				} catch (ParseException e) {
 					e.printStackTrace();
@@ -126,7 +127,7 @@ public class Members implements Listener {
 					onlineMembers.remove(displayedMemberList);
 					
 					try {
-						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(YamlConfiguration.loadConfiguration(new File(new File(plugin.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getString("Statistics.Island.LastOnline")), displayedMemberList);
+						sortedDates.put(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(YamlConfiguration.loadConfiguration(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), displayedMemberList.toString() + ".yml")).getString("Statistics.Island.LastOnline")), displayedMemberList);
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
@@ -153,13 +154,13 @@ public class Members implements Listener {
 		
 		int playerMenuPage = playerData.getPage(), nextEndIndex = displayedMembers.size() - playerMenuPage * 36;
 		
-		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Members.Title"), null, 6);
 		inv.addItem(inv.createItem(Materials.OAK_FENCE_GATE.parseItem(), configLoad.getString("Menu.Members.Item.Exit.Displayname"), null, null, null, null), 0, 8);
 		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Members.Item.Type.Displayname"), configLoad.getStringList("Menu.Members.Item.Type.Lore"), inv.createItemLoreVariable(new String[] { "%type#" + type.name() }), null, null), 3);
-		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Members.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Members.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%island_members#" + (islandMembers.size() + islandOperators.size() + 1), "%island_capacity#" + plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity"), "%members#" + islandMembers.size(), "%operators#" + islandOperators.size()}), null, null), 4);
+		inv.addItem(inv.createItem(new ItemStack(Material.PAINTING), configLoad.getString("Menu.Members.Item.Statistics.Displayname"), configLoad.getStringList("Menu.Members.Item.Statistics.Lore"), inv.createItemLoreVariable(new String[] { "%island_members#" + (islandMembers.size() + islandOperators.size() + 1), "%island_capacity#" + skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Member.Capacity"), "%members#" + islandMembers.size(), "%operators#" + islandOperators.size()}), null, null), 4);
 		inv.addItem(inv.createItem(new ItemStack(Material.HOPPER), configLoad.getString("Menu.Members.Item.Sort.Displayname"), configLoad.getStringList("Menu.Members.Item.Sort.Lore"), inv.createItemLoreVariable(new String[] { "%sort#" + StringUtil.capatilizeUppercaseLetters(sort.name()) }), null, null), 5);
 		inv.addItem(inv.createItem(Materials.BLACK_STAINED_GLASS_PANE.parseItem(), configLoad.getString("Menu.Members.Item.Barrier.Displayname"), null, null, null, null), 9, 10, 11, 12, 13, 14, 15, 16, 17);
 		
@@ -208,7 +209,7 @@ public class Members implements Listener {
 					} else {
 						playerName = targetPlayer.getName();
 						
-						playerData = plugin.getPlayerDataManager().getPlayerData(targetPlayer);
+						playerData = skyblock.getPlayerDataManager().getPlayerData(targetPlayer);
 						playerTexture = playerData.getTexture();
 						islandPlaytime = playerData.getPlaytime();
 						playTimeDurationTime = NumberUtil.getDuration(Integer.valueOf(islandPlaytime));
@@ -304,38 +305,40 @@ public class Members implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Main plugin = Main.getInstance();
+			SkyBlock skyblock = SkyBlock.getInstance();
 			
-			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Title")))) {
 				event.setCancelled(true);
 				
-				PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+				PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
 				
 				if (playerData.getType() == null || playerData.getSort() == null) {
 					playerData.setType(Members.Type.Default);
 					playerData.setSort(Members.Sort.Default);
 				}
 				
-				IslandManager islandManager = plugin.getIslandManager();
+				IslandManager islandManager = skyblock.getIslandManager();
+				SoundManager soundManager = skyblock.getSoundManager();
+				
 				Island island = null;
 				
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(playerData.getOwner());
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Members.Owner.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					skyblock.getMessageManager().sendMessage(player, config.getFileConfiguration().getString("Command.Island.Members.Owner.Message"));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
 					return;
 				}
 				
 				if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Barrier.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.OAK_FENCE_GATE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Exit.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		    		player.closeInventory();
 		    	} else if ((event.getCurrentItem().getType() == Material.HOPPER) && (is.hasItemMeta())) {
 		    		if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Type.Displayname")))) {
@@ -357,20 +360,20 @@ public class Members implements Listener {
 		    		}
 		    		
 	    			open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
-	    			player.playSound(player.getLocation(), Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
+	    			soundManager.playSound(player, Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.PAINTING) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Statistics.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.BARRIER) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Nothing.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-		    	} else if ((event.getCurrentItem().getType() == Materials.LEGACY_SKULL_ITEM.getPostMaterial()) && (is.hasItemMeta())) {
+		    		soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+		    	} else if ((event.getCurrentItem().getType() == SkullUtil.createItemStack().getType()) && (is.hasItemMeta())) {
 		    		if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Previous.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() - 1);
 		    			open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Item.Next.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() + 1);
 		    			open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else {
 		    			String playerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 		    			UUID playerUUID;
@@ -397,7 +400,7 @@ public class Members implements Listener {
 										public void run() {
 		    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 		    							}
-		    						}.runTaskLater(plugin, 3L);
+		    						}.runTaskLater(skyblock, 3L);
 		    						
 				    				return;
 		    					} else if (event.getClick() == ClickType.RIGHT) {
@@ -408,7 +411,7 @@ public class Members implements Listener {
 										public void run() {
 		    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 		    							}
-		    						}.runTaskLater(plugin, 3L);
+		    						}.runTaskLater(skyblock, 3L);
 		    						
 				    				return;
 		    					}
@@ -420,13 +423,13 @@ public class Members implements Listener {
 									public void run() {
 	    								open(player, (Members.Type) playerData.getType(), (Members.Sort) playerData.getSort());
 	    							}
-	    						}.runTaskLater(plugin, 3L);
+	    						}.runTaskLater(skyblock, 3L);
 	    						
 		    					return;
 		    				}
 		    			}
 		    			
-		    			player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 		    		}
 		    	}
 			}
@@ -437,13 +440,13 @@ public class Members implements Listener {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();
 		
-		Main plugin = Main.getInstance();
+		SkyBlock skyblock = SkyBlock.getInstance();
 		
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Members.Title")))) {
-			player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+			skyblock.getSoundManager().playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		}
 	}
     

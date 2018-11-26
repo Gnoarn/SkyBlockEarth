@@ -7,40 +7,45 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.biome.BiomeManager;
+import me.goodandevil.skyblock.creation.CreationManager;
 import me.goodandevil.skyblock.invite.Invite;
 import me.goodandevil.skyblock.invite.InviteManager;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.levelling.LevellingManager;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class Quit implements Listener {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	
- 	public Quit(Main plugin) {
-		this.plugin = plugin;
+ 	public Quit(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-		IslandManager islandManager = plugin.getIslandManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+		MessageManager messageManager = skyblock.getMessageManager();
+		IslandManager islandManager = skyblock.getIslandManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
-		playerData.setLastOnline(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
+		
+		try {
+			playerData.setLastOnline(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
+		} catch (Exception e) {}
 		
 		if (islandManager.hasIsland(player)) {
 			Island island = islandManager.getIsland(playerData.getOwner());
@@ -48,7 +53,7 @@ public class Quit implements Listener {
 			List<UUID> islandMembersOnline = islandManager.getMembersOnline(island);
 			
 			if (islandMembersOnline.size() == 1) {
-				LevellingManager levellingManager = plugin.getLevellingManager();
+				LevellingManager levellingManager = skyblock.getLevellingManager();
 				levellingManager.saveLevelling(island.getOwnerUUID());
 				levellingManager.unloadLevelling(island.getOwnerUUID());
 			} else if (islandMembersOnline.size() == 2) {
@@ -59,7 +64,7 @@ public class Quit implements Listener {
 						
 						if (targetPlayerData.isChat()) {
 							targetPlayerData.setChat(false);
-							targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
+							messageManager.sendMessage(targetPlayer, skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message"));	
 						}
 					}
 				}
@@ -77,26 +82,26 @@ public class Quit implements Listener {
 			islandManager.unloadIsland(islandOwnerUUID);
 		}
 		
-		InviteManager inviteManager = plugin.getInviteManager();
+		InviteManager inviteManager = skyblock.getInviteManager();
 		
 		if (inviteManager.hasInvite(player.getUniqueId())) {
 			Invite invite = inviteManager.getInvite(player.getUniqueId());
 			Player targetPlayer = Bukkit.getServer().getPlayer(invite.getOwnerUUID());
 			
 			if (targetPlayer != null) {
-				targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Invite.Invited.Sender.Disconnected.Message").replace("%player", player.getName())));
-				targetPlayer.playSound(targetPlayer.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
+				messageManager.sendMessage(targetPlayer, skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Invite.Invited.Sender.Disconnected.Message").replace("%player", player.getName()));
+				skyblock.getSoundManager().playSound(targetPlayer, Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 			}
 			
 			inviteManager.removeInvite(player.getUniqueId());	
 		}
 		
-		BiomeManager biomeManager = plugin.getBiomeManager();
+		BiomeManager biomeManager = skyblock.getBiomeManager();
 		biomeManager.savePlayer(player);
 		biomeManager.unloadPlayer(player);
 		
-		/*CreationManager creationManager = plugin.getCreationManager();
+		CreationManager creationManager = skyblock.getCreationManager();
 		creationManager.savePlayer(player);
-		creationManager.unloadPlayer(player);*/
+		creationManager.unloadPlayer(player);
 	}
 }

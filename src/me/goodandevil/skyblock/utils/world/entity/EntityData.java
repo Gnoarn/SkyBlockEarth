@@ -45,6 +45,7 @@ public class EntityData {
     private float yaw = 0;
     private float pitch = 0;
     
+    private int version;
     private int fireTicks;
     private int ticksLived;
     private int llamaStrength;
@@ -395,6 +396,14 @@ public class EntityData {
     
     public void setPitch(float pitch) {
     	this.pitch = pitch;
+    }
+    
+    public int getVersion() {
+    	return this.version;
+    }
+    
+    public void setVersion(int version) {
+    	this.version = version;
     }
     
     public int getFireTicks() {

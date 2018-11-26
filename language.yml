@@ -21,6 +21,9 @@ Command:
                 Message: "&f&oOpens the Island Control Panel menu."
             Owner:
                 Message: "&bSkyBlock &8| &cError&8: &eYou are not an Island owner."
+        Leaderboard:
+            Info:
+                Message: "&f&oOpens the Leaderboard menu of the top 10 Islands."
         Create:
             Info:
                 Message: "&f&oOpens the Island Creator menu."
@@ -231,6 +234,29 @@ Command:
                     Message: "&bSkyBlock &8| &aInfo&8: &eYou have demoted the player &d%player &eto a &dMember&e."
                 Target:
                     Message: "&bSkyBlock &8| &aInfo&8: &eYou have been demoted to a &dMember&e."
+        Vote:
+            Info:
+                Message: "Add/Remove a vote from a players Island."
+            Invalid:
+                Message: "&bSkyBlock &8| &cError&8: &eInvalid: /island vote <player>"
+            Disabled:
+                Message: "&bSkyBlock &8| &cError&8: &eYou cannot vote for that Island because voting is disabled."
+            Island:
+                None:
+                    Message: "&bSkyBlock &8| &cError&8: &eThat player is not a Member or owns an Island."
+                Unloaded:
+                    Message: "&bSkyBlock &8| &cError&8: &eThere are no members of that Island online."
+                Closed:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou cannot vote for that Island because it is closed."
+                Member:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou cannot vote for that Island because you are a member of it."
+                Location:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou must be at that players Island to vote."
+            Vote:
+                Added:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYour vote has been &a&lADDED &efor &a%player's &eIsland."
+                Removed:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYour vote has been &c&lREMOVED &efor &a%player's &eIsland."
         Kick:
             Info:
                 Message: "&f&oRemove a Member or Visitor from your Island."
@@ -471,7 +497,7 @@ Command:
                 Target:
                     Message: "&bSkyBlock &8| &aInfo&8: &eYou have been kicked from the Island."
                 Sender:
-                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have kicked &c%visitors &efrom your Island."
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have kicked &c%visitors &evisitors from your Island."
         Current:
             Info:
                 Message: "&f&oDisplay the current Island you are at."
@@ -529,6 +555,31 @@ Command:
             Private:
                 Message: "&bSkyBlock &8| &aInfo&8: &eYour Island is now &cPrivate&e."
         Admin:
+            Help:
+                Permission:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+            Create:
+                Info:
+                    Message: "&f&oManage Structures for the Island Creator menu."
+                Permission:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+            Generator:
+                Info:
+                    Message: "&f&oManager generators for coddlestone generators."
+                Permission:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+                Disabled:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou cannot peform that command because the generator has been disabled."
+            Level:
+                Info:
+                    Message: "&f&oChange Island level materials and points."
+                Permission:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+            Settings:
+                Info:
+                    Message: "&f&oChange the default settings for when an Island is created."
+                Permission:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
             Structure:
                 Info:
                     Message: "&f&oCreate structures for Islands."
@@ -552,8 +603,14 @@ Command:
                         Message: "&bSkyBlock &8| &cError&8: &ePlease use the structure tool to select two positions of an area."
                     Complete:
                         Message: "&bSkyBlock &8| &cError&8: &ePlease complete the area selection by using the structure tool and selecting two positions of an area."
-                    World:
-                        Message: "&bSkyBlock &8| &cError&8: &eBoth selected positions have to be in the same World."
+                    Selection:
+                        World:
+                            Message: "&bSkyBlock &8| &cError&8: &eBoth selected positions have to be in the same World."
+                    Player:
+                        World:
+                            Message: "&bSkyBlock &8| &cError&8: &eYou must be in the same World as the selected positions."
+                        Area:
+                            Message: "&bSkyBlock &8| &cError&8: &eYou must be inside the selected area."
                     Saved:
                         Successful:
                             Message: "&bSkyBlock &8| &aInfo&8: &eThe structure with the name '&d%name&e' has been saved!"
@@ -564,13 +621,28 @@ Command:
                     Message: "&f&oSets the spawn point to your location."
                 Permission:
                     Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+                World:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou cannot set the spawn point in an Island world."
                 Set:
                     Message: "&bSkyBlock &8| &aInfo&8: &eThe spawn point has been set to your location."
-            Create:
+            SetSize:
                 Info:
-                    Message: "&f&oOpens the Island Creator menu."
+                    Message: "&f&oSets the size of a players Island."
                 Permission:
                     Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to perform that command."
+                Invalid:
+                    Message: "&bSkyBlock &8| &cError&8: &eInvalid: /island admin setsize <player_name> <size>"
+                Numerical:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou must enter a numerical value."
+                Size:
+                    Greater:
+                        Message: "&bSkyBlock &8| &cError&8: &eThe size of the Island must be greater than 50."
+                    Less:
+                        Message: "&bSkyBlock &8| &cError&8: &eThe size of the Island must be less than 1000."
+                Island:
+                    Message: "&bSkyBlock &8| &cError&8: &eThat player is not a Member or owns an Island."
+                Set:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have set the player &d%player's &eIsland size to &d%size&e."
             Delete:
                 Info:
                     Message: "&f&oDelete a players Island permanently."
@@ -635,6 +707,9 @@ Island:
             Signature:
                 Disabled:
                     Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to use that feature."
+    World:
+        Nether:
+            Message: "&bSkyBlock &8| &aInfo&8: &eYou have been teleported out of the nether because the nether is disabled."
     WorldBorder:
         Outside:
             Message: "&bSkyBlock &8| &cError&8: &eYou went too far outside the Island WorldBorder."
@@ -692,9 +767,144 @@ Island:
             Message: "&8[&bSkyBlock &8| &dChat&8] %role &e%player&8: &f%message"
         Untoggled:
             Message: "&bSkyBlock &8| &aInfo&8: &eThe Island chat has been untoggled because there are no Island members online. Chat messages will now be visible for all players."
+    Admin:
+        Creator:
+            Permission:
+                Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to do that."
+            Already:
+                Message: "&bSkyBlock &8| &cError&8: &eA structure by that name already exists."
+            Exist:
+                Message: "&bSkyBlock &8| &cError&8: &eThat structure does not exist."
+            Selected:
+                Message: "&bSkyBlock &8| &cError&8: &eYou have not selected a structure."
+            File:
+                Message: "&bSkyBlock &8| &cError&8: &eThat file does not exist in the structures directory."
+            Characters:
+                Message: "&bSkyBlock &8| &cError&8: &eThe structure name can only contain letters and numbers."
+            Item:
+                Added:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eSelect an item in your inventory."
+                Removed:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have been removed from the item selector."
+                Cancelled:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have cancelled the item selector."
+            Created:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have created a structure with the name '&d%structure&e'."
+            Removed:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have removed the structure with the name '&d%structure&e'."
+        Generator:
+            Permission:
+                Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to do that."
+            Disabled:
+                Message: "&bSkyBlock &8| &cError&8: &eYou cannot do that because generators have been disabled."
+            Already:
+                Message: "&bSkyBlock &8| &cError&8: &eA generator by that name already exists."
+            Exist:
+                Message: "&bSkyBlock &8| &cError&8: &eThat generator does not exist."
+            Selected:
+                Message: "&bSkyBlock &8| &cError&8: &eYou have not selected a generator."
+            Characters:
+                Message: "&bSkyBlock &8| &cError&8: &eThe generator name can only contain letters and numbers."
+            Chance:
+                Numerical:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou must enter a numerical value."
+                Over:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou cannot set the chance of the material to that because the overall chance total of the materials for this generator goes over 100."
+            Material:
+                Limit:
+                    Message: "&bSkyBlock &8| &cError&8: &eYou have reached the limit of materials for that generator."
+                Already:
+                    Message: "&bSkyBlock &8| &cError&8: &eThat material type has already been added to that generator."
+                Added:
+                    Message: "&bSkyBlock &8| &aInfo&8: &eYou have added the material '&d%material&e' to the generator '&d%generator&e'."
+            Created:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have created a generator with the name '&d%generator&e'."
+            Removed:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have removed the generator with the name '&d%generator&e'."
+        Levelling:
+            Permission:
+                Message: "&bSkyBlock &8| &cError&8: &eYou don't have permission to do that."
+            Already:
+                Message: "&bSkyBlock &8| &cError&8: &eThat material type has already been added."
+            Exist:
+                Message: "&bSkyBlock &8| &cError&8: &eThat material type has not been added."
+            Numerical:
+                Message: "&bSkyBlock &8| &cError&8: &ePlease provide a numerical value."
+            Added:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have added the material '&d%material&e'."
+            Removed:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have removed the material '&d%material&e'."
+            Points:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have set the material '&d%material&e' points to '&6%points&8'."
+            Division:
+                Message: "&bSkyBlock &8| &aInfo&8: &eYou have set the points division to '&f%division&e'."
+Placeholder:
+    skyblock_island_level:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_points:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_role:
+        Empty:
+            Message: "&f&oNone"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_owner:
+        Empty:
+            Message: "&f&oNone"
+        Non-empty:
+            Yourself:
+                Message: "&fYou"
+            Other:
+                Message: "&f%placeholder"
+    skyblock_island_biome:
+        Empty:
+            Message: "&f&oNone"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_time:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_weather:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_bans:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_members_total:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_members:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_operators:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
+    skyblock_island_visitors:
+        Empty:
+            Message: "&c0"
+        Non-empty:
+            Message: "&f%placeholder"
 Scoreboard:
     Tutorial:
-        Displayname: "   &b&lSkyBlock &7(&f%players_online&7/&f%players_max&7)"
+        Displayname: "&b&lSkyBlock"
         Displaylines:
         - ""
         - "&bIsland&f:"
@@ -708,7 +918,7 @@ Scoreboard:
         - "&ewww.example.net"
     Island:
         Solo:
-            Displayname: "   &b&lSkyBlock &7(&f%players_online&7/&f%players_max&7)"
+            Displayname: "&b&lSkyBlock"
             Occupied:
                 Displaylines:
                 - ""
@@ -737,7 +947,7 @@ Scoreboard:
                 Owner: "Owner"
                 Operator: "Operator"
                 Member: "Member"
-            Displayname: "   &b&lSkyBlock &7(&f%players_online&7/&f%players_max&7)"
+            Displayname: "&b&lSkyBlock"
             Occupied:
                 Displaylines:
                 - ""
@@ -771,6 +981,8 @@ Menu:
             Title: "&8Island Creator"
             Item:
                 Island:
+                    Word:
+                        Empty: "&f&oEmpty"
                     Displayname: "%displayname &aIsland"
                     Lore:
                     - "&7Description&8:"
@@ -846,6 +1058,48 @@ Menu:
                 - "    &7been visiting for."
                 - ""
                 - "&eClick to view Island visitors!"
+    Leaderboard:
+        Browse:
+            Title: "&8Select a Leaderboard"
+            Item:
+                Leaderboard:
+                    Displayname: "&aTop Island %leaderboard"
+                    Lore:
+                    - "&7View the top 10 Islands."
+                    - ""
+                    - "&eClick to view leaderboard!"
+                Exit:
+                    Displayname: "&cExit Categories"
+        Leaderboard:
+            Title: "&8Top Island %leaderboard"
+            Item:
+                Exit:
+                    Displayname: "&cExit Leaderboard"
+                Return:
+                    Displayname: "&cReturn to Categories"
+                Island:
+                    Word:
+                        Empty: "&f&oEmpty"
+                    Displayname: "&a&lIsland Top %position"
+                    Level:
+                        Lore:
+                        - "&7Owner&8: &f%owner"
+                        - "&7Level&8: &f%level"
+                        - "&7Members&8: &f%members"
+                        - ""
+                        - "&7Signature&8:"
+                        - "%signature"
+                    Votes:
+                        Lore:
+                        - "&7Owner&8: &f%owner"
+                        - "&7Votes&8: &f%votes"
+                        - ""
+                        - "&7Signature&8:"
+                        - "%signature"
+                Empty:
+                    Displayname: "&a&lIsland Top %position"
+                    Lore:
+                    - "&f&oEmpty"
     Biome:
         Title: "&8Select a Biome"
         Item:
@@ -1295,6 +1549,8 @@ Menu:
                         Displayname: "&aSpawn Eggs"
                     Cake:
                         Displayname: "&aCake Consumption"
+                    DragonEggUse:
+                        Displayname: "&aDragon Egg Use"
                     MinecartBoat:
                         Displayname: "&aMinecart/Boat Use"
                     Portal:
@@ -1656,3 +1912,393 @@ Menu:
                 Lore:
                 - ""
                 - "&eClick to Unban player!"
+    Admin:
+        Creator:
+            Title: "&8Structure Editor"
+            Browse:
+                Item:
+                    Exit:
+                        Displayname: "&cExit Creator Editor"
+                    Previous:
+                        Displayname: "&a< Previous Page"
+                    Next:
+                        Displayname: "&aNext Page >"
+                    Barrier:
+                        Displayname: "&cStructures Below"
+                    Nothing:
+                        Displayname: "&c&oNothing to see here..."
+                    Information:
+                        Word:
+                            Enter: "Enter Name"
+                        Displayname: "&bInformation"
+                        Lore:
+                        - "&7Structures&8: &f%structures"
+                        - ""
+                        - "&eClick to create a Structure!"
+                    Structure:
+                        Displayname: "&a%structure"
+                        Lore:
+                        - "&eLeft-Click to view options!"
+                        - "&eRight-Click to remove structure!"
+            Options:
+                Item:
+                    Return:
+                        Displayname: "&cReturn to browse"
+                    Word:
+                        Unset: "&f&oUnset"
+                    Displayname:
+                        Word:
+                            Enter: "Enter Displayname"
+                        Displayname: "&aDisplayname"
+                        Lore:
+                        - "&7Displayname&8:"
+                        - "&f&o%displayname"
+                        - ""
+                        - "&eClick to set displayname!"
+                    Description:
+                        Word:
+                            Enter: "Enter Line"
+                        Displayname: "&aDescription"
+                        Unset:
+                            Lore:
+                            - "&7Description&8:"
+                            - "%description"
+                            - ""
+                            - "&eClick to add line!"
+                        Set:
+                            Lore:
+                            - "&7Description&8:"
+                            - "%description"
+                            - ""
+                            - "&eLeft-Click to add line!"
+                            - "&eRight-click to remove line!"
+                    Permission:
+                        Displayname: "&aPermission"
+                        Enable:
+                            Lore:
+                            - "&7Permission&8:"
+                            - "&f&o%permission"
+                            - ""
+                            - "&eClick to enable!"
+                        Disable:
+                            Lore:
+                            - "&7Permission&8:"
+                            - "&f&o%permission"
+                            - ""
+                            - "&eClick to disable!"
+                    File:
+                        Word:
+                            Enter: "Enter file name"
+                        Displayname: "&aStructure File"
+                        Lore:
+                        - "&7File&8:"
+                        - "&f&o%file"
+                        - ""
+                        - "&eClick to set file!"
+                    Item:
+                        Displayname: "&aItem"
+                        Lore:
+                        - "&7Material&8:"
+                        - "&f&o%material"
+                        - ""
+                        - "&7When clicked, select"
+                        - "&7an item in your"
+                        - "&7inventory or click"
+                        - "&7this item again to"
+                        - "&7cancel."
+                        - ""
+                        - "&eClick to set item!"
+        Generator:
+            Title: "&8Generator Editor"
+            Browse:
+                Item:
+                    Exit:
+                        Displayname: "&cExit Generator Editor"
+                    Previous:
+                        Displayname: "&a< Previous Page"
+                    Next:
+                        Displayname: "&aNext Page >"
+                    Barrier:
+                        Displayname: "&cGenerators Below"
+                    Nothing:
+                        Displayname: "&c&oNothing to see here..."
+                    Information:
+                        Word:
+                            Enter: "Enter Name"
+                        Displayname: "&bInformation"
+                        Lore:
+                        - "&7Generators&8: &f%generators"
+                        - ""
+                        - "&eClick to create a Generator!"
+                    Generator:
+                        Displayname: "&a%generator"
+                        Lore:
+                        - "&eLeft-Click to manager generator!"
+                        - "&eRight-Click to remove generator!"
+            Generator:
+                Item:
+                    Return:
+                        Displayname: "&cReturn to browse"
+                    Barrier:
+                        Displayname: "&cMaterials Below"
+                    Information:
+                        Displayname: "&bInformation"
+                        Permission:
+                            Enable:
+                                Lore:
+                                - "&7Name&8: &f%name"
+                                - "&7Permission&8:"
+                                - "&f&o%permission"
+                                - ""
+                                - "&eClick to enable permission!"
+                            Disable:
+                                Lore:
+                                - "&7Name&8: &f%name"
+                                - "&7Permission&8:"
+                                - "&f&o%permission"
+                                - ""
+                                - "&eClick to disable permission!"
+                    Nothing:
+                        Displayname: "&c&oNothing to see here..."
+                    Material:
+                        Word:
+                            Enter: "Enter Chance"
+                        Displayname: "&a%material"
+                        Lore:
+                        - "&7Chance&8: &f%chance"
+                        - ""
+                        - "&eLeft-Click to set chance!"
+                        - "&eRight-Click to remove material!"
+        Levelling:
+            Title: "&8Levelling Editior"
+            Item:
+                Exit:
+                    Displayname: "&cExit Levelling Editor"
+                Previous:
+                    Displayname: "&a< Previous Page"
+                Next:
+                    Displayname: "&aNext Page >"
+                Barrier:
+                    Displayname: "&cLevelling Materials Below"
+                Nothing:
+                    Displayname: "&c&oNothing to see here..."
+                Information:
+                    Word:
+                        Enter: "Enter Division"
+                    Displayname: "&bInformation"
+                    Lore:
+                    - "&7Materials&8: &f%materials"
+                    - "&7Division&8: &f%division"
+                    - ""
+                    - "&eClick to set Division!"
+                Material:
+                    Word:
+                        Enter: "Enter Points"
+                    Displayname: "&a%material"
+                    Lore:
+                    - "&7Points&8: &6%points"
+                    - ""
+                    - "&eLeft-Click to change points!"
+                    - "&eRight-Click to remove material!"
+        Settings:
+            Categories:
+                Title: "&8Settings Editor - Categories"
+                Item:
+                    Exit:
+                        Displayname: "&cClick to Exit"
+                    Visitor:
+                        Displayname: "&aVisitor Settings"
+                        Lore:
+                        - "&7Edit and decide what you want"
+                        - "&7the default Visitor permissions"
+                        - "&7to be when an Island is created."
+                        - ""
+                        - "&eClick to Edit Settings!"
+                    Member:
+                        Displayname: "&aMember Settings"
+                        Lore:
+                        - "&7Edit and decide what you want"
+                        - "&7the default Member permissions"
+                        - "&7to be when an Island is created."
+                        - ""
+                        - "&eClick to Edit Settings!"
+                    Operator:
+                        Displayname: "&aOperator Settings"
+                        Lore:
+                        - "&7Edit and decide what you want"
+                        - "&7the default Operator permissions"
+                        - "&7to be when an Island is created."
+                        - ""
+                        - "&eClick to Edit Settings!"
+                    Owner:
+                        Displayname: "&aIsland Settings"
+                        Lore:
+                        - "&7Edit and decide what you want"
+                        - "&7the default Island permissions"
+                        - "&7to be when an Island is created."
+                        - ""
+                        - "&eClick to Edit Settings!"
+            Visitor:
+                Title: "&8Settings Editor - Visitor"
+                Item:
+                    Return:
+                        Displayname: "&cClick to Return"
+            Member:
+                Title: "&8Settings Editor - Member"
+                Item:
+                    Return:
+                        Displayname: "&cClick to Return"
+            Operator:
+                Title: "&8Settings Editor - Operator"
+                Item:
+                    Return:
+                        Displayname: "&cClick to Return"
+                    Setting:
+                        Status:
+                            Enabled:
+                                Lore:
+                                - "&7Status&8: &atrue"
+                            Disabled:
+                                Lore:
+                                - "&7Status&8: &cfalse"
+                        Invite:
+                            Displayname: "&aSend Invites"
+                        Kick:
+                            Displayname: "&aKick Members & Visitors"
+                        Ban:
+                            Displayname: "&aBan Visitors"
+                        Unban:
+                            Displayname: "&aUnban Visitors"
+                        Visitor:
+                            Displayname: "&aEdit Visitor Settings"
+                        Member:
+                            Displayname: "&aEdit Member Settings"
+                        Island:
+                            Displayname: "&aEdit Island Settings"
+                        MainSpawn:
+                            Displayname: "&aSet Island Main Spawn"
+                        VisitorSpawn:
+                            Displayname: "&aSet Island Visitor Spawn"
+                        Biome:
+                            Displayname: "&aSet Biome"
+                        Weather:
+                            Displayname: "&aSet Weather"
+            Owner:
+                Title: "&8Settings Editor - Island"
+                Item:
+                    Return:
+                        Displayname: "&cClick to Return"
+                    Setting:
+                        Status:
+                            Enabled:
+                                Lore:
+                                - "&7Status&8: &atrue"
+                            Disabled:
+                                Lore:
+                                - "&7Status&8: &cfalse"
+                        NaturalMobSpawning:
+                            Displayname: "&aNatural Mob Spawning"
+                        MobGriefing:
+                            Displayname: "&aMob Griefing"
+                        PvP:
+                            Displayname: "&aPvP"
+                        Explosions:
+                            Displayname: "&aExplosions"
+                        FireSpread:
+                            Displayname: "&aFire Spread"
+                        LeafDecay:
+                            Displayname: "&aLeaf Decay"
+                        KeepItemsOnDeath:
+                            Displayname: "&aKeep Items on Death"
+            Default:
+                Item:
+                    Setting:
+                        Status:
+                            Enabled:
+                                Lore:
+                                - "&7Status&8: &atrue"
+                            Disabled:
+                                Lore:
+                                - "&7Status&8: &cfalse"
+                        Destroy:
+                            Displayname: "&aDestroy Blocks"
+                        Place:
+                            Displayname: "&aPlace Blocks"
+                        Anvil:
+                            Displayname: "&aAnvil Use"
+                        ArmorStand:
+                            Displayname: "&aArmorStand Use"
+                        Beacon:
+                            Displayname: "&aBeacon Use"
+                        Bed:
+                            Displayname: "&aBed Use"
+                        AnimalBreeding:
+                            Displayname: "&aAnimal Breeding"
+                        Brewing:
+                            Displayname: "&aBrewing Stand Use"
+                        Bucket:
+                            Displayname: "&aBucket Use"
+                        WaterCollection:
+                            Displayname: "&aWater Collection"
+                        Storage:
+                            Displayname: "&aAccess Storage"
+                        Workbench:
+                            Displayname: "&aWorkbench Use"
+                        Crop:
+                            Displayname: "&aCrop Trampling"
+                        Door:
+                            Displayname: "&aDoor Use"
+                        Gate:
+                            Displayname: "&aGate Use"
+                        Projectile:
+                            Displayname: "&aProjectile Launch"
+                        Enchant:
+                            Displayname: "&aEnchantment Table Use"
+                        Fire:
+                            Displayname: "&aFire Extinguish"
+                        Furnace:
+                            Displayname: "&aFurnace Use"
+                        HorseInventory:
+                            Displayname: "&aAccess Horse Inventory"
+                        MobRiding:
+                            Displayname: "&aMob Riding"
+                        MobHurting:
+                            Displayname: "&aMob Hurting"
+                        MobTaming:
+                            Displayname: "&aMob Taming"
+                        Leash:
+                            Displayname: "&aLeash Use"
+                        LeverButton:
+                            Displayname: "&aLever/Button Use"
+                        Milking:
+                            Displayname: "&aMilking"
+                        Jukebox:
+                            Displayname: "&aJukebox Use"
+                        PressurePlate:
+                            Displayname: "&aPressure Plate Activate"
+                        Redstone:
+                            Displayname: "&aRedstone Use"
+                        Shearing:
+                            Displayname: "&aMob Shearing"
+                        Trading:
+                            Displayname: "&aVillager Trading"
+                        ItemDrop:
+                            Displayname: "&aItem Drop"
+                        ItemPickup:
+                            Displayname: "&aItem Pickup"
+                        Fishing:
+                            Displayname: "&aFishing"
+                        DropperDispenser:
+                            Displayname: "&aDropper/Dispenser Use"
+                        SpawnEgg:
+                            Displayname: "&aSpawn Eggs"
+                        Cake:
+                            Displayname: "&aCake Consumption"
+                        DragonEggUse:
+                            Displayname: "&aDragon Egg Use"
+                        MinecartBoat:
+                            Displayname: "&aMinecart/Boat Use"
+                        Portal:
+                            Displayname: "&aPortal Use"
+                        Hopper:
+                            Displayname: "&aHopper Use"

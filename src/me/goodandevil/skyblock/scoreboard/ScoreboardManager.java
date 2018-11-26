@@ -10,7 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
@@ -20,18 +20,21 @@ import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 
 public class ScoreboardManager {
 
+	private final SkyBlock skyblock;
 	private Map<UUID, Scoreboard> scoreboardStorage = new HashMap<>();
 	
-	public ScoreboardManager(Main plugin) {
+	public ScoreboardManager(SkyBlock skyblock) {
+		this.skyblock = skyblock;
+		
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-				IslandManager islandManager = plugin.getIslandManager();
-				FileManager fileManager = plugin.getFileManager();
+				PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+				IslandManager islandManager = skyblock.getIslandManager();
+				FileManager fileManager = skyblock.getFileManager();
 				
-				if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
-					Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+				if (fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+					Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 					
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						Scoreboard scoreboard = new Scoreboard(all);
@@ -73,7 +76,58 @@ public class ScoreboardManager {
 					}
 				}
 			}
-		}.runTaskLater(plugin, 20L);
+		}.runTaskLater(skyblock, 20L);
+	}
+	
+	public void resendScoreboard() {
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+		IslandManager islandManager = skyblock.getIslandManager();
+		FileManager fileManager = skyblock.getFileManager();
+		
+		if (fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
+			
+			for (Player all : Bukkit.getOnlinePlayers()) {
+				if (hasScoreboard(all)) {
+					Scoreboard scoreboard = getScoreboard(all);
+					scoreboard.cancel();
+					
+					if (islandManager.hasIsland(all)) {
+						Island island = islandManager.getIsland(playerDataManager.getPlayerData(all).getOwner());
+						
+						if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
+							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
+							
+							if (island.getVisitors().size() == 0) {
+								scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+							} else {
+								scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+							}
+						} else {
+							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Island.Team.Displayname")));
+							
+							if (island.getVisitors().size() == 0) {
+								scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+							} else {
+								scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+							}
+							
+							Map<String, String> displayVariables = new HashMap<>();
+							displayVariables.put("%owner", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Owner"));
+							displayVariables.put("%operator", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Operator"));
+							displayVariables.put("%member", config.getFileConfiguration().getString("Scoreboard.Island.Team.Word.Member"));
+							
+							scoreboard.setDisplayVariables(displayVariables);
+						}
+					} else {
+						scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
+						scoreboard.setDisplayList(config.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
+					}
+					
+					scoreboard.run();
+				}
+			}
+		}
 	}
 	
 	public void storeScoreboard(Player player, Scoreboard scoreboard) {

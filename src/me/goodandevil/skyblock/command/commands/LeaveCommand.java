@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
@@ -18,44 +18,50 @@ import me.goodandevil.skyblock.events.IslandLeaveEvent;
 import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class LeaveCommand extends SubCommand {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	private String info;
 	
-	public LeaveCommand(Main plugin) {
-		this.plugin = plugin;
+	public LeaveCommand(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-		IslandManager islandManager = plugin.getIslandManager();
-		FileManager fileManager = plugin.getFileManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+		ScoreboardManager scoreboardManager = skyblock.getScoreboardManager();
+		MessageManager messageManager = skyblock.getMessageManager();
+		IslandManager islandManager = skyblock.getIslandManager();
+		SoundManager soundManager = skyblock.getSoundManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
 		PlayerData playerData = playerDataManager.getPlayerData(player);
 		
-		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		
 		if (islandManager.hasIsland(player)) {
 			me.goodandevil.skyblock.island.Island island = islandManager.getIsland(playerData.getOwner());
 			
 			if (island.isRole(Role.Owner, player.getUniqueId())) {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Owner.Message")));
-				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+				messageManager.sendMessage(player, languageConfig.getFileConfiguration().getString("Command.Island.Leave.Owner.Message"));
+				soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			} else {
 				IslandLeaveEvent islandLeaveEvent = new IslandLeaveEvent(player, island);
 				Bukkit.getServer().getPluginManager().callEvent(islandLeaveEvent);
 				
 				if (!islandLeaveEvent.isCancelled()) {
 					for (Location.World worldList : Location.World.values()) {
-						if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+						if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
 							LocationUtil.teleportPlayerToSpawn(player);
 							
 							break;
@@ -86,7 +92,7 @@ public class LeaveCommand extends SubCommand {
 								
 								if (targetPlayerData.isChat()) {
 									targetPlayerData.setChat(false);
-									targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message")));	
+									messageManager.sendMessage(targetPlayer, fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml")).getFileConfiguration().getString("Island.Chat.Untoggled.Message"));	
 								}
 							}
 						}
@@ -98,38 +104,42 @@ public class LeaveCommand extends SubCommand {
 						if (!all.getUniqueId().equals(player.getUniqueId())) {
 							if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
 								all.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Broadcast.Message").replace("%player", player.getName())));
-								all.playSound(all.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
+								soundManager.playSound(all, Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 								
-								if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
-									Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
-									scoreboard.cancel();
-									scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
+								if (scoreboardManager != null) {
+									if (island.getRole(Role.Member).size() == 0 && island.getRole(Role.Operator).size() == 0) {
+										Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+										scoreboard.cancel();
+										scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Island.Solo.Displayname")));
 
-									if (island.getVisitors().size() == 0) {
-										scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-									} else {
-										scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
-									}
-									
-									scoreboard.run();
+										if (island.getVisitors().size() == 0) {
+											scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+										} else {
+											scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+										}
+										
+										scoreboard.run();
+									}	
 								}
 							}
 						}
 					}
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Sender.Message")));
-					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
+					messageManager.sendMessage(player, languageConfig.getFileConfiguration().getString("Command.Island.Leave.Left.Sender.Message"));
+					soundManager.playSound(player, Sounds.IRONGOLEM_HIT.bukkitSound(), 5.0F, 5.0F);
 					
-					Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
-					scoreboard.cancel();
-					scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
-					scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
-					scoreboard.run();
+					if (scoreboardManager != null) {
+						Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
+						scoreboard.cancel();
+						scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Scoreboard.Tutorial.Displayname")));
+						scoreboard.setDisplayList(languageConfig.getFileConfiguration().getStringList("Scoreboard.Tutorial.Displaylines"));
+						scoreboard.run();
+					}
 				}
 			}
 		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', languageConfig.getFileConfiguration().getString("Command.Island.Leave.Member.Message")));
-			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+			messageManager.sendMessage(player, languageConfig.getFileConfiguration().getString("Command.Island.Leave.Member.Message"));
+			soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		}
 	}
 

@@ -8,19 +8,19 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.island.Island;
 
 public class Chunk {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	private Island island;
 	
 	private List<ChunkSnapshot> chunkSnapshots = new ArrayList<>();
 	private boolean complete;
 	
-	public Chunk(Main plugin, Island island) {
-		this.plugin = plugin;
+	public Chunk(SkyBlock skyblock, Island island) {
+		this.skyblock = skyblock;
 		this.island = island;
 		
 		complete = false;
@@ -32,7 +32,7 @@ public class Chunk {
 			public void run() {
 				prepareChunkSnapshots();
 			}
-		}.runTask(plugin);
+		}.runTask(skyblock);
 	}
 	
 	public List<ChunkSnapshot> getChunkSnapshots() {
@@ -45,11 +45,11 @@ public class Chunk {
 	
 	private void prepareChunkSnapshots() {
 		for (me.goodandevil.skyblock.island.Location.World worldList : me.goodandevil.skyblock.island.Location.World.values()) {
-			if (worldList == me.goodandevil.skyblock.island.Location.World.Normal || (worldList == me.goodandevil.skyblock.island.Location.World.Nether && plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.World.Nether.Enable"))) {
+			if (worldList == me.goodandevil.skyblock.island.Location.World.Normal || (worldList == me.goodandevil.skyblock.island.Location.World.Nether && skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.World.Nether.Enable"))) {
 				Location islandLocation = island.getLocation(worldList, me.goodandevil.skyblock.island.Location.Environment.Island);
 				
-				Location minLocation = new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85);
-				Location maxLocation = new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, 256, islandLocation.getBlockZ() + 85);
+				Location minLocation = new Location(islandLocation.getWorld(), islandLocation.getBlockX() - island.getRadius(), 0, islandLocation.getBlockZ() - island.getRadius());
+				Location maxLocation = new Location(islandLocation.getWorld(), islandLocation.getBlockX() + island.getRadius(), 256, islandLocation.getBlockZ() + island.getRadius());
 				
 			    int MinX = Math.min(maxLocation.getBlockX(), minLocation.getBlockX());
 			    int MinZ = Math.min(maxLocation.getBlockZ(), minLocation.getBlockZ());

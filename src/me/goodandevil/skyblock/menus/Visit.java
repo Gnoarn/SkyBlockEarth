@@ -20,15 +20,17 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.StringUtil;
@@ -52,12 +54,12 @@ public class Visit implements Listener {
     }
 	
 	public void open(Player player, Visit.Type type, Visit.Sort sort) {
-		Main plugin = Main.getInstance();
+		SkyBlock skyblock = SkyBlock.getInstance();
 		
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-		IslandManager islandManager = plugin.getIslandManager();
-		VisitManager visitManager = plugin.getVisitManager();
-		FileManager fileManager = plugin.getFileManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+		IslandManager islandManager = skyblock.getIslandManager();
+		VisitManager visitManager = skyblock.getVisitManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
 		Map<UUID, me.goodandevil.skyblock.visit.Visit> displayedIslands = new HashMap<>();
 		Map<UUID, me.goodandevil.skyblock.visit.Visit> visitIslands = visitManager.getOpenIslands();
@@ -89,7 +91,7 @@ public class Visit implements Listener {
 						islandInteger = islandManager.getPlayersAtIsland(islandManager.getIsland(visitIslandList)).size();
 					}
 				} else if (sort == Visit.Sort.Level) {
-					islandInteger = visitIslands.get(visitIslandList).getLevel();
+					islandInteger = visitIslands.get(visitIslandList).getLevel().getLevel();
 				} else if (sort == Visit.Sort.Members) {
 					islandInteger = visitIslands.get(visitIslandList).getMembers();
 				} else if (sort == Visit.Sort.Visits) {
@@ -119,7 +121,7 @@ public class Visit implements Listener {
 		
 		int playerMenuPage = playerDataManager.getPlayerData(player).getPage(), nextEndIndex = displayedIslands.size() - playerMenuPage * 36, totalIslands = visitManager.getIslands().size();
 		
-		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Visit.Title"), null, 6);
@@ -140,7 +142,7 @@ public class Visit implements Listener {
 		if (displayedIslands.size() == 0) {
 			inv.addItem(inv.createItem(new ItemStack(Material.BARRIER), configLoad.getString("Menu.Visit.Item.Nothing.Displayname"), null, null, null, null), 31);
 		} else {
-			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 			
 			int index = playerMenuPage * 36 - 36, endIndex = index >= displayedIslands.size() ? displayedIslands.size() - 1 : index + 36, inventorySlot = 17, playerCapacity = config.getFileConfiguration().getInt("Island.Visitor.Capacity");
 			
@@ -219,7 +221,7 @@ public class Visit implements Listener {
 							}
 						}
 						
-						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);
+						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel().getLevel(), "%members#" + visit.getMembers(), "%votes#" + visit.getVoters().size(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity, "%action#" + voteAction }), null, null), inventorySlot);
 					} else {
 						if (signatureEnabled) {
 							for (String itemLoreList : configLoad.getStringList("Menu.Visit.Item.Island.Vote.Disabled.Signature.Enabled.Lore")) {
@@ -241,7 +243,7 @@ public class Visit implements Listener {
 							itemLore.addAll(configLoad.getStringList("Menu.Visit.Item.Island.Vote.Disabled.Signature.Disabled.Lore"));
 						}
 						
-						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel(), "%members#" + visit.getMembers(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity }), null, null), inventorySlot);
+						inv.addItem(inv.createItem(SkullUtil.create(targetPlayerTexture[0], targetPlayerTexture[1]), configLoad.getString("Menu.Visit.Item.Island.Displayname").replace("%player", targetPlayerName), itemLore, inv.createItemLoreVariable(new String[] { "%level#" + visit.getLevel().getLevel(), "%members#" + visit.getMembers(), "%visits#" + visit.getVisitors().size(), "%players#" + playersAtIsland, "%player_capacity#" + playerCapacity }), null, null), inventorySlot);
 					}
 				}
 			}
@@ -256,12 +258,14 @@ public class Visit implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Main plugin = Main.getInstance();
+			SkyBlock skyblock = SkyBlock.getInstance();
 			
-			PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-			FileManager fileManager = plugin.getFileManager();
+			PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+			MessageManager messageManager = skyblock.getMessageManager();
+			SoundManager soundManager = skyblock.getSoundManager();
+			FileManager fileManager = skyblock.getFileManager();
 			
-			Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = languageConfig.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Title")))) {
@@ -275,12 +279,12 @@ public class Visit implements Listener {
 				}
 				
 				if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Barrier.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.OAK_FENCE_GATE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Exit.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		    		player.closeInventory();
 		    	} else if ((event.getCurrentItem().getType() == Material.PAINTING) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Statistics.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.HOPPER) && (is.hasItemMeta())) {
 		    		if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Type.Displayname")))) {
 			    		Visit.Type type = (Visit.Type) playerData.getType();
@@ -301,12 +305,12 @@ public class Visit implements Listener {
 	    			}
 	    			
 	    			open(player, (Visit.Type) playerData.getType(), (Visit.Sort) playerData.getSort());
-	    			player.playSound(player.getLocation(), Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
+	    			soundManager.playSound(player, Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.BARRIER) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visit.Item.Nothing.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-		    	} else if ((event.getCurrentItem().getType() == Materials.LEGACY_SKULL_ITEM.getPostMaterial()) && (is.hasItemMeta())) {
-		    		VisitManager visitManager = plugin.getVisitManager();
-		    		IslandManager islandManager = plugin.getIslandManager();
+		    		soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+		    	} else if ((event.getCurrentItem().getType() == SkullUtil.createItemStack().getType()) && (is.hasItemMeta())) {
+		    		VisitManager visitManager = skyblock.getVisitManager();
+		    		IslandManager islandManager = skyblock.getIslandManager();
 		    		
 		    		String targetPlayerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 		    		UUID targetPlayerUUID;
@@ -329,27 +333,31 @@ public class Visit implements Listener {
 		    				
 		    				Island island = islandManager.getIsland(targetPlayerUUID);
 		    				
-				    		if ((!island.isRole(Role.Member, player.getUniqueId()) && !island.isRole(Role.Operator, player.getUniqueId()) && !island.isRole(Role.Owner, player.getUniqueId())) && fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Vote")) {
+				    		if ((!island.isRole(Role.Member, player.getUniqueId()) && !island.isRole(Role.Operator, player.getUniqueId()) && !island.isRole(Role.Owner, player.getUniqueId())) && fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Vote")) {
 				    			if (event.getClick() == ClickType.RIGHT) {
-				    				if (playerData.getIsland().equals(island.getOwnerUUID())) {
+				    				if (playerData.getIsland() != null && playerData.getIsland().equals(island.getOwnerUUID())) {
 				    					List<UUID> islandVotes = visit.getVoters();
 				    					
 				    					if (islandVotes.contains(player.getUniqueId())) {
 				    						visit.removeVoter(player.getUniqueId());
-					    					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Vote.Removed.Message").replace("%player", targetPlayerName)));
-					    					player.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), 1.0F, 1.0F);
+					    					
+				    						messageManager.sendMessage(player, configLoad.getString("Island.Visit.Vote.Removed.Message").replace("%player", targetPlayerName));
+					    					soundManager.playSound(player, Sounds.EXPLODE.bukkitSound(), 1.0F, 1.0F);
 				    					} else {
 				    						visit.addVoter(player.getUniqueId());
-					    					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Vote.Added.Message").replace("%player", targetPlayerName)));
-					    					player.playSound(player.getLocation(), Sounds.LEVEL_UP.bukkitSound(), 1.0F, 1.0F);
+					    					
+				    						messageManager.sendMessage(player, configLoad.getString("Island.Visit.Vote.Added.Message").replace("%player", targetPlayerName));
+					    					soundManager.playSound(player, Sounds.LEVEL_UP.bukkitSound(), 1.0F, 1.0F);
 				    					}
 				    					
 				    	    			open(player, (Visit.Type) playerData.getType(), (Visit.Sort) playerData.getSort());
-				    	    			player.playSound(player.getLocation(), Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
+				    	    			soundManager.playSound(player, Sounds.WOOD_CLICK.bukkitSound(), 1.0F, 1.0F);
 				    				} else {
-				    					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Vote.Island.Message")));
-				    					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+				    					messageManager.sendMessage(player, configLoad.getString("Island.Visit.Vote.Island.Message"));
+				    					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 				    				}
+				    				
+				    				islandManager.unloadIsland(targetPlayerUUID);
 				    				
 				    				return;
 				    			} else if (event.getClick() != ClickType.LEFT) {
@@ -358,9 +366,9 @@ public class Visit implements Listener {
 				    		}
 
 		    				for (Location.World worldList : Location.World.values()) {
-			    				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
-			    					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Already.Message").replace("%player", targetPlayerName)));
-			    					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+			    				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
+			    					messageManager.sendMessage(player, configLoad.getString("Island.Visit.Already.Message").replace("%player", targetPlayerName));
+			    					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			    					
 			    					return;
 			    				}
@@ -368,19 +376,19 @@ public class Visit implements Listener {
 		    				
 		    				islandManager.visitIsland(player, island);
 		    				
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Teleported.Message").replace("%player", targetPlayerName)));
-							player.playSound(player.getLocation(), Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
+							messageManager.sendMessage(player, configLoad.getString("Island.Visit.Teleported.Message").replace("%player", targetPlayerName));
+							soundManager.playSound(player, Sounds.ENDERMAN_TELEPORT.bukkitSound(), 1.0F, 1.0F);
 		    			} else {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Menu.Message").replace("%player", targetPlayerName)));
-							player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+							messageManager.sendMessage(player, configLoad.getString("Island.Visit.Closed.Menu.Message").replace("%player", targetPlayerName));
+							soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 							open(player, (Visit.Type) playerData.getType(), (Visit.Sort) playerData.getSort());
 		    			}
 		    			
 		    			return;
 		    		}
 		    		
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Exist.Message").replace("%player", targetPlayerName)));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, configLoad.getString("Island.Visit.Exist.Message").replace("%player", targetPlayerName));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					open(player, (Visit.Type) playerData.getType(), (Visit.Sort) playerData.getSort());
 		    	}
 			}

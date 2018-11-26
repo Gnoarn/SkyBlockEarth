@@ -36,6 +36,7 @@ Visitor:
     DropperDispenser: false
     SpawnEgg: false
     Cake: false
+    DragonEggUse: false
     MinecartBoat: false
     Portal: false
     Hopper: false
@@ -78,6 +79,7 @@ Member:
     SpawnEgg: true
     MinecartBoat: true
     Cake: true
+    DragonEggUse: true
     Portal: true
     Hopper: true
 Operator:

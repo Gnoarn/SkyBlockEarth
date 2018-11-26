@@ -1,18 +1,24 @@
 package me.goodandevil.skyblock.config;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
 import com.google.common.io.ByteStreams;
 
-import me.goodandevil.skyblock.Main;
-import me.goodandevil.skyblock.utils.version.NMSUtil;
+import me.goodandevil.skyblock.SkyBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,52 +27,47 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class FileManager {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	private Map<String, Config> loadedConfigs = new HashMap<>();
 	
-	public FileManager(Main plugin) {
-		this.plugin = plugin;
+	public FileManager(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 		
 		loadConfigs();
 	}
 	
 	public void loadConfigs() {
-		if (!plugin.getDataFolder().exists()) {
-			plugin.getDataFolder().mkdir();
+		if (!skyblock.getDataFolder().exists()) {
+			skyblock.getDataFolder().mkdir();
 		}
 		
-		if (!new File(plugin.getDataFolder().toString() + "/structures").exists()) {
-			new File(plugin.getDataFolder().toString() + "/structures").mkdir();
+		if (!new File(skyblock.getDataFolder().toString() + "/structures").exists()) {
+			new File(skyblock.getDataFolder().toString() + "/structures").mkdir();
 		}
 		
 		Map<String, File> configFiles = new HashMap<>();
-		
-		if (NMSUtil.getVersionNumber() < 13) {
-			configFiles.put("levelling-native.yml", new File(plugin.getDataFolder(), "levelling.yml"));
-		} else {
-			configFiles.put("levelling.yml", new File(plugin.getDataFolder(), "levelling.yml"));
-		}
-		
-		configFiles.put("config.yml", new File(plugin.getDataFolder(), "config.yml"));
-		configFiles.put("language.yml", new File(plugin.getDataFolder(), "language.yml"));
-		configFiles.put("settings.yml", new File(plugin.getDataFolder(), "settings.yml"));
-		configFiles.put("structures.yml", new File(plugin.getDataFolder(), "structures.yml"));
-		configFiles.put("structures/default.structure", new File(plugin.getDataFolder().toString() + "/structures", "default.structure"));
+		configFiles.put("levelling.yml", new File(skyblock.getDataFolder(), "levelling.yml"));
+		configFiles.put("config.yml", new File(skyblock.getDataFolder(), "config.yml"));
+		configFiles.put("language.yml", new File(skyblock.getDataFolder(), "language.yml"));
+		configFiles.put("settings.yml", new File(skyblock.getDataFolder(), "settings.yml"));
+		configFiles.put("generators.yml", new File(skyblock.getDataFolder(), "generators.yml"));
+		configFiles.put("structures.yml", new File(skyblock.getDataFolder(), "structures.yml"));
+		configFiles.put("structures/default.structure", new File(skyblock.getDataFolder().toString() + "/structures", "default.structure"));
 		
 		for (String configFileList : configFiles.keySet()) {
 			File configFile = configFiles.get(configFileList);
 	        
 	        if (configFile.exists()) {
-	        	if (configFileList.equals("config.yml") || configFileList.equals("language.yml")) {
-					FileChecker fileChecker = new FileChecker(plugin, configFileList);
+	        	if (configFileList.equals("config.yml") || configFileList.equals("language.yml") || configFileList.equals("settings.yml")) {
+					FileChecker fileChecker = new FileChecker(skyblock, this, configFileList);
 					fileChecker.loadSections();
 					fileChecker.compareFiles();
-					fileChecker.saveChanges();	
+					fileChecker.saveChanges();
 	        	}
 	        } else {
 	            try {
 	                configFile.createNewFile();
-	                try (InputStream is = plugin.getResource(configFileList);
+	                try (InputStream is = skyblock.getResource(configFileList);
 	                OutputStream os = new FileOutputStream(configFile)) {
 	                    ByteStreams.copy(is, os);
 	                }
@@ -97,7 +98,7 @@ public class FileManager {
 			ex.printStackTrace();
 		}
 		
-		plugin.getConfig();
+		skyblock.getConfig();
 	}
 
 	public Location getLocation(Config config, String path, boolean direction) {
@@ -148,7 +149,7 @@ public class FileManager {
 			return loadedConfigs.get(configPath.getPath());
 		}
 		
-		Config config = new Config(configPath);
+		Config config = new Config(this, configPath);
 		loadedConfigs.put(configPath.getPath(), config);
 		
 		return config;
@@ -162,14 +163,79 @@ public class FileManager {
 		return loadedConfigs.containsKey(configPath.getPath());
 	}
 	
+    public InputStream getConfigContent(File configFile) {
+        if(!configFile.exists()) {
+            return null;
+        }
+ 
+        try {
+            String addLine, currentLine, pluginName = skyblock.getDescription().getName();
+            int commentNum = 0;
+            
+            StringBuilder whole = new StringBuilder("");
+            BufferedReader reader = new BufferedReader(new FileReader(configFile));
+ 
+            while((currentLine = reader.readLine()) != null) {
+                if(currentLine.contains("#")) {
+                    addLine = currentLine.replace("[!]", "IMPORTANT").replace(":", "-").replaceFirst("#", pluginName + "_COMMENT_" + commentNum + ":");
+                    whole.append(addLine + "\n");
+                    commentNum++;
+                } else {
+                    whole.append(currentLine + "\n");
+                }
+            }
+ 
+            String config = whole.toString();
+            InputStream configStream = new ByteArrayInputStream(config.getBytes(Charset.forName("UTF-8")));
+            reader.close();
+            
+            return configStream;
+        } catch (IOException e) {
+            e.printStackTrace();
+            
+            return null;
+        }
+    }
+    
+    private String prepareConfigString(String configString) {
+        String[] lines = configString.split("\n");
+        StringBuilder config = new StringBuilder("");
+        
+        for(String line : lines) {
+            if(line.contains(skyblock.getDescription().getName() + "_COMMENT")) {
+                config.append(line.replace("IMPORTANT", "[!]").replace("\n", "").replace(skyblock.getDescription().getName() + "_COMMENT_", "#").replaceAll("[0-9]+:", "") + "\n");
+            } else if (line.contains(":")) {
+                config.append(line + "\n");
+            }
+        }
+ 
+        return config.toString();
+    }
+	
+	public void saveConfig(String configString, File configFile) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(configFile));
+            writer.write(prepareConfigString(configString));
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
+	
 	public static class Config {
 		
 		private File configFile;
 		private FileConfiguration configLoad;
 		
-		public Config(java.io.File configPath) {
+		public Config(FileManager fileManager, java.io.File configPath) {
 			configFile = configPath;
-			configLoad = YamlConfiguration.loadConfiguration(configFile);
+			
+			if (configPath.getName().equals("config.yml")) {
+				configLoad = YamlConfiguration.loadConfiguration(new InputStreamReader(fileManager.getConfigContent(configFile)));
+			} else {
+				configLoad = YamlConfiguration.loadConfiguration(configPath);
+			}
 		}
 		
 		public File getFile() {

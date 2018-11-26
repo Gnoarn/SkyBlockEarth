@@ -17,11 +17,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.message.MessageManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
 
@@ -38,9 +40,9 @@ public class Rollback implements Listener {
     }
     
     public void open(Player player) {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-		Config languageConfig = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		Inventory inv = Bukkit.createInventory(null, InventoryType.HOPPER, ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Title")));
@@ -106,38 +108,40 @@ public class Rollback implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Main plugin = Main.getInstance();
+			SkyBlock skyblock = SkyBlock.getInstance();
 			
-			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			MessageManager messageManager = skyblock.getMessageManager();
+			IslandManager islandManager = skyblock.getIslandManager();
+			SoundManager soundManager = skyblock.getSoundManager();
+			
+			Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = plugin.getIslandManager();
-				
 				if (islandManager.hasIsland(player)) {
-					island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
+					island = islandManager.getIsland(skyblock.getPlayerDataManager().getPlayerData(player).getOwner());
 					
 					if (!island.isRole(Role.Owner, player.getUniqueId())) {
-						player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Rollback.Role.Message")));
-						player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+						messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Rollback.Role.Message"));
+						soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 						player.closeInventory();
 						
 						return;
 					}
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Rollback.Owner.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Rollback.Owner.Message"));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
 					return;
 				}
 				
 		    	if ((event.getCurrentItem().getType() == Material.NAME_TAG) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Info.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Barrier.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.WRITABLE_BOOK.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Save.Displayname"))))) {
 		    		/*new BukkitRunnable() {
 		    			public void run() {
@@ -145,15 +149,15 @@ public class Rollback implements Listener {
 				    			Location islandLocation = island.getLocation(worldList, Location.Environment.Island);
 				    			
 				    			try {
-									Schematic.getInstance().save(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), worldList.name() + ".schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, islandLocation.getBlockY(), islandLocation.getBlockZ() + 85), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, islandLocation.getBlockY(), islandLocation.getBlockZ() - 85));
+									Schematic.getInstance().save(new File(new File(skyblock.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), worldList.name() + ".schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() + 85, islandLocation.getBlockY(), islandLocation.getBlockZ() + 85), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, islandLocation.getBlockY(), islandLocation.getBlockZ() - 85));
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 				    		}
 		    			}
-		    		}.runTaskAsynchronously(plugin);*/
+		    		}.runTaskAsynchronously(skyblock);*/
 		    		
-		    		player.playSound(player.getLocation(), Sounds.ANVIL_USE.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.ANVIL_USE.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.ENCHANTED_BOOK) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Rollback.Item.Load.Displayname"))))) {
 		    		/*new BukkitRunnable() {
 		    			public void run() {
@@ -161,15 +165,15 @@ public class Rollback implements Listener {
 				    			Location islandLocation = island.getLocation(worldList, Location.Environment.Island);
 				    			
 					    		try {
-									Schematic.getInstance().paste(new File(new File(plugin.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), "Normal.schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85), true);
+									Schematic.getInstance().paste(new File(new File(skyblock.getDataFolder().toString() + "/rollback-data/" + island.getOwnerUUID().toString()), "Normal.schematic"), new Location(islandLocation.getWorld(), islandLocation.getBlockX() - 85, 0, islandLocation.getBlockZ() - 85), true);
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 				    		}
 		    			}
-		    		}.runTaskAsynchronously(plugin);*/
+		    		}.runTaskAsynchronously(skyblock);*/
 		    		
-		    		player.playSound(player.getLocation(), Sounds.PISTON_EXTEND.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.PISTON_EXTEND.bukkitSound(), 1.0F, 1.0F);
 		    	}
 			}
 		}

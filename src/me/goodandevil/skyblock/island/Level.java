@@ -3,66 +3,89 @@ package me.goodandevil.skyblock.island;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
-import me.goodandevil.skyblock.events.IslandLevelChangeEvent;
 
 public class Level {
 	
-	private final Main plugin;
-	private final Island island;
+	private final SkyBlock skyblock;
+	
+	private UUID ownerUUID;
 	
 	private int lastLevel = 0;
 	private int lastPoints = 0;
 	
-	public Level(Island island, Main plugin) {
-		this.island = island;
-		this.plugin = plugin;
-	}
+	private Map<String, Integer> materials;
 	
-	public void setPoints(int points) {
-		lastPoints = getPoints();
-		lastLevel = getLevel();
+	public Level(UUID ownerUUID, SkyBlock skyblock) {
+		this.skyblock = skyblock;
+		this.ownerUUID = ownerUUID;
 		
-		Bukkit.getServer().getPluginManager().callEvent(new IslandLevelChangeEvent(island, this));
-		
-		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
-		File configFile = config.getFile();
+		Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		configLoad.set("Levelling.Points", points);
+		Map<String, Integer> materials = new HashMap<>();
 		
-		try {
-			configLoad.save(configFile);
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (configLoad.getString("Levelling.Materials") != null) {
+			for (String materialList : configLoad.getConfigurationSection("Levelling.Materials").getKeys(false)) {
+				if (configLoad.getString("Levelling.Materials." + materialList + ".Amount") != null) {
+					materials.put(materialList, configLoad.getInt("Levelling.Materials." + materialList + ".Amount"));					
+				}
+			}
 		}
 		
-		island.getVisit().setLevel(getLevel());
+		this.materials = materials;
+	}
+	
+	public void setOwnerUUID(UUID ownerUUID) {
+		this.ownerUUID = ownerUUID;
 	}
 	
 	public int getPoints() {
-		return plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml")).getFileConfiguration().getInt("Levelling.Points");
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "levelling.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
+		
+		int pointsEarned = 0;
+		
+		for (String materialList : materials.keySet()) {
+			int materialAmount = materials.get(materialList);
+			
+			if (configLoad.getString("Materials." + materialList + ".Points") != null) {
+				int pointsRequired = config.getFileConfiguration().getInt("Materials." + materialList + ".Points");
+				
+				if (pointsRequired != 0) {
+					pointsEarned = pointsEarned + (materialAmount*pointsRequired);
+				}	
+			}
+		}
+		
+		return pointsEarned;
 	}
 	
 	public int getLevel() {
-		return getPoints() / plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Division");
+		int division = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Division");
+		
+		if (division == 0) {
+			division = 1;
+		}
+		
+		return getPoints() / division;
 	}
 	
-	public void setMaterials(HashMap<Material, Integer> materials) {
-		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
+	public void setMaterials(Map<String, Integer> materials) {
+		Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), ownerUUID.toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		configLoad.set("Levelling.Materials", null);
 		
-		for (Material materialList : materials.keySet()) {
-			configLoad.set("Levelling.Materials." + materialList.name() + ".Points", materials.get(materialList));
+		for (String materialList : materials.keySet()) {
+			configLoad.set("Levelling.Materials." + materialList + ".Amount", materials.get(materialList));
 		}
 		
 		try {
@@ -70,25 +93,24 @@ public class Level {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		this.materials = materials;
 	}
 	
-	public HashMap<Material, Integer> getMaterials() {
-		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
-		FileConfiguration configLoad = config.getFileConfiguration();
-		
-		HashMap<Material, Integer> materials = new HashMap<>();
-		
-		if (configLoad.getString("Levelling.Materials") != null) {
-			for (String materialList : configLoad.getConfigurationSection("Levelling.Materials").getKeys(false)) {
-				materials.put(Material.valueOf(materialList), configLoad.getInt("Levelling.Materials." + materialList + ".Points"));
-			}
-		}
-		
+	public Map<String, Integer> getMaterials() {
 		return materials;
+	}
+	
+	public void setLastPoints(int lastPoints) {
+		this.lastPoints = lastPoints;
 	}
 	
 	public int getLastPoints() {
 		return lastPoints;
+	}
+	
+	public void setLastLevel(int lastLevel) {
+		this.lastLevel = lastLevel;
 	}
 	
 	public int getLastLevel() {

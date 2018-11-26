@@ -20,7 +20,6 @@ import org.bukkit.util.EulerAngle;
 
 import me.goodandevil.skyblock.utils.item.ItemStackUtil;
 import me.goodandevil.skyblock.utils.version.NMSUtil;
-import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
 
 @SuppressWarnings("deprecation")
@@ -28,6 +27,7 @@ public final class EntityUtil {
 	
 	public static EntityData convertEntityToEntityData(Entity entity, int x, int y, int z) {
         EntityData entityData = new EntityData(entity.getType().toString(), x, y, z, entity.getCustomName(), entity.isCustomNameVisible(), entity.getFireTicks(), entity.getTicksLived());
+        entityData.setVersion(NMSUtil.getVersionNumber());
         
         if (entity instanceof ArmorStand) {
             ArmorStand armorStand = (ArmorStand) entity;
@@ -205,20 +205,9 @@ public final class EntityUtil {
         
         return entityData;
     }
-
+	
     public static void convertEntityDataToEntity(EntityData entityData, Location loc, BlockDegreesType type) {
-        Location entityLocation = LocationUtil.rotateLocation(new Location(loc.getWorld(), entityData.getX(), entityData.getY(), entityData.getZ()), type);
-        
-        try {
-            entityLocation.setPitch((float) LocationUtil.rotatePitch(entityData.getPitch(), type.getAngle()));
-            entityLocation.setYaw((float) LocationUtil.rotateYaw(entityData.getYaw(), type.getAngle()));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        
-        loc.add(entityLocation);
-        
-        Entity entity = loc.getWorld().spawnEntity(loc, EntityType.valueOf(entityData.getEntityType().toUpperCase()));
+    	Entity entity = loc.getWorld().spawnEntity(loc, EntityType.valueOf(entityData.getEntityType().toUpperCase()));
         entity.setCustomName(entityData.getCustomName());
         entity.setCustomNameVisible(entityData.isCustomNameVisible());
         entity.setFireTicks(entityData.getFireTicks());

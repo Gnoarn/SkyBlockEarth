@@ -9,7 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.command.SubCommand;
 import me.goodandevil.skyblock.command.CommandManager.Type;
@@ -19,26 +19,32 @@ import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.Location;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Role;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
+import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 
 public class DeleteCommand extends SubCommand {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	private String info;
 	
-	public DeleteCommand(Main plugin) {
-		this.plugin = plugin;
+	public DeleteCommand(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 	}
 	
 	@Override
 	public void onCommand(Player player, String[] args) {
-		FileManager fileManager = plugin.getFileManager();
-		IslandManager islandManager = plugin.getIslandManager();
+		ScoreboardManager scoreboardManager = skyblock.getScoreboardManager();
+		MessageManager messageManager = skyblock.getMessageManager();
+		IslandManager islandManager = skyblock.getIslandManager();
+		SoundManager soundManager = skyblock.getSoundManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
-		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (player.hasPermission("skyblock.admin.delete") || player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
@@ -59,19 +65,21 @@ public class DeleteCommand extends SubCommand {
 				if (islandManager.isIslandExist(targetPlayerUUID)) {
 					islandManager.loadIsland(targetPlayerUUID);
 					
-					boolean hasSpawnPoint = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
+					boolean hasSpawnPoint = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "locations.yml")).getFileConfiguration().getString("Location.Spawn") != null;
 					Island island = islandManager.getIsland(targetPlayerUUID);
 					
 					for (Player all : Bukkit.getOnlinePlayers()) {
 						if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-							Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
-							scoreboard.run();
+							if (scoreboardManager != null) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Tutorial.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Tutorial.Displaylines"));
+								scoreboard.run();
+							}
 							
 							for (Location.World worldList : Location.World.values()) {
-								if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+								if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
 									if (hasSpawnPoint) {
 										LocationUtil.teleportPlayerToSpawn(all);
 									} else {
@@ -84,28 +92,28 @@ public class DeleteCommand extends SubCommand {
 							
 							if (!island.isRole(Role.Owner, all.getUniqueId())) {
 								all.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Confirmation.Deletion.Broadcast.Message")));
-								all.playSound(player.getLocation(), Sounds.EXPLODE.bukkitSound(), 10.0F, 10.0F);
+								soundManager.playSound(all, Sounds.EXPLODE.bukkitSound(), 10.0F, 10.0F);
 							}
 						}
 					}
 					
 					islandManager.deleteIsland(island);
-					plugin.getVisitManager().deleteIsland(player.getUniqueId());
-					plugin.getBanManager().deleteIsland(player.getUniqueId());
+					skyblock.getVisitManager().deleteIsland(player.getUniqueId());
+					skyblock.getBanManager().deleteIsland(player.getUniqueId());
 				
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Delete.Deleted.Message").replace("%player", targetPlayerName)));
-					player.playSound(player.getLocation(), Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, configLoad.getString("Command.Island.Admin.Delete.Deleted.Message").replace("%player", targetPlayerName));
+					soundManager.playSound(player, Sounds.IRONGOLEM_HIT.bukkitSound(), 1.0F, 1.0F);
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Delete.Owner.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, configLoad.getString("Command.Island.Admin.Delete.Owner.Message"));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 				}
 			} else {
-				player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Delete.Invalid.Message")));
-				player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+				messageManager.sendMessage(player, configLoad.getString("Command.Island.Admin.Delete.Invalid.Message"));
+				soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 			}
 		} else {
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Admin.Delete.Permission.Message")));
-			player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+			messageManager.sendMessage(player, configLoad.getString("Command.Island.Admin.Delete.Permission.Message"));
+			soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		}
 	}
 

@@ -11,9 +11,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.utils.math.VectorUtil;
@@ -40,13 +39,13 @@ public final class LocationUtil {
     	return false;
     }
     
-	public static boolean isLocationAtLocationRadius(Location location1, Location location2, int radius) {
+	public static boolean isLocationAtLocationRadius(Location location1, Location location2, double radius) {
 		if (location1 == null || location2 == null || !location1.getWorld().getName().equals(location2.getWorld().getName())) {
 			return false;
 		}
 		
-		int x = Math.abs(location1.getBlockX() - location2.getBlockX());
-		int z = Math.abs(location1.getBlockZ() - location2.getBlockZ());
+		double x = Math.abs(location1.getX() - location2.getX());
+		double z = Math.abs(location1.getZ() - location2.getZ());
 		
 		return x < radius && z < radius;
 	}
@@ -71,6 +70,22 @@ public final class LocationUtil {
 	    }
 	    
 	    return locations;
+    }
+    
+    public static boolean isInsideArea(Location targetLocation, Location minLocation, Location maxLocation) {
+	    int MinX = Math.min(maxLocation.getBlockX(), minLocation.getBlockX());
+	    int MinY = Math.min(maxLocation.getBlockY(), minLocation.getBlockY());
+	    int MinZ = Math.min(maxLocation.getBlockZ(), minLocation.getBlockZ());
+	    
+	    int MaxX = Math.max(maxLocation.getBlockX(), minLocation.getBlockX());
+	    int MaxY = Math.max(maxLocation.getBlockY(), minLocation.getBlockY());
+	    int MaxZ = Math.max(maxLocation.getBlockZ(), minLocation.getBlockZ());
+	    
+    	if (MinX < targetLocation.getX() && MaxX > targetLocation.getX() && MinY < targetLocation.getY() && MaxY > targetLocation.getY() && MinZ < targetLocation.getZ() && MaxZ > targetLocation.getZ()) {
+    	 	return true;
+    	} else {
+    		return false;
+    	}
     }
     
     public static Location getHighestBlock(Location location) {
@@ -151,21 +166,29 @@ public final class LocationUtil {
     }
     
     public static void teleportPlayerToSpawn(Player player) {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-    	FileManager fileManager = plugin.getFileManager();
+    	FileManager fileManager = skyblock.getFileManager();
     	
-		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "locations.yml"));
+		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "locations.yml"));
 		
 		if (config.getFileConfiguration().getString("Location.Spawn") == null) {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: A spawn point hasn't been set.");
 		} else {
-			new BukkitRunnable() {
+			Location spawnLocation = fileManager.getLocation(config, "Location.Spawn", true);
+			
+			if (spawnLocation.getWorld() == null) {
+				Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: The world for the spawn point is not loaded or no longer exists.");
+				
+				return;
+			}
+			
+			Bukkit.getServer().getScheduler().runTask(skyblock, new Runnable() {
 				@Override
 				public void run() {
 					player.teleport(fileManager.getLocation(config, "Location.Spawn", true));
 				}
-			}.runTask(plugin);
+			});
 		}
     }
 }

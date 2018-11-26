@@ -7,9 +7,10 @@ import java.util.UUID;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.confirmation.Confirmation;
+import me.goodandevil.skyblock.generator.GeneratorLocation;
 import me.goodandevil.skyblock.utils.structure.Area;
 
 public class PlayerData {
@@ -30,6 +31,10 @@ public class PlayerData {
 	
 	private Area area;
 	private boolean chat;
+	
+	private Object viewer;
+	
+	private GeneratorLocation generatorLocation;
 	
 	public PlayerData(Player player) {
 		uuid = player.getUniqueId();
@@ -170,6 +175,22 @@ public class PlayerData {
 	public void setChat(boolean chat) {
 		this.chat = chat;
 	}
+
+	public Object getViewer() {
+		return viewer;
+	}
+	
+	public void setViewer(Object viewer) {
+		this.viewer = viewer;
+	}
+	
+	public GeneratorLocation getGenerator() {
+		return generatorLocation;
+	}
+	
+	public void setGenerator(GeneratorLocation generatorLocation) {
+		this.generatorLocation = generatorLocation;
+	}
 	
 	public void save() {
 		Config config = getConfig();
@@ -184,6 +205,8 @@ public class PlayerData {
 	}
 	
 	private Config getConfig() {
-		return Main.getInstance().getFileManager().getConfig(new File(new File(Main.getInstance().getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
+		SkyBlock skyblock = SkyBlock.getInstance();
+		
+		return skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
 	}
 }

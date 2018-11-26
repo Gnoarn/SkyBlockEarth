@@ -3,7 +3,7 @@ package me.goodandevil.skyblock.utils.structure;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.utils.GZipUtil;
@@ -68,8 +68,12 @@ public final class StructureUtil {
                 continue;
             }
             
-            Location structureLocation = entities.get(entityList);
-            entityData.add(EntityUtil.convertEntityToEntityData(entityList, structureLocation.getX(), structureLocation.getY(), structureLocation.getZ()));
+            Location location = entities.get(entityList);
+            entityData.add(EntityUtil.convertEntityToEntityData(entityList, location.getX(), location.getY(), location.getZ()));
+        }
+        
+        if (!originBlockLocation.isEmpty()) {
+        	originBlockLocation = originBlockLocation + ":" + originLocation.getYaw() + ":" + originLocation.getPitch();
         }
     	
     	String JSONString = new Gson().toJson(new Storage(new Gson().toJson(blockData), new Gson().toJson(entityData), originBlockLocation, System.currentTimeMillis(), NMSUtil.getVersionNumber()), new TypeToken<Storage>(){}.getType());
@@ -98,7 +102,7 @@ public final class StructureUtil {
     }
     
     @SuppressWarnings("unchecked")
-	public static Island pasteStructure(Structure structure, org.bukkit.Location location, BlockDegreesType type) throws Exception {
+	public static Float[] pasteStructure(Structure structure, org.bukkit.Location location, BlockDegreesType type) throws Exception {
         Storage storage = structure.getStructureStorage();
         
         String[] originLocationPositions = null;
@@ -107,49 +111,49 @@ public final class StructureUtil {
         	originLocationPositions = storage.getOriginLocation().split(":");
         }
         
-        org.bukkit.Location originLocation = location;
+        float yaw = 0.0F, pitch = 0.0F;
+        
+        if (originLocationPositions.length == 6) {
+        	yaw = Float.valueOf(originLocationPositions[4]);
+        	pitch = Float.valueOf(originLocationPositions[5]);
+        }
         
         List<BlockData> blockData = (List<BlockData>) new Gson().fromJson(storage.getBlocks(), new TypeToken<List<BlockData>>(){}.getType());
         
         for (BlockData blockDataList : blockData) {
         	try {
         		org.bukkit.Location blockRotationLocation = LocationUtil.rotateLocation(new org.bukkit.Location(location.getWorld(), blockDataList.getX(), blockDataList.getY(), blockDataList.getZ()), type);
-        		org.bukkit.Location blockLocation = new org.bukkit.Location(location.getWorld(),  location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
+        		org.bukkit.Location blockLocation = new org.bukkit.Location(location.getWorld(), location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
                 blockLocation.add(blockRotationLocation);
-                
-                if (originLocationPositions != null) {
-                	if (blockDataList.getX() == Integer.valueOf(originLocationPositions[0]) && blockDataList.getY() == Integer.valueOf(originLocationPositions[1]) && blockDataList.getZ() == Integer.valueOf(originLocationPositions[2])) {
-                		originLocation = blockLocation;
-                	}
-                }
-                
                 BlockUtil.convertBlockDataToBlock(blockLocation.getBlock(), blockDataList);	
         	} catch (Exception e) {
-        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+        		e.printStackTrace();
         	}
         }
         
         for (EntityData entityDataList : (List<EntityData>) new Gson().fromJson(storage.getEntities(), new TypeToken<List<EntityData>>(){}.getType())) {
-	    	try {
-	        	entityDataList.setY(entityDataList.getY() - Integer.valueOf(originLocationPositions[1]));
-	            EntityUtil.convertEntityDataToEntity(entityDataList, location, type);
+        	try {
+        		org.bukkit.Location blockRotationLocation = LocationUtil.rotateLocation(new org.bukkit.Location(location.getWorld(), entityDataList.getX(), entityDataList.getY(), entityDataList.getZ()), type);
+        		org.bukkit.Location blockLocation = new org.bukkit.Location(location.getWorld(), location.getX() - Math.abs(Integer.valueOf(originLocationPositions[0])), location.getY() - Integer.valueOf(originLocationPositions[1]), location.getZ() + Math.abs(Integer.valueOf(originLocationPositions[2])));
+                blockLocation.add(blockRotationLocation);
+	            EntityUtil.convertEntityDataToEntity(entityDataList, blockLocation, type);
         	} catch (Exception e) {
-        		// TODO Prevent unnecessary spamming in the console until todo comments are fixed
+        		e.printStackTrace();
 	    	}
         }
         
-        return new Island(location, originLocation);
+        return new Float[] { yaw, pitch };
     }
 
     public static ItemStack getTool() throws Exception {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-    	FileManager fileManager = plugin.getFileManager();
+    	FileManager fileManager = skyblock.getFileManager();
     	
-    	Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+    	Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
     	FileConfiguration configLoad = config.getFileConfiguration();
     	
-    	ItemStack is = new ItemStack(Material.valueOf(fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getString("Island.Admin.Structure.Selector")));
+    	ItemStack is = new ItemStack(Material.valueOf(fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getString("Island.Admin.Structure.Selector")));
     	ItemMeta im = is.getItemMeta();
     	im.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Structure.Tool.Item.Displayname")));
     	

@@ -19,7 +19,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
@@ -28,6 +28,7 @@ import me.goodandevil.skyblock.island.Role;
 import me.goodandevil.skyblock.island.Settings;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
 import me.goodandevil.skyblock.utils.item.SkullUtil;
@@ -47,16 +48,16 @@ public class Visitors implements Listener {
     }
     
     public void open(Player player) {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-    	PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-    	FileManager fileManager = plugin.getFileManager();
+    	PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+    	FileManager fileManager = skyblock.getFileManager();
     	
     	PlayerData playerData = playerDataManager.getPlayerData(player);
     	
-    	Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
+    	Island island = skyblock.getIslandManager().getIsland(playerData.getOwner());
     	
-    	Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+    	Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
     	
 		Map<Integer, UUID> sortedIslandVisitors = new TreeMap<>();
@@ -90,7 +91,7 @@ public class Visitors implements Listener {
 		if (islandVisitors.size() == 0) {
 			inv.addItem(inv.createItem(new ItemStack(Material.BARRIER), configLoad.getString("Menu.Visitors.Item.Nothing.Displayname"), null, null, null, null), 31);
 		} else {
-			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
+			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
 			int index = playerMenuPage * 36 - 36, endIndex = index >= islandVisitors.size() ? islandVisitors.size() - 1 : index + 36, inventorySlot = 17;
 			
 			for (; index < endIndex; index++) {
@@ -145,53 +146,55 @@ public class Visitors implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Main plugin = Main.getInstance();
+			SkyBlock skyblock = SkyBlock.getInstance();
 			
-			FileManager fileManager = plugin.getFileManager();
+			FileManager fileManager = skyblock.getFileManager();
 			
-			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Title")))) {
 				event.setCancelled(true);
 				
-				PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+				PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
 				
-				IslandManager islandManager = plugin.getIslandManager();
+				IslandManager islandManager = skyblock.getIslandManager();
+				SoundManager soundManager = skyblock.getSoundManager();
+				
 				Island island = null;
 				
 				if (islandManager.hasIsland(player)) {
 					island = islandManager.getIsland(playerData.getOwner());
 				} else {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Command.Island.Visitors.Owner.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					skyblock.getMessageManager().sendMessage(player, configLoad.getString("Command.Island.Visitors.Owner.Message"));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
 					return;
 				}
 				
 				if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Barrier.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.OAK_FENCE_GATE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Exit.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		    		player.closeInventory();
 		    	} else if ((event.getCurrentItem().getType() == Material.PAINTING) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Statistics.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.BARRIER) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Nothing.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-		    	} else if ((event.getCurrentItem().getType() == Materials.LEGACY_SKULL_ITEM.getPostMaterial()) && (is.hasItemMeta())) {
+		    		soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+		    	} else if ((event.getCurrentItem().getType() == SkullUtil.createItemStack().getType()) && (is.hasItemMeta())) {
 		    		if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Previous.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() - 1);
 		    			open(player);
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Visitors.Item.Next.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() + 1);
 		    			open(player);
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else {
 		    			String playerName = ChatColor.stripColor(is.getItemMeta().getDisplayName());
 		    			
-		    			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
+		    			boolean isOperator = island.isRole(Role.Operator, player.getUniqueId()), isOwner = island.isRole(Role.Owner, player.getUniqueId()), canKick = island.getSetting(Settings.Role.Operator, "Kick").getStatus(), canBan = island.getSetting(Settings.Role.Operator, "Ban").getStatus(), banningEnabled = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning");
 		    			
 						if ((isOperator && canKick) || isOwner) {
 							if (banningEnabled && ((isOperator && canBan) || isOwner)) {
@@ -200,7 +203,7 @@ public class Visitors implements Listener {
 								} else if (event.getClick() == ClickType.RIGHT) {
 									Bukkit.getServer().dispatchCommand(player, "island ban " + playerName);
 								} else {
-									player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+									soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 									
 									return;
 								}
@@ -211,7 +214,7 @@ public class Visitors implements Listener {
 							if (banningEnabled && ((isOperator && canBan) || isOwner)) {
 								Bukkit.getServer().dispatchCommand(player, "island ban " + playerName);
 							} else {
-								player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+								soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 							
 								return;
 							}
@@ -222,7 +225,7 @@ public class Visitors implements Listener {
 							public void run() {
 								open(player);
 							}
-						}.runTaskLater(plugin, 3L);
+						}.runTaskLater(skyblock, 3L);
 		    		}
 		    	}
 			}

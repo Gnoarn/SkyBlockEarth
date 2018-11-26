@@ -199,22 +199,26 @@ public final class BlockUtil {
     public static void convertBlockDataToBlock(Block block, BlockData blockData) {
     	int NMSVersion = NMSUtil.getVersionNumber();
     	
-    	if (NMSVersion < 13) {
-        	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), Material.valueOf(blockData.getMaterial().toUpperCase()), blockData.getData());
+    	Material material = null;
+    	
+    	if (NMSVersion > 12 && blockData.getVersion() > 12 && blockData.getBlockData() != null) {
+    		block.setBlockData(Bukkit.getServer().createBlockData(blockData.getBlockData()));
     	} else {
-    		if (blockData.getBlockData() == null || blockData.getBlockData().isEmpty()) {
-    			if (blockData.getVersion() < 13) {
-    				try {
-        				block.setType(Materials.requestMaterials(blockData.getMaterial(), block.getData()).getPostMaterial());	
-    				} catch (Exception e) {
-    					e.printStackTrace();
-    				}
-    			} else {
-    				block.setType(Material.valueOf(blockData.getMaterial()));
-    			}
-    		} else {
-    			block.setBlockData(Bukkit.createBlockData(blockData.getBlockData()));
-    		}
+        	if (NMSVersion > 12) {
+        		if (blockData.getVersion() > 12) {
+        			material = Material.valueOf(blockData.getMaterial());
+        		} else {
+        			material = Materials.requestMaterials(blockData.getMaterial(), block.getData()).getPostMaterial();
+        		}
+        	} else {
+        		if (blockData.getVersion() > 12) {
+        			material = Materials.fromString(blockData.getMaterial()).parseMaterial();
+        		} else {
+        			material = Material.valueOf(blockData.getMaterial());
+        		}
+        	}
+        	
+        	setBlockFast(block.getWorld(), block.getX(), block.getY(), block.getZ(), material, blockData.getData());
     	}
     	
     	// TODO Create a class to support biome changes
@@ -231,7 +235,7 @@ public final class BlockUtil {
                 banner.addPattern(new Pattern(DyeColor.valueOf(pattern[1].toUpperCase()), PatternType.valueOf(pattern[0].toUpperCase())));
             }
             
-            banner.update();
+            block.getState().update();
         } else if (blockTypeState == BlockStateType.BEACON) {
             Beacon beacon = (Beacon) block.getState();
             String[] potionEffect = blockData.getPotionEffect().split(":");
@@ -242,18 +246,14 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	beacon.getInventory().setItem(slotList, is);
             }
-            
-            beacon.update();
         } else if (blockTypeState == BlockStateType.BREWINGSTAND) {
             BrewingStand brewingStand = (BrewingStand) block.getState();
             brewingStand.setBrewingTime(blockData.getBrewingTime());
             brewingStand.setFuelLevel(blockData.getFuelLevel());
-            brewingStand.update();
         } else if (blockTypeState == BlockStateType.COMMANDBLOCK) {
             CommandBlock commandBlock = (CommandBlock) block.getState();
             commandBlock.setCommand(blockData.getCommand());
             commandBlock.setName(blockData.getCommandBlockName());
-            commandBlock.update();
         } else if (blockTypeState == BlockStateType.CHEST) {
             Chest chest = (Chest) block.getState();
             
@@ -261,8 +261,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	chest.getInventory().setItem(slotList, is);
             }
-            
-            chest.update();
         } else if (blockTypeState == BlockStateType.DISPENSER) {
             Dispenser dispenser = (Dispenser) block.getState();
             
@@ -270,8 +268,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dispenser.getInventory().setItem(slotList, is);
             }
-            
-            dispenser.update();
         } else if (blockTypeState == BlockStateType.DROPPER) {
             Dropper dropper = (Dropper) block.getState();
             
@@ -279,8 +275,6 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	dropper.getInventory().setItem(slotList, is);
             }
-            
-            dropper.update();
         } else if (blockTypeState == BlockStateType.HOPPER) {
             Hopper hopper = (Hopper) block.getState();
             
@@ -288,13 +282,10 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	hopper.getInventory().setItem(slotList, is);
             }
-            
-            hopper.update();
         } else if (blockTypeState == BlockStateType.CREATURESPAWNER) {
             CreatureSpawner creatureSpawner = (CreatureSpawner) block.getState();
             creatureSpawner.setDelay(blockData.getDelay());
             creatureSpawner.setSpawnedType(EntityType.valueOf(blockData.getEntity().toUpperCase()));
-            creatureSpawner.update();
         } else if (blockTypeState == BlockStateType.FURNACE) {
             Furnace furnace = (Furnace) block.getState();
             furnace.setBurnTime(blockData.getBurnTime());
@@ -304,19 +295,14 @@ public final class BlockUtil {
             	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
             	furnace.getInventory().setItem(slotList, is);
             }
-            
-            furnace.update();
         } else if (blockTypeState == BlockStateType.JUKEBOX) {
             Jukebox jukebox = (Jukebox) block.getState();
             jukebox.setPlaying(Material.valueOf(blockData.getPlaying().toUpperCase()));
-            jukebox.update();
         } else if (blockTypeState == BlockStateType.SIGN) {
             Sign sign = (Sign) block.getState();
-            int signLine = 0;
             
-            for(String signLineList : blockData.getSignLines()){
-                sign.setLine(signLine, signLineList);
-                signLine++;
+            for (int i = 0; i < blockData.getSignLines().length; i++) {
+            	sign.setLine(i, blockData.getSignLines()[i]);
             }
             
             sign.update();
@@ -325,7 +311,6 @@ public final class BlockUtil {
             skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(blockData.getSkullOwner()));
             skull.setRotation(BlockFace.valueOf(blockData.getRotateFace().toUpperCase()));
             skull.setSkullType(SkullType.valueOf(blockData.getSkullType().toUpperCase()));
-            skull.update();
         } else {
         	if (NMSVersion > 8) {
                 if (blockTypeState == BlockStateType.ENDGATEWAY) {
@@ -340,13 +325,10 @@ public final class BlockUtil {
                     double exitLocationZ = Double.parseDouble(exitLocation[2]);
                     
                     endGateway.setExitLocation(new Location(exitLocationWorld, exitLocationX, exitLocationY, exitLocationZ));
-                    endGateway.update();
                 } else if (blockTypeState == BlockStateType.FLOWERPOT) {
                     FlowerPot flowerPot = (FlowerPot) block.getState();
                     String[] flower = blockData.getFlower().split(":");
-                    Bukkit.broadcastMessage(flower[0] + " | " + flower[1]);
                     flowerPot.setContents(new MaterialData(Material.valueOf(flower[0].toUpperCase()), (byte) Integer.parseInt(flower[1])));
-                    flowerPot.update();
                 }
                 
                 if (NMSVersion > 10) {
@@ -357,8 +339,6 @@ public final class BlockUtil {
                         	ItemStack is = ItemStackUtil.deserializeItemStack(blockData.getInventory().get(slotList));
                         	shulkerBox.getInventory().setItem(slotList, is);
                         }
-                        
-                        shulkerBox.update();
                     }
                 }
         	}
@@ -367,11 +347,13 @@ public final class BlockUtil {
         BlockDataType blockDataType = BlockDataType.valueOf(blockData.getDataType());
         
         if (blockDataType == BlockDataType.STAIRS) {
-            BlockState state = block.getState();
-            Stairs stairs = (Stairs) state.getData();
+            Stairs stairs = (Stairs) block.getState().getData();
             stairs.setFacingDirection(BlockFace.valueOf(blockData.getFacing()));
-            state.setData(stairs);
-            state.update(false, false);
+            block.getState().setData(stairs);
+        }
+        
+        if (NMSVersion < 13) {
+        	block.getState().update();
         }
         
     	if (blockData.getMaterial().equals("DOUBLE_PLANT")) {
@@ -407,14 +389,29 @@ public final class BlockUtil {
     }
     
     public static void setBlockFast(World world, int x, int y, int z, Material material, byte data) {
-		try {
+    	try {
+    		Class<?> IBlockDataClass = NMSUtil.getNMSClass("IBlockData");
+    		
     		Object worldHandle = world.getClass().getMethod("getHandle").invoke(world);
     		Object chunk = worldHandle.getClass().getMethod("getChunkAt", int.class, int.class).invoke(worldHandle, x >> 4, z >> 4);
     		Object blockPosition = NMSUtil.getNMSClass("BlockPosition").getConstructor(int.class, int.class, int.class).newInstance(x & 0xF, y, z & 0xF);
-    		Object block = NMSUtil.getNMSClass("Block").getMethod("getById", int.class).invoke(null, material.getId());
-    		Object IBlockData = block.getClass().getMethod("fromLegacyData", int.class).invoke(block, data);
-    		chunk.getClass().getMethod("a", blockPosition.getClass(), NMSUtil.getNMSClass("IBlockData")).invoke(chunk, blockPosition, IBlockData);
-		} catch (Exception e) {
+    		
+        	if (NMSUtil.getVersionNumber() > 12) {
+        		Object block = NMSUtil.getNMSClass("Blocks").getField(material.name()).get(null);
+        		Object IBlockData = block.getClass().getMethod("getBlockData").invoke(block);
+        		worldHandle.getClass().getMethod("setTypeAndData", blockPosition.getClass(), IBlockDataClass, int.class).invoke(worldHandle, blockPosition, IBlockData, 2);
+        		
+        		if (NMSUtil.getVersionReleaseNumber() > 1) {
+            		chunk.getClass().getMethod("setType", blockPosition.getClass(), IBlockDataClass, boolean.class).invoke(chunk, blockPosition, IBlockData, true);
+        		} else {
+            		chunk.getClass().getMethod("a", blockPosition.getClass(), IBlockDataClass, boolean.class).invoke(chunk, blockPosition, IBlockData, true);
+        		}
+        	} else {
+        		Object IBlockData = NMSUtil.getNMSClass("Block").getMethod("getByCombinedId", int.class).invoke(null, material.getId() + (data << 12));
+        		worldHandle.getClass().getMethod("setTypeAndData", blockPosition.getClass(), IBlockDataClass, int.class).invoke(worldHandle, blockPosition, IBlockData, 3);
+        		chunk.getClass().getMethod("a", blockPosition.getClass(), IBlockDataClass).invoke(chunk, blockPosition, IBlockData);
+        	}
+    	} catch (Exception e) {
 			e.printStackTrace();
 		}
     }

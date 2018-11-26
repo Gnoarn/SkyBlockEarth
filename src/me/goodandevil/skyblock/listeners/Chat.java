@@ -11,7 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandChatEvent;
 import me.goodandevil.skyblock.island.Island;
@@ -22,45 +22,47 @@ import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 
 public class Chat implements Listener {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	
- 	public Chat(Main plugin) {
-		this.plugin = plugin;
+ 	public Chat(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 	}
 	
 	@EventHandler
 	public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
-		IslandManager islandManager = plugin.getIslandManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
+		IslandManager islandManager = skyblock.getIslandManager();
 		
-		PlayerData playerData = playerDataManager.getPlayerData(player);
-		
-		if (playerData.isChat()) {
-			event.setCancelled(true);
+		if (playerDataManager.hasPlayerData(player)) {
+			PlayerData playerData = playerDataManager.getPlayerData(player);
 			
-			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
-			FileConfiguration configLoad = config.getFileConfiguration();
-			
-			Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
-			String islandRole = "";
-			
-			if (island.isRole(Role.Member, player.getUniqueId())) {
-				islandRole = configLoad.getString("Island.Chat.Format.Role.Member");
-			} else if (island.isRole(Role.Operator, player.getUniqueId())) {
-				islandRole = configLoad.getString("Island.Chat.Format.Role.Operator");
-			} else if (island.isRole(Role.Owner, player.getUniqueId())) {
-				islandRole = configLoad.getString("Island.Chat.Format.Role.Owner");
-			}
-			
-			IslandChatEvent islandChatEvent = new IslandChatEvent(player, island, event.getMessage(), configLoad.getString("Island.Chat.Format.Message"));
-			Bukkit.getServer().getPluginManager().callEvent(islandChatEvent);
-			
-			if (!islandChatEvent.isCancelled()) {
-				for (UUID islandMembersOnlineList : islandManager.getMembersOnline(island)) {
-					Player targetPlayer = Bukkit.getServer().getPlayer(islandMembersOnlineList);
-					targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', islandChatEvent.getFormat().replace("%role", islandRole).replace("%player", player.getName())).replace("%message", islandChatEvent.getMessage()));
+			if (playerData.isChat()) {
+				event.setCancelled(true);
+				
+				Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
+				FileConfiguration configLoad = config.getFileConfiguration();
+				
+				Island island = skyblock.getIslandManager().getIsland(playerData.getOwner());
+				String islandRole = "";
+				
+				if (island.isRole(Role.Member, player.getUniqueId())) {
+					islandRole = configLoad.getString("Island.Chat.Format.Role.Member");
+				} else if (island.isRole(Role.Operator, player.getUniqueId())) {
+					islandRole = configLoad.getString("Island.Chat.Format.Role.Operator");
+				} else if (island.isRole(Role.Owner, player.getUniqueId())) {
+					islandRole = configLoad.getString("Island.Chat.Format.Role.Owner");
+				}
+				
+				IslandChatEvent islandChatEvent = new IslandChatEvent(player, island, event.getMessage(), configLoad.getString("Island.Chat.Format.Message"));
+				Bukkit.getServer().getPluginManager().callEvent(islandChatEvent);
+				
+				if (!islandChatEvent.isCancelled()) {
+					for (UUID islandMembersOnlineList : islandManager.getMembersOnline(island)) {
+						Player targetPlayer = Bukkit.getServer().getPlayer(islandMembersOnlineList);
+						targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', islandChatEvent.getFormat().replace("%role", islandRole).replace("%player", player.getName())).replace("%message", islandChatEvent.getMessage()));
+					}
 				}
 			}
 		}

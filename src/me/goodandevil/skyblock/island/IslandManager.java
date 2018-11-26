@@ -3,7 +3,6 @@ package me.goodandevil.skyblock.island;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.ban.BanManager;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
@@ -30,38 +30,41 @@ import me.goodandevil.skyblock.events.IslandOwnershipTransferEvent;
 import me.goodandevil.skyblock.events.IslandUnloadEvent;
 import me.goodandevil.skyblock.invite.Invite;
 import me.goodandevil.skyblock.invite.InviteManager;
+import me.goodandevil.skyblock.island.Location.World;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.scoreboard.Scoreboard;
 import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
 import me.goodandevil.skyblock.structure.Structure;
 import me.goodandevil.skyblock.utils.OfflinePlayer;
+import me.goodandevil.skyblock.utils.structure.StructureUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
+import me.goodandevil.skyblock.utils.version.NMSUtil;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.utils.world.WorldBorder;
+import me.goodandevil.skyblock.utils.world.block.BlockDegreesType;
 import me.goodandevil.skyblock.visit.VisitManager;
 import me.goodandevil.skyblock.world.WorldManager;
 
 public class IslandManager {
 	
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	
-	private double x = 0, offset = 400;
+	private double x = 0, offset = 1200;
 	
-	private Map<Location.World, org.bukkit.Location> islandWorldLocations = new EnumMap<>(Location.World.class);
+	private List<IslandLocation> islandLocations = new ArrayList<>();
 	private Map<UUID, Island> islandStorage = new HashMap<>();
 	
-	public IslandManager(Main plugin) {
-		this.plugin = plugin;
+	public IslandManager(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 		
-		WorldManager worldManager = plugin.getWorldManager();
-		
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		for (Location.World worldList : Location.World.values()) {
 			ConfigurationSection configSection = configLoad.getConfigurationSection("World." + worldList.name() + ".nextAvailableLocation");
-			islandWorldLocations.put(worldList, new org.bukkit.Location(worldManager.getWorld(worldList), configSection.getDouble("x"), 72, configSection.getDouble("z")));
+			islandLocations.add(new IslandLocation(worldList, configSection.getDouble("x"), configSection.getDouble("z")));
 		}
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
@@ -70,66 +73,114 @@ public class IslandManager {
 	}
 
 	public void onDisable() {
-		saveNextAvailableLocation();
-		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			unloadIsland(all.getUniqueId());
 		}
 	}
 	
 	public void saveNextAvailableLocation() {
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		FileManager fileManager = skyblock.getFileManager();
+		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 		
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		for (Location.World worldList : Location.World.values()) {
-			org.bukkit.Location islandWorldLocation = islandWorldLocations.get(worldList);
-			ConfigurationSection configSection = configLoad.createSection("World." + worldList.name() + ".nextAvailableLocation");
-			configSection.set("x", islandWorldLocation.getX());
-			configSection.set("z", islandWorldLocation.getZ());
+			for (IslandLocation islandLocationList : islandLocations) {
+				if (islandLocationList.getWorld() == worldList) {
+					ConfigurationSection configSection = configLoad.createSection("World." + worldList.name() + ".nextAvailableLocation");
+					configSection.set("x", islandLocationList.getX());
+					configSection.set("z", islandLocationList.getZ());
+				}
+			}
 		}
 		
-		try {
-			configLoad.save(configFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fileManager.saveConfig(configLoad.saveToString(), configFile);
 	}
 	
 	public void setNextAvailableLocation(Location.World world, org.bukkit.Location location) {
-		islandWorldLocations.put(world, location);
+		for (IslandLocation islandLocationList : islandLocations) {
+			if (islandLocationList.getWorld() == world) {
+				islandLocationList.setX(location.getX());
+				islandLocationList.setZ(location.getZ());
+			}
+		}
 	}
 	
 	public org.bukkit.Location prepareNextAvailableLocation(Location.World world) {
-		org.bukkit.Location islandWorldLocation = islandWorldLocations.get(world);
-		
-		double x = islandWorldLocation.getX() + offset, z = islandWorldLocation.getZ();
-		
-		if (x > Math.abs(this.x)) {
-			z += offset;
-			islandWorldLocation.setX(this.x);
-			x = islandWorldLocation.getX() + offset;
-			islandWorldLocation.setZ(z);
+		for (IslandLocation islandLocationList : islandLocations) {
+			if (islandLocationList.getWorld() == world) {
+				double x = islandLocationList.getX() + offset, z = islandLocationList.getZ();
+				
+				if (x > Math.abs(this.x)) {
+					z += offset;
+					islandLocationList.setX(this.x);
+					x = islandLocationList.getX() + offset;
+					islandLocationList.setZ(z);
+				}
+				
+				return new org.bukkit.Location(skyblock.getWorldManager().getWorld(world), x, 72, z);
+			}
 		}
 		
-		islandWorldLocations.put(world, islandWorldLocation);
-		
-		return new org.bukkit.Location(islandWorldLocation.getWorld(), x, 72, z);
+		return null;
 	}
 	
 	public void createIsland(Player player, Structure structure) {
-		FileManager fileManager = plugin.getFileManager();
+		ScoreboardManager scoreboardManager = skyblock.getScoreboardManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
-		Island island = new Island(player.getUniqueId(), prepareNextAvailableLocation(Location.World.Normal), prepareNextAvailableLocation(Location.World.Nether), new File(new File(plugin.getDataFolder().toString() + "/structures"), structure.getFileName()));
+		Island island = new Island(player.getUniqueId(), prepareNextAvailableLocation(Location.World.Normal), prepareNextAvailableLocation(Location.World.Nether));
 		islandStorage.put(player.getUniqueId(), island);
 		
-		Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		try {
+			File structureFile = new File(new File(skyblock.getDataFolder().toString() + "/structures"), structure.getFile());
+			
+			for (World worldList : World.values()) {
+				Float[] direction = StructureUtil.pasteStructure(StructureUtil.loadStructure(structureFile), island.getLocation(worldList, Location.Environment.Island), BlockDegreesType.ROTATE_360);
+				org.bukkit.Location spawnLocation = island.getLocation(worldList, Location.Environment.Main).clone();
+				spawnLocation.setYaw(direction[0]);
+				spawnLocation.setPitch(direction[1]);
+				island.setLocation(worldList, Location.Environment.Main, spawnLocation);
+				island.setLocation(worldList, Location.Environment.Visitor, spawnLocation);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		Bukkit.getServer().getScheduler().runTaskAsynchronously(skyblock, new Runnable() {
+			@Override
+			public void run() {
+				Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
+				FileConfiguration configLoad = config.getFileConfiguration();
+				
+				int minimumSize = configLoad.getInt("Island.Size.Minimum");
+				int maximumSize = configLoad.getInt("Island.Size.Maximum");
+				
+				if (minimumSize < 0 || minimumSize > 1000) {
+					minimumSize = 50;
+				}
+				
+				if (maximumSize < 0 || maximumSize > 1000) {
+					maximumSize = 100;
+				}
+				
+				for (int i = maximumSize; i > minimumSize; i--) {
+					if (player.hasPermission("skyblock.size." + i) || player.hasPermission("skyblock.*")) {
+						island.setSize(i);
+						
+						break;
+					}
+				}
+			}
+		});
+		
+		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		/*if (configLoad.getBoolean("Island.Creation.Cooldown.Creation.Enable")) {
-			plugin.getCreationManager().createPlayer(player, configLoad.getInt("Island.Creation.Cooldown.Time"));
-		}*/
+		if (configLoad.getBoolean("Island.Creation.Cooldown.Creation.Enable")) {
+			skyblock.getCreationManager().createPlayer(player, configLoad.getInt("Island.Creation.Cooldown.Time"));
+		}
 		
 		Bukkit.getServer().getPluginManager().callEvent(new IslandCreateEvent(player, island));
 		
@@ -139,28 +190,39 @@ public class IslandManager {
 		
 		saveNextAvailableLocation();
 		
-		plugin.getPlayerDataManager().getPlayerData(player).setIsland(player.getUniqueId());
+		skyblock.getPlayerDataManager().getPlayerData(player).setIsland(player.getUniqueId());
 		
-		config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		configLoad = config.getFileConfiguration();
 		
-		Scoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(player);
-		scoreboard.cancel();
-		scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-		scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-		scoreboard.run();
+		if (scoreboardManager != null) {
+			Scoreboard scoreboard = scoreboardManager.getScoreboard(player);
+			scoreboard.cancel();
+			scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+			scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+			scoreboard.run();
+		}
 		
-		new BukkitRunnable() {
+		Bukkit.getServer().getScheduler().runTask(skyblock, new Runnable() {
 			@Override
 			public void run() {
 				player.teleport(island.getLocation(Location.World.Normal, Location.Environment.Main));
 			}
-		}.runTask(plugin);
+		});
+		
+		if (NMSUtil.getVersionNumber() < 13) {
+			Bukkit.getServer().getScheduler().runTaskLater(skyblock, new Runnable() {
+				@Override
+				public void run() {
+					skyblock.getBiomeManager().setBiome(null, island, Biome.valueOf(fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getString("Island.Biome.Default.Type").toUpperCase()));
+				}
+			}, 20L);	
+		}
 	}
 	
 	public void giveIslandOwnership(UUID uuid) {
-		FileManager fileManager = plugin.getFileManager();
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		FileManager fileManager = skyblock.getFileManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
 		
 		Player targetPlayer = Bukkit.getServer().getPlayer(uuid);
 		UUID islandOwnerUUID;
@@ -174,25 +236,26 @@ public class IslandManager {
 		
 		if (containsIsland(islandOwnerUUID)) {
 			Island island = getIsland(islandOwnerUUID);
+			island.getLevel().setOwnerUUID(uuid);
 			island.setOwnerUUID(uuid);
 			
-			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (configLoad.getBoolean("Island.Ownership.Password.Reset")) {
 				island.setPassword(null);
 			}
 			
-			File oldIslandDataFile = new File(new File(plugin.getDataFolder().toString() + "/island-data"), islandOwnerUUID.toString() + ".yml");
-			File newIslandDataFile = new File(new File(plugin.getDataFolder().toString() + "/island-data"), uuid.toString() + ".yml");
+			File oldIslandDataFile = new File(new File(skyblock.getDataFolder().toString() + "/island-data"), islandOwnerUUID.toString() + ".yml");
+			File newIslandDataFile = new File(new File(skyblock.getDataFolder().toString() + "/island-data"), uuid.toString() + ".yml");
 			
 			fileManager.unloadConfig(oldIslandDataFile);
 			fileManager.unloadConfig(newIslandDataFile);
 			oldIslandDataFile.renameTo(newIslandDataFile);
 			
-			plugin.getVisitManager().transfer(uuid, islandOwnerUUID);
-			plugin.getBanManager().transfer(uuid, islandOwnerUUID);
-			plugin.getInviteManager().tranfer(uuid, islandOwnerUUID);
+			skyblock.getVisitManager().transfer(uuid, islandOwnerUUID);
+			skyblock.getBanManager().transfer(uuid, islandOwnerUUID);
+			skyblock.getInviteManager().tranfer(uuid, islandOwnerUUID);
 			
 			if (configLoad.getBoolean("Island.Ownership.Transfer.Operator")) {
 				island.setRole(Role.Operator, islandOwnerUUID);
@@ -220,7 +283,7 @@ public class IslandManager {
 				targetPlayer = Bukkit.getServer().getPlayer(islandMemberList);
 				
 				if (targetPlayer == null) {
-					File configFile = new File(new File(plugin.getDataFolder().toString() + "/player-data"), islandMemberList.toString() + ".yml");
+					File configFile = new File(new File(skyblock.getDataFolder().toString() + "/player-data"), islandMemberList.toString() + ".yml");
 					configLoad = YamlConfiguration.loadConfiguration(configFile);
 					configLoad.set("Island.Owner", uuid.toString());
 					
@@ -239,16 +302,18 @@ public class IslandManager {
 	}
 
 	public void deleteIsland(Island island) {
+		skyblock.getVisitManager().removeVisitors(island, VisitManager.Removal.Deleted);
+		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-				PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(all);
+				PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(all);
 				playerData.setOwner(null);
 				playerData.setMemberSince(null);
 				playerData.setChat(false);
 				playerData.save();
 			}
 			
-			InviteManager inviteManager = plugin.getInviteManager();
+			InviteManager inviteManager = skyblock.getInviteManager();
 			
 			if (inviteManager.hasInvite(all.getUniqueId())) {
 				Invite invite = inviteManager.getInvite(all.getUniqueId());
@@ -259,17 +324,19 @@ public class IslandManager {
 			}
 		}
 		
-		FileManager fileManager = plugin.getFileManager();
+		FileManager fileManager = skyblock.getFileManager();
+		fileManager.deleteConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
 		
-		plugin.getVisitManager().removeVisitors(island, VisitManager.Removal.Deleted);
-		fileManager.deleteConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), island.getOwnerUUID().toString() + ".yml"));
-		
-		/*Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml"));
+		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		if (configLoad.getBoolean("Island.Creation.Cooldown.Deletion.Enable")) {
-			plugin.getCreationManager().createPlayer(island.getOwnerUUID(), configLoad.getInt("Island.Creation.Cooldown.Time"));
-		}*/
+		Player player = Bukkit.getServer().getPlayer(island.getOwnerUUID());
+		
+		if (player != null) {
+			if (configLoad.getBoolean("Island.Creation.Cooldown.Deletion.Enable")) {
+				skyblock.getCreationManager().createPlayer(player, configLoad.getInt("Island.Creation.Cooldown.Time"));
+			}	
+		}
 		
 		Bukkit.getServer().getPluginManager().callEvent(new IslandDeleteEvent(island));
 		
@@ -277,13 +344,15 @@ public class IslandManager {
 	}
 
 	public void loadIsland(UUID uuid) {
-		FileManager fileManager = plugin.getFileManager();
+		WorldManager worldManager = skyblock.getWorldManager();
+		FileManager fileManager = skyblock.getFileManager();
+		
 		UUID islandOwnerUUID = null;
 		
 		if (isIslandExist(uuid)) {
 			islandOwnerUUID = uuid;
 		} else {
-			Config config = fileManager.getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
+			Config config = fileManager.getConfig(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (configLoad.getString("Island.Owner") != null) {
@@ -292,13 +361,22 @@ public class IslandManager {
 		}
 		
 		if (islandOwnerUUID != null && !hasIsland(islandOwnerUUID)) {
-			File configFile = new File(plugin.getDataFolder().toString() + "/island-data");
+			File configFile = new File(skyblock.getDataFolder().toString() + "/island-data");
 			Config config = fileManager.getConfig(new File(configFile, islandOwnerUUID.toString() + ".yml"));
 			
 			org.bukkit.Location islandNormalLocation = fileManager.getLocation(config, "Location.Normal.Island", true);
+			
+			if (islandNormalLocation.getWorld() == null) {
+				islandNormalLocation.setWorld(worldManager.getWorld(Location.World.Normal));
+			}
+			
 			org.bukkit.Location islandNetherLocation = fileManager.getLocation(config, "Location.Nether.Island", true);
 			
-			Island island = new Island(islandOwnerUUID, new org.bukkit.Location(islandNormalLocation.getWorld(), islandNormalLocation.getBlockX(), 72, islandNormalLocation.getBlockZ()), new org.bukkit.Location(islandNetherLocation.getWorld(), islandNetherLocation.getBlockX(), 72, islandNetherLocation.getBlockZ()), null);
+			if (islandNetherLocation.getWorld() == null) {
+				islandNetherLocation.setWorld(worldManager.getWorld(Location.World.Nether));
+			}
+			
+			Island island = new Island(islandOwnerUUID, new org.bukkit.Location(islandNormalLocation.getWorld(), islandNormalLocation.getBlockX(), 72, islandNormalLocation.getBlockZ()), new org.bukkit.Location(islandNetherLocation.getWorld(), islandNetherLocation.getBlockX(), 72, islandNetherLocation.getBlockZ()));
 			islandStorage.put(islandOwnerUUID, island);
 			
 			Bukkit.getServer().getPluginManager().callEvent(new IslandLoadEvent(island));
@@ -306,14 +384,14 @@ public class IslandManager {
 	}
 
 	public void unloadIsland(UUID uuid) {
-		ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
-		FileManager fileManager = plugin.getFileManager();
+		ScoreboardManager scoreboardManager = skyblock.getScoreboardManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
 		if (hasIsland(uuid)) {
 			UUID islandOwnerUUID = uuid;
 			
 			if (!isIslandExist(uuid)) {
-				Config config = fileManager.getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
+				Config config = fileManager.getConfig(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
 				FileConfiguration configLoad = config.getFileConfiguration();
 				
 				if (configLoad.getString("Island.Owner") != null) {
@@ -324,54 +402,56 @@ public class IslandManager {
 			Island island = getIsland(islandOwnerUUID);
 			island.save();
 			
-			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			int islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1, islandVisitors = island.getVisitors().size();
 			
-			try {
-				for (Player all : Bukkit.getOnlinePlayers()) {
-					if (!uuid.equals(islandOwnerUUID)) {
-						if (all.getUniqueId().equals(uuid)) {
-							continue;
-						}
-					}
-					
-					if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
-						if (islandMembers == 1 && islandVisitors == 0) {
-							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
-							scoreboard.run();
-						} else if (islandVisitors == 0) {
-							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-							scoreboard.cancel();
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
-							
-							HashMap<String, String> displayVariables = new HashMap<>();
-							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
-							
-							scoreboard.setDisplayVariables(displayVariables);
-							scoreboard.run();
-						}
-						
-						return;
+			for (Player all : Bukkit.getOnlinePlayers()) {
+				if (!uuid.equals(islandOwnerUUID)) {
+					if (all.getUniqueId().equals(uuid)) {
+						continue;
 					}
 				}
-			} catch (IllegalPluginAccessException e) {}
+				
+				if (island.isRole(Role.Member, all.getUniqueId()) || island.isRole(Role.Operator, all.getUniqueId()) || island.isRole(Role.Owner, all.getUniqueId())) {
+					if (scoreboardManager != null) {
+						try {
+							if (islandMembers == 1 && islandVisitors == 0) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Empty.Displaylines"));
+								scoreboard.run();
+							} else if (islandVisitors == 0) {
+								Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+								scoreboard.cancel();
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Empty.Displaylines"));
+								
+								HashMap<String, String> displayVariables = new HashMap<>();
+								displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+								
+								scoreboard.setDisplayVariables(displayVariables);
+								scoreboard.run();
+							}
+						} catch (IllegalPluginAccessException e) {}
+					}
+					
+					return;
+				}
+			}
 			
-			boolean unloadIsland = fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload");
+			boolean unloadIsland = fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Unload");
 			
 			if (unloadIsland) {
-				VisitManager visitManager = plugin.getVisitManager();
+				VisitManager visitManager = skyblock.getVisitManager();
 				visitManager.removeVisitors(island, VisitManager.Removal.Unloaded);
 				visitManager.unloadIsland(islandOwnerUUID);
 				
-				BanManager banManager = plugin.getBanManager();
+				BanManager banManager = skyblock.getBanManager();
 				banManager.unloadIsland(islandOwnerUUID);
 			} else {
 				if (island.getVisitors().size() != 0) {
@@ -379,7 +459,7 @@ public class IslandManager {
 				}
 			}
 			
-			fileManager.unloadConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), islandOwnerUUID + ".yml"));
+			fileManager.unloadConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), islandOwnerUUID + ".yml"));
 			islandStorage.remove(islandOwnerUUID);
 			
 			Bukkit.getServer().getPluginManager().callEvent(new IslandUnloadEvent(island));
@@ -387,51 +467,52 @@ public class IslandManager {
 	}
 	
 	public void visitIsland(Player player, Island island) {
-		FileManager fileManager = plugin.getFileManager();
+		ScoreboardManager scoreboardManager = skyblock.getScoreboardManager();
+		FileManager fileManager = skyblock.getFileManager();
 		
-		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		if (island.isRole(Role.Member, player.getUniqueId()) || island.isRole(Role.Operator, player.getUniqueId()) || island.isRole(Role.Owner, player.getUniqueId())) {
 			player.teleport(island.getLocation(Location.World.Normal, Location.Environment.Visitor));
 		} else {
-			int islandVisitors = island.getVisitors().size(), islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1;
-			
-			if (islandVisitors == 0) {
-				ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+			if (scoreboardManager != null) {
+				int islandVisitors = island.getVisitors().size(), islandMembers = island.getRole(Role.Member).size() + island.getRole(Role.Operator).size() + 1;
 				
-				for (Player all : Bukkit.getOnlinePlayers()) {
-					PlayerData targetPlayerData = plugin.getPlayerDataManager().getPlayerData(all);
-					
-					if (targetPlayerData.getOwner() != null && targetPlayerData.getOwner().equals(island.getOwnerUUID())) {
-						Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
-						scoreboard.cancel();
+				if (islandVisitors == 0) {
+					for (Player all : Bukkit.getOnlinePlayers()) {
+						PlayerData targetPlayerData = skyblock.getPlayerDataManager().getPlayerData(all);
 						
-						if (islandMembers == 1) {
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
-						} else {
-							scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
-							scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+						if (targetPlayerData.getOwner() != null && targetPlayerData.getOwner().equals(island.getOwnerUUID())) {
+							Scoreboard scoreboard = scoreboardManager.getScoreboard(all);
+							scoreboard.cancel();
 							
-							HashMap<String, String> displayVariables = new HashMap<>();
-							displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
-							displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
-							displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+							if (islandMembers == 1) {
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Solo.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Solo.Occupied.Displaylines"));
+							} else {
+								scoreboard.setDisplayName(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Scoreboard.Island.Team.Displayname")));
+								scoreboard.setDisplayList(configLoad.getStringList("Scoreboard.Island.Team.Occupied.Displaylines"));
+								
+								HashMap<String, String> displayVariables = new HashMap<>();
+								displayVariables.put("%owner", configLoad.getString("Scoreboard.Island.Team.Word.Owner"));
+								displayVariables.put("%operator", configLoad.getString("Scoreboard.Island.Team.Word.Operator"));
+								displayVariables.put("%member", configLoad.getString("Scoreboard.Island.Team.Word.Member"));
+								
+								scoreboard.setDisplayVariables(displayVariables);
+							}
 							
-							scoreboard.setDisplayVariables(displayVariables);
+							scoreboard.run();
 						}
-						
-						scoreboard.run();
 					}
-				}
+				}	
 			}
 			
 			player.teleport(island.getLocation(Location.World.Normal, Location.Environment.Visitor));
 			
 			List<String> islandWelcomeMessage = island.getMessage(Message.Welcome);
 			
-			if (plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable") && islandWelcomeMessage.size() != 0) {
+			if (skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Welcome.Enable") && islandWelcomeMessage.size() != 0) {
 				for (String islandWelcomeMessageList : islandWelcomeMessage) {
 					player.sendMessage(ChatColor.translateAlternateColorCodes('&', islandWelcomeMessageList));
 				}
@@ -442,6 +523,11 @@ public class IslandManager {
 	}
 	
 	public void closeIsland(Island island) {
+		MessageManager messageManager = skyblock.getMessageManager();
+		
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
+		FileConfiguration configLoad = config.getFileConfiguration();
+		
 		island.setOpen(false);
 		
 		UUID islandOwnerUUID = island.getOwnerUUID();
@@ -454,15 +540,12 @@ public class IslandManager {
 			islandOwnerPlayerName = islandOwnerPlayer.getName();
 		}
 		
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
-		FileConfiguration configLoad = config.getFileConfiguration();
-		
 		for (UUID visitorList : island.getVisitors()) {
     		Player targetPlayer = Bukkit.getServer().getPlayer(visitorList);
     		
 			LocationUtil.teleportPlayerToSpawn(targetPlayer);
-			
-			targetPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Island.Message").replace("%player", islandOwnerPlayerName)));
+
+			messageManager.sendMessage(targetPlayer, configLoad.getString("Island.Visit.Closed.Island.Message").replace("%player", islandOwnerPlayerName));
 		}
 	}
 	
@@ -483,14 +566,14 @@ public class IslandManager {
 	}
 	
 	public boolean isIslandExist(UUID uuid) {
-		return plugin.getFileManager().isFileExist(new File(new File(plugin.getDataFolder().toString() + "/island-data"), uuid.toString() + ".yml"));
+		return skyblock.getFileManager().isFileExist(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), uuid.toString() + ".yml"));
 	}
 	
 	public boolean hasIsland(UUID uuid) {
 		UUID islandOwnerUUID = uuid;
 		
 		if (!isIslandExist(uuid)) {
-			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
+			Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/player-data"), uuid.toString() + ".yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (configLoad.getString("Island.Owner") != null) {
@@ -502,7 +585,7 @@ public class IslandManager {
 	}
 	
 	public boolean hasIsland(Player player) {
-		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+		PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
 		return (playerData == null) ? hasIsland(player.getUniqueId()) : islandStorage.containsKey(playerData.getOwner());
 	}
 	
@@ -512,10 +595,10 @@ public class IslandManager {
 	
 	public boolean hasPermission(Player player, String setting) {
 		if (hasIsland(player)) {
-			Island island = getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
+			Island island = getIsland(skyblock.getPlayerDataManager().getPlayerData(player).getOwner());
 			
 			for (Location.World worldList : Location.World.values()) {
-				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
 					if (island.isRole(Role.Member, player.getUniqueId())) {
 						if (!island.getSetting(Settings.Role.Member, setting).getStatus()) {
 							return false;
@@ -531,8 +614,10 @@ public class IslandManager {
 			Island island = getIslands().get(islandList);
 			
 			for (Location.World worldList : Location.World.values()) {
-				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), 85)) {
-					if (!island.getSetting(Settings.Role.Visitor, setting).getStatus()) {
+				if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
+					if (player.hasPermission("skyblock.bypass." + setting.toLowerCase()) || player.hasPermission("skyblock.bypass.*") || player.hasPermission("skyblock.*")) {
+						return true;
+					} else if (!island.getSetting(Settings.Role.Visitor, setting).getStatus()) {
 						return false;
 					}
 					
@@ -568,7 +653,7 @@ public class IslandManager {
 	
 	public List<UUID> getPlayersAtIsland(Island island) {
 		List<UUID> playersAtIsland = new ArrayList<>();
-		Map<UUID, PlayerData> playerData = plugin.getPlayerDataManager().getPlayerData();
+		Map<UUID, PlayerData> playerData = skyblock.getPlayerDataManager().getPlayerData();
 		
 		for (UUID playerDataList : playerData.keySet()) {
 			UUID islandOwnerUUID = playerData.get(playerDataList).getIsland();
@@ -585,7 +670,7 @@ public class IslandManager {
 		List<Player> playersAtIsland = new ArrayList<>();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
-			if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(world, Location.Environment.Island), 85)) {
+			if (LocationUtil.isLocationAtLocationRadius(all.getLocation(), island.getLocation(world, Location.Environment.Island), island.getRadius())) {
 				playersAtIsland.add(all);
 			}
 		}
@@ -597,13 +682,13 @@ public class IslandManager {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName())) {
+				if (player.getWorld().getName().equals(skyblock.getWorldManager().getWorld(Location.World.Normal).getName())) {
 					Island island = null;
 					
 					if (hasIsland(player)) {
-						island = getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
+						island = getIsland(skyblock.getPlayerDataManager().getPlayerData(player).getOwner());
 						
-						if (!LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(Location.World.Normal, Location.Environment.Island), 85)) {
+						if (!LocationUtil.isLocationAtLocationRadius(player.getLocation(), island.getLocation(Location.World.Normal, Location.Environment.Island), island.getRadius())) {
 							island = null;
 						}
 					}
@@ -612,7 +697,7 @@ public class IslandManager {
 						for (UUID islandList : getIslands().keySet()) {
 							Island targetIsland = getIslands().get(islandList);
 							
-							if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), targetIsland.getLocation(Location.World.Normal, Location.Environment.Island), 85)) {
+							if (LocationUtil.isLocationAtLocationRadius(player.getLocation(), targetIsland.getLocation(Location.World.Normal, Location.Environment.Island), targetIsland.getRadius())) {
 								island = targetIsland;
 								
 								break;
@@ -621,15 +706,20 @@ public class IslandManager {
 					}
 					
 					if (island != null) {
-						player.setPlayerTime(island.getTime(), false);
-						player.setPlayerWeather(island.getWeather());
+						Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml"));
+						FileConfiguration configLoad = config.getFileConfiguration();
 						
-						if (plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.WorldBorder.Enable")) {
-							WorldBorder.send(player, 172, island.getLocation(Location.World.Normal, Location.Environment.Island));
+						if (!island.isWeatherSynchronised()) {
+							player.setPlayerTime(island.getTime(), configLoad.getBoolean("Island.Weather.Time.Cycle"));
+							player.setPlayerWeather(island.getWeather());	
+						}
+						
+						if (configLoad.getBoolean("Island.WorldBorder.Enable")) {
+							WorldBorder.send(player, island.getSize() + 2.5, island.getLocation(Location.World.Normal, Location.Environment.Island));
 						}
 					}
 				}
 			}
-		}.runTaskAsynchronously(plugin);
+		}.runTaskAsynchronously(skyblock);
 	}
 }

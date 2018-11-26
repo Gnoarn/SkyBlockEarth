@@ -1,7 +1,7 @@
 package me.goodandevil.skyblock.menus;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.ChatColor;
@@ -16,16 +16,19 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.island.Level;
 import me.goodandevil.skyblock.levelling.LevellingManager;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.NumberUtil;
 import me.goodandevil.skyblock.utils.item.InventoryUtil;
+import me.goodandevil.skyblock.utils.item.MaterialUtil;
 import me.goodandevil.skyblock.utils.item.SkullUtil;
 import me.goodandevil.skyblock.utils.version.Materials;
 import me.goodandevil.skyblock.utils.version.Sounds;
@@ -43,19 +46,19 @@ public class Levelling implements Listener {
     }
 	
     public void open(Player player) {
-    	Main plugin = Main.getInstance();
+    	SkyBlock skyblock = SkyBlock.getInstance();
     	
-    	FileManager fileManager = plugin.getFileManager();
-    	PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+    	FileManager fileManager = skyblock.getFileManager();
+    	PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
     	
-    	Island island = plugin.getIslandManager().getIsland(playerData.getOwner());
+    	Island island = skyblock.getIslandManager().getIsland(playerData.getOwner());
     	Level level = island.getLevel();
     	
-		HashMap<Material, Integer> islandMaterials = level.getMaterials();
+		Map<String, Integer> islandMaterials = level.getMaterials();
 		
 		int playerMenuPage = playerData.getPage(), nextEndIndex = islandMaterials.size() - playerMenuPage * 36;
     	
-		Config languageConfig = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config languageConfig = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = languageConfig.getFileConfiguration();
 		
 		InventoryUtil inv = new InventoryUtil(configLoad.getString("Menu.Levelling.Title"), null, 6);
@@ -77,45 +80,32 @@ public class Levelling implements Listener {
 		} else {
 			int index = playerMenuPage * 36 - 36, endIndex = index >= islandMaterials.size() ? islandMaterials.size() - 1 : index + 36, inventorySlot = 17;
 			
-			Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "levelling.yml"));
+			Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "levelling.yml"));
 			
 			for (; index < endIndex; index++) {
 				if (islandMaterials.size() > index) {
-					inventorySlot++;
+					String material = (String) islandMaterials.keySet().toArray()[index];
+					Materials materials = Materials.fromString(material);
 					
-					Material material = (Material) islandMaterials.keySet().toArray()[index];
-					int points = islandMaterials.get(material);
-					int amount = points/config.getFileConfiguration().getInt("Materials." + material.name() + ".Points");
-					
-					if (material == Material.REDSTONE_WIRE) {
-						material = Material.REDSTONE;
-					} else if (material == Materials.LEGACY_DOUBLE_SLAB.getPostMaterial()) {
-						material = Materials.SMOOTH_STONE.parseMaterial();
-					} else if (material == Materials.FERN.parseMaterial()) {
-						material = Material.GRASS;
-					} else if (material == Materials.LEGACY_NETHER_WARTS.getPostMaterial()) {
-						material = Materials.LEGACY_NETHER_STALK.getPostMaterial();
-					} else if (material == Material.REDSTONE_WIRE) {
-						material = Material.REDSTONE;
-					} else if (material == Materials.LEGACY_SIGN_POST.getPostMaterial() || material == Material.WALL_SIGN) {
-						material = Material.SIGN;
-					} else if (material == Materials.LEGACY_SUGAR_CANE_BLOCK.getPostMaterial()) {
-						material = Material.SUGAR_CANE;
-					} else if (material == Material.TRIPWIRE) {
-						material = Material.TRIPWIRE_HOOK;
-					} else if (material == Material.FLOWER_POT) {
-						material = Materials.LEGACY_FLOWER_POT_ITEM.getPostMaterial();
-					} else if (material == Materials.LEGACY_IRON_DOOR_BLOCK.getPostMaterial()) {
-						material = Material.IRON_DOOR;
-					} else if (material == Material.CAULDRON) {
-						material = Materials.LEGACY_CAULDRON_ITEM.getPostMaterial();
-					} else if (material == Material.BREWING_STAND) {
-						material = Materials.LEGACY_BREWING_STAND.getPostMaterial();
-					} else if (material.name().equals("BED_BLOCK")) {
-						material = Materials.RED_BED.getPostMaterial();
+					if (materials != null) {
+						int materialAmount = islandMaterials.get(material);
+						
+						if (config.getFileConfiguration().getString("Materials." + material + ".Points") != null) {
+							int pointsRequired = config.getFileConfiguration().getInt("Materials." + material + ".Points");
+							
+							if (pointsRequired != 0) {
+								inventorySlot++;
+								
+								int pointsEarned = materialAmount*pointsRequired;
+								
+								ItemStack is = materials.parseItem();
+								is.setAmount(materialAmount);
+								is.setType(MaterialUtil.correctMaterial(is.getType()));
+								
+								inv.addItem(inv.createItem(is, configLoad.getString("Menu.Levelling.Item.Material.Displayname").replace("%points", NumberUtil.formatNumber(pointsEarned)).replace("%material", WordUtils.capitalize(material.toLowerCase().replace("_", " ").replace("item", "").replace("block", ""))), null, null, null, null), inventorySlot);
+							}
+						}
 					}
-					
-					inv.addItem(inv.createItem(new ItemStack(material, amount), configLoad.getString("Menu.Levelling.Item.Material.Displayname").replace("%points", NumberUtil.formatNumber(points)).replace("%material", WordUtils.capitalize(material.name().toLowerCase().replace("_", " ").replace("item", "").replace("block", ""))), null, null, null, null), inventorySlot);
 				}
 			}
 		}
@@ -129,50 +119,52 @@ public class Levelling implements Listener {
 		ItemStack is = event.getCurrentItem();
 
 		if (event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-			Main plugin = Main.getInstance();
+			SkyBlock skyblock = SkyBlock.getInstance();
 			
-			Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+			MessageManager messageManager = skyblock.getMessageManager();
+			IslandManager islandManager = skyblock.getIslandManager();
+			SoundManager soundManager = skyblock.getSoundManager();
+			
+			Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Title")))) {
 				event.setCancelled(true);
 				
-				IslandManager islandManager = plugin.getIslandManager();
-				
 				if (!islandManager.hasIsland(player)) {
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Level.Owner.Message")));
-					player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Level.Owner.Message"));
+					soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 					player.closeInventory();
 					
 					return;
 				}
 				
 				if ((event.getCurrentItem().getType() == Materials.BLACK_STAINED_GLASS_PANE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Barrier.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.GLASS.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.OAK_FENCE_GATE.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Exit.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		    		player.closeInventory();
 		    	} else if ((event.getCurrentItem().getType() == Material.PAINTING) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Statistics.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Material.BARRIER) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Nothing.Displayname"))))) {
-		    		player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
 		    	} else if ((event.getCurrentItem().getType() == Materials.FIREWORK_STAR.parseMaterial()) && (is.hasItemMeta()) && (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Rescan.Displayname"))))) {
-		    		LevellingManager levellingManager = plugin.getLevellingManager();
-		    		Island island = islandManager.getIsland(plugin.getPlayerDataManager().getPlayerData(player).getOwner());
+		    		LevellingManager levellingManager = skyblock.getLevellingManager();
+		    		Island island = islandManager.getIsland(skyblock.getPlayerDataManager().getPlayerData(player).getOwner());
 		    		
 		    		if (levellingManager.hasLevelling(island.getOwnerUUID())) {
 						me.goodandevil.skyblock.levelling.Levelling levelling = levellingManager.getLevelling(island.getOwnerUUID());
 						long[] durationTime = NumberUtil.getDuration(levelling.getTime());
 						
 						if (levelling.getTime() >= 3600) {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", durationTime[1] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second"))));
+							messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", durationTime[1] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second")));
 						} else if (levelling.getTime() >= 60) {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second"))));							
+							messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", durationTime[2] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Minute") + " " + durationTime[3] + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second")));							
 						} else {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", levelling.getTime() + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second"))));
+							messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Message").replace("%time", levelling.getTime() + " " + config.getFileConfiguration().getString("Command.Island.Level.Cooldown.Word.Second")));
 						}
 						
-						player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
+						soundManager.playSound(player, Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 						
 						return;
 					}
@@ -181,30 +173,30 @@ public class Levelling implements Listener {
 		    		
 		    		new BukkitRunnable() {
 						public void run() {
-							player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getFileConfiguration().getString("Command.Island.Level.Processing.Message")));
-							player.playSound(player.getLocation(), Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
+							messageManager.sendMessage(player, config.getFileConfiguration().getString("Command.Island.Level.Processing.Message"));
+							soundManager.playSound(player, Sounds.VILLAGER_YES.bukkitSound(), 1.0F, 1.0F);
 							
 							levellingManager.createLevelling(island.getOwnerUUID());
 							levellingManager.loadLevelling(island.getOwnerUUID());
 							levellingManager.calculatePoints(player, island);
 						}
-					}.runTaskAsynchronously(plugin);
-		    	} else if ((event.getCurrentItem().getType() == Materials.LEGACY_SKULL_ITEM.getPostMaterial()) && (is.hasItemMeta())) {
-		    		PlayerData playerData = plugin.getPlayerDataManager().getPlayerData(player);
+					}.runTaskAsynchronously(skyblock);
+		    	} else if ((event.getCurrentItem().getType() == SkullUtil.createItemStack().getType()) && (is.hasItemMeta())) {
+		    		PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
 		    		
 		    		if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Previous.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() - 1);
 		    			open(player);
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else if (is.getItemMeta().getDisplayName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Item.Next.Displayname")))) {
 		    			playerData.setPage(playerData.getPage() + 1);
 		    			open(player);
-		    			player.playSound(player.getLocation(), Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.ARROW_HIT.bukkitSound(), 1.0F, 1.0F);
 		    		} else {
-		    			player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+		    			soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 		    		}
 		    	} else {
-		    		player.playSound(player.getLocation(), Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
+		    		soundManager.playSound(player, Sounds.CHICKEN_EGG_POP.bukkitSound(), 1.0F, 1.0F);
 		    	}
 			}
 		}
@@ -214,13 +206,13 @@ public class Levelling implements Listener {
 	public void onInventoryClose(InventoryCloseEvent event) {
 		Player player = (Player) event.getPlayer();
 		
-		Main plugin = Main.getInstance();
+		SkyBlock skyblock = SkyBlock.getInstance();
 		
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
 		if (event.getInventory().getName().equals(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Menu.Levelling.Title")))) {
-			player.playSound(player.getLocation(), Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
+			skyblock.getSoundManager().playSound(player, Sounds.CHEST_CLOSE.bukkitSound(), 1.0F, 1.0F);
 		}
 	}
 }

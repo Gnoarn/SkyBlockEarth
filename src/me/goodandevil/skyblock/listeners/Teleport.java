@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,7 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.events.IslandEnterEvent;
@@ -20,47 +19,51 @@ import me.goodandevil.skyblock.events.IslandExitEvent;
 import me.goodandevil.skyblock.events.IslandSwitchEvent;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.Location;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.island.IslandManager;
 import me.goodandevil.skyblock.playerdata.PlayerData;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.utils.version.Sounds;
 import me.goodandevil.skyblock.utils.world.LocationUtil;
 import me.goodandevil.skyblock.visit.Visit;
 
 public class Teleport implements Listener {
 
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	
- 	public Teleport(Main plugin) {
-		this.plugin = plugin;
+ 	public Teleport(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 	}
 	
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent event) {
     	Player player = event.getPlayer();
     	
-    	IslandManager islandManager = plugin.getIslandManager();
-    	FileManager fileManager = plugin.getFileManager();
+    	MessageManager messageManager = skyblock.getMessageManager();
+    	IslandManager islandManager = skyblock.getIslandManager();
+    	SoundManager soundManager = skyblock.getSoundManager();
+    	FileManager fileManager = skyblock.getFileManager();
     	
-    	Config config = fileManager.getConfig(new File(plugin.getDataFolder(), "language.yml"));
+    	Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
     	FileConfiguration configLoad = config.getFileConfiguration();
     	
     	islandManager.loadPlayer(player);
     	
-    	if (player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Normal).getName()) || player.getWorld().getName().equals(plugin.getWorldManager().getWorld(Location.World.Nether).getName())) {
+    	if (player.getWorld().getName().equals(skyblock.getWorldManager().getWorld(Location.World.Normal).getName()) || player.getWorld().getName().equals(skyblock.getWorldManager().getWorld(Location.World.Nether).getName())) {
     		if(event.getCause() == TeleportCause.ENDER_PEARL || event.getCause() == TeleportCause.NETHER_PORTAL) {
 				if (!islandManager.hasPermission(player, "Portal")) {
 					event.setCancelled(true);
 					
-					player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Settings.Permission.Message")));
-					player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
+					messageManager.sendMessage(player, configLoad.getString("Island.Settings.Permission.Message"));
+					soundManager.playSound(player, Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 					
 					return;
 				}
     		}
     	}
     	
-    	PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+    	PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
     	
 		if (playerDataManager.hasPlayerData(player)) {
 			PlayerData playerData = playerDataManager.getPlayerData(player);
@@ -71,22 +74,24 @@ public class Teleport implements Listener {
 				Island island = islandManager.getIslands().get(islandList);
 				
 				for (Location.World worldList : Location.World.values()) {
-					if (LocationUtil.isLocationAtLocationRadius(event.getTo(), island.getLocation(worldList, Location.Environment.Island), 85)) {
+					if (LocationUtil.isLocationAtLocationRadius(event.getTo(), island.getLocation(worldList, Location.Environment.Island), island.getRadius())) {
 						if (!island.getOwnerUUID().equals(playerData.getOwner())) {
-							if (!island.isOpen()) {
-								event.setCancelled(true);
-								
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Closed.Plugin.Message")));
-								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-								
-								return;
-							} else if (fileManager.getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning") && island.getBan().isBanned(player.getUniqueId())) {
-								event.setCancelled(true);
-								
-								player.sendMessage(ChatColor.translateAlternateColorCodes('&', configLoad.getString("Island.Visit.Banned.Teleport.Message")));
-								player.playSound(player.getLocation(), Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
-								
-								return;
+							if (!(player.hasPermission("skyblock.bypass") && player.hasPermission("skyblock.bypass.*") && player.hasPermission("skyblock.*"))) {
+								if (!island.isOpen()) {
+									event.setCancelled(true);
+									
+									messageManager.sendMessage(player, configLoad.getString("Island.Visit.Closed.Plugin.Message"));
+									soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+									
+									return;
+								} else if (fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Visitor.Banning") && island.getBan().isBanned(player.getUniqueId())) {
+									event.setCancelled(true);
+									
+									messageManager.sendMessage(player, configLoad.getString("Island.Visit.Banned.Teleport.Message"));
+									soundManager.playSound(player, Sounds.ANVIL_LAND.bukkitSound(), 1.0F, 1.0F);
+									
+									return;
+								}	
 							}
 						}
 						
@@ -99,7 +104,7 @@ public class Teleport implements Listener {
 						
 						if (worldList == Location.World.Normal) {
 							if (!island.isWeatherSynchronised()) {
-			    				player.setPlayerTime(island.getTime(), false);
+			    				player.setPlayerTime(island.getTime(), fileManager.getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Weather.Time.Cycle"));
 			    				player.setPlayerWeather(island.getWeather());
 							}
 						}
@@ -129,6 +134,8 @@ public class Teleport implements Listener {
 			
 			if (islandOwnerUUID != null) {
 				Bukkit.getServer().getPluginManager().callEvent(new IslandExitEvent(player, islandManager.getIsland(islandOwnerUUID)));
+			
+				playerData.setVisitTime(0);
 			}
 			
 			playerData.setIsland(null);

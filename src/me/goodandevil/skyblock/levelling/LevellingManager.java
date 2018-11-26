@@ -12,13 +12,13 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.goodandevil.skyblock.Main;
+import me.goodandevil.skyblock.SkyBlock;
 import me.goodandevil.skyblock.config.FileManager.Config;
 import me.goodandevil.skyblock.island.Island;
 import me.goodandevil.skyblock.island.IslandManager;
@@ -29,20 +29,20 @@ import me.goodandevil.skyblock.utils.version.Sounds;
 
 public class LevellingManager {
 	
-	private final Main plugin;
+	private final SkyBlock skyblock;
 	
 	private List<Material> materialStorage = new ArrayList<>();
 	private Map<UUID, Levelling> islandLevellingStorage = new HashMap<>();
 	
-	public LevellingManager(Main plugin) {
-		this.plugin = plugin;
+	public LevellingManager(SkyBlock skyblock) {
+		this.skyblock = skyblock;
 		
-		new LevellingTask(this, plugin).runTaskTimerAsynchronously(plugin, 0L, 20L);
+		new LevellingTask(this, skyblock).runTaskTimerAsynchronously(skyblock, 0L, 20L);
 		
 		registerMaterials();
 		
-		IslandManager islandManager = plugin.getIslandManager();
-		PlayerDataManager playerDataManager = plugin.getPlayerDataManager();
+		IslandManager islandManager = skyblock.getIslandManager();
+		PlayerDataManager playerDataManager = skyblock.getPlayerDataManager();
 		
 		for (Player all : Bukkit.getOnlinePlayers()) {
 			if (islandManager.hasIsland(all)) {
@@ -56,7 +56,7 @@ public class LevellingManager {
 	}
 	
 	public void onDisable() {
-		IslandManager islandManager = plugin.getIslandManager();
+		IslandManager islandManager = skyblock.getIslandManager();
 		
 		for (UUID islandList : islandManager.getIslands().keySet()) {
 			Island island = islandManager.getIslands().get(islandList);
@@ -69,18 +69,19 @@ public class LevellingManager {
 	}
 	
 	public void calculatePoints(Player player, Island island) {
-		Chunk chunk = new Chunk(plugin, island);
+		Chunk chunk = new Chunk(skyblock, island);
 		chunk.prepare();
 		
 		int NMSVersion = NMSUtil.getVersionNumber();
 		
 		new BukkitRunnable() {
+			@SuppressWarnings("deprecation")
 			@Override
 			public void run() {
 				if (chunk.isComplete()) {
 					cancel();
 					
-		    		HashMap<org.bukkit.Material, Integer> materials = new HashMap<>();
+		    		Map<String, Integer> materials = new HashMap<>();
 		    		
 		    		Method getBlockTypeMethod = null;
 		    		Method getBlockTypeIdMethod = null;
@@ -120,19 +121,19 @@ public class LevellingManager {
 		    							
 		    							if (blockMaterial != org.bukkit.Material.AIR) {
 				    	            		for (Material materialList : materialStorage) {
-				    	            			if (blockMaterial == materialList.getMaterial()) {
+				    	            			ItemStack is = materialList.getItemStack();
+				    	            			
+				    	            			if (blockMaterial == materialList.getItemStack().getType()) {
 				    	            				if (NMSVersion < 13) {
-					    	            				if (materialList.getData() != -1) {
-					    	            					if (!(blockData == materialList.getData())) {
-					    	            						continue;
-					    	            					}
-					    	            				}
+				    	            					if (!(blockData == is.getDurability())) {
+				    	            						continue;
+				    	            					}
 				    	            				}
 				    	            				
-				    	            				if (materials.containsKey(materialList.getMaterial())) {
-				    	            					materials.put(materialList.getMaterial(), materials.get(materialList.getMaterial()) + materialList.getPoints());
+				    	            				if (materials.containsKey(materialList.getMaterials().name())) {
+				    	            					materials.put(materialList.getMaterials().name(), materials.get(materialList.getMaterials().name()) + 1);
 				    	            				} else {
-				    	            					materials.put(materialList.getMaterial(), materialList.getPoints());
+				    	            					materials.put(materialList.getMaterials().name(), 1);
 				    	            				}
 				    	            			}
 				    	            		}
@@ -145,18 +146,13 @@ public class LevellingManager {
 	    				}
 	    			}
 	    			
-		    	    int totalPointsEarned = 0;
-		    	    
-		    	    for (org.bukkit.Material pointsEarnedList : materials.keySet()) {
-		    	    	totalPointsEarned = totalPointsEarned + materials.get(pointsEarnedList);
-		    	    }
-		    	    
-		    	    if (totalPointsEarned == 0) {
-		    	    	player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Level.Materials.Message")));
-		    	    	player.playSound(player.getLocation(), Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
+		    	    if (materials.size() == 0) {
+		    	    	skyblock.getMessageManager().sendMessage(player, skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "language.yml")).getFileConfiguration().getString("Command.Island.Level.Materials.Message"));
+		    	    	skyblock.getSoundManager().playSound(player, Sounds.VILLAGER_NO.bukkitSound(), 1.0F, 1.0F);
 		    	    } else {
 		    	    	me.goodandevil.skyblock.island.Level level = island.getLevel();
-			    	    level.setPoints(totalPointsEarned);
+		    	    	level.setLastPoints(level.getPoints());
+		    	    	level.setLastLevel(level.getLevel());
 			    	    level.setMaterials(materials);
 			    	    
 			    	    if (player != null) {
@@ -165,51 +161,56 @@ public class LevellingManager {
 		    	    }
 				}
 			}
-		}.runTaskTimerAsynchronously(plugin, 0L, 1L);
+		}.runTaskTimerAsynchronously(skyblock, 0L, 1L);
 	}
 	
 	public void registerMaterials() {
-		Config config = plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "levelling.yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "levelling.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		int NMSVersion = NMSUtil.getVersionNumber();
-		
-		for (String materialList : configLoad.getConfigurationSection("Materials").getKeys(false)) {
-			try {
-				org.bukkit.Material material;
-				int data = 0;
-				
-				if (NMSVersion < 13) {
-					material = org.bukkit.Material.valueOf(materialList);
-					data = configLoad.getInt("Materials." + materialList + ".Data");
-				} else {
-					material = Materials.fromString(materialList).parseMaterial();
+		if (configLoad.getString("Materials") != null) {
+			for (String materialList : configLoad.getConfigurationSection("Materials").getKeys(false)) {
+				try {
+					Materials materials = Materials.fromString(materialList);
+					
+					if (!containsMaterials(materials)) {
+						addMaterial(materials, configLoad.getInt("Materials." + materialList + ".Points"));								
+					}
+				} catch (Exception e) {
+					Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: The material '" + materialList + "' is not a Material type. Make sure the material name is a 1.13 material name. Please correct this in the 'levelling.yml' file.");
 				}
-				
-				int points = configLoad.getInt("Materials." + materialList + ".Points");
-				
-				addMaterial(material, data, points);
-			} catch (Exception e) {
-				e.printStackTrace();
-				Bukkit.getServer().getLogger().log(Level.WARNING, "SkyBlock | Error: The material '" + materialList + "' is not a Material type. Please correct this in the 'levelling.yml' file.");
 			}
 		}
 	}
 	
-	public void addMaterial(org.bukkit.Material material, int data, int points) {
-		materialStorage.add(new Material(material, data, points));
+	public void addMaterial(Materials materials, int points) {
+		materialStorage.add(new Material(materials, points));
 	}
 	
 	public void removeMaterial(Material material) {
 		materialStorage.remove(material);
 	}
 	
+	public boolean containsMaterials(Materials materials) {
+		for (Material materialList : materialStorage) {
+			if (materialList.getMaterials().name().equals(materials.name())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public List<Material> getMaterials() {
+		return materialStorage;
+	}
+	
 	public void createLevelling(UUID playerUUID) {
-		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
-		configLoad.set("Levelling.Cooldown", plugin.getFileManager().getConfig(new File(plugin.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Cooldown"));
+		configLoad.set("Levelling.Cooldown", skyblock.getFileManager().getConfig(new File(skyblock.getDataFolder(), "config.yml")).getFileConfiguration().getInt("Island.Levelling.Cooldown"));
 	
 		try {
 			configLoad.save(configFile);
@@ -219,7 +220,7 @@ public class LevellingManager {
 	}
 	
 	public void removeLevelling(UUID playerUUID) {
-		Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+		Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 		File configFile = config.getFile();
 		FileConfiguration configLoad = config.getFileConfiguration();
 		
@@ -234,7 +235,7 @@ public class LevellingManager {
 	
 	public void saveLevelling(UUID playerUUID) {
 		if (hasLevelling(playerUUID)) {
-			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+			Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 			File configFile = config.getFile();
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
@@ -250,7 +251,7 @@ public class LevellingManager {
 	
 	public void loadLevelling(UUID playerUUID) {
 		if (!hasLevelling(playerUUID)) {
-			Config config = plugin.getFileManager().getConfig(new File(new File(plugin.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
+			Config config = skyblock.getFileManager().getConfig(new File(new File(skyblock.getDataFolder().toString() + "/island-data"), playerUUID.toString() + ".yml"));
 			FileConfiguration configLoad = config.getFileConfiguration();
 			
 			if (configLoad.getString("Levelling.Cooldown") != null) {

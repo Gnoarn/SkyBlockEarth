@@ -1,11 +1,11 @@
-Default:
-    File: "default.structure"
-    Name: "Default"
-    Displayname: "&a&lDefault"
-    Description:
-    - "&f&oDefault Island as an"
-    - "&f&oexample."
-    Permission: ""
-    Item:
-        Material: GRASS
-        Data: 0
+Structures:
+    Default:
+        File: "default.structure"
+        Name: "Default"
+        Displayname: "&a&lDefault"
+        Description:
+        - "&f&oDefault Island as an"
+        - "&f&oexample."
+        Permission: false
+        Item:
+            Material: GRASS_BLOCK

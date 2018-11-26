@@ -2,32 +2,31 @@ package me.goodandevil.skyblock.levelling;
 
 import org.bukkit.inventory.ItemStack;
 
+import me.goodandevil.skyblock.utils.version.Materials;
+
 public class Material {
 
-	private org.bukkit.Material material;
-	private int data;
+	private Materials materials;
 	private int points;
 	
-	public Material(org.bukkit.Material material, int data, int points) {
-		this.material = material;
-		this.data = data;
+	public Material(Materials materials, int points) {
+		this.materials = materials;
 		this.points = points;
 	}
 	
-	public org.bukkit.Material getMaterial() {
-		return material;
+	public Materials getMaterials() {
+		return materials;
 	}
 	
-	public int getData() {
-		return data;
+	public void setPoints(int points) {
+		this.points = points;
 	}
 	
 	public int getPoints() {
 		return points;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public ItemStack getItemStack() {
-		return new ItemStack(material, 1, (short) data);
+		return materials.parseItem();
 	}
 }

@@ -1,5 +1,8 @@
 package me.goodandevil.skyblock;
 
+import java.io.File;
+
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -8,8 +11,11 @@ import me.goodandevil.skyblock.biome.BiomeManager;
 import me.goodandevil.skyblock.command.CommandManager;
 import me.goodandevil.skyblock.config.FileManager;
 import me.goodandevil.skyblock.confirmation.ConfirmationTask;
+import me.goodandevil.skyblock.creation.CreationManager;
+import me.goodandevil.skyblock.generator.GeneratorManager;
 import me.goodandevil.skyblock.invite.InviteManager;
 import me.goodandevil.skyblock.island.IslandManager;
+import me.goodandevil.skyblock.leaderboard.LeaderboardManager;
 import me.goodandevil.skyblock.levelling.LevellingManager;
 import me.goodandevil.skyblock.listeners.Block;
 import me.goodandevil.skyblock.listeners.Bucket;
@@ -30,34 +36,38 @@ import me.goodandevil.skyblock.menus.Bans;
 import me.goodandevil.skyblock.menus.Biome;
 import me.goodandevil.skyblock.menus.ControlPanel;
 import me.goodandevil.skyblock.menus.Creator;
+import me.goodandevil.skyblock.menus.Leaderboard;
 import me.goodandevil.skyblock.menus.Levelling;
 import me.goodandevil.skyblock.menus.Members;
 import me.goodandevil.skyblock.menus.Ownership;
 import me.goodandevil.skyblock.menus.Rollback;
 import me.goodandevil.skyblock.menus.Settings;
-import me.goodandevil.skyblock.menus.Structure;
 import me.goodandevil.skyblock.menus.Visit;
 import me.goodandevil.skyblock.menus.Visitors;
 import me.goodandevil.skyblock.menus.Weather;
+import me.goodandevil.skyblock.menus.admin.Generator;
+import me.goodandevil.skyblock.message.MessageManager;
 import me.goodandevil.skyblock.placeholder.PlaceholderManager;
 import me.goodandevil.skyblock.playerdata.PlayerDataManager;
 import me.goodandevil.skyblock.playtime.PlaytimeTask;
 import me.goodandevil.skyblock.scoreboard.ScoreboardManager;
+import me.goodandevil.skyblock.sound.SoundManager;
 import me.goodandevil.skyblock.structure.StructureManager;
 import me.goodandevil.skyblock.visit.VisitManager;
 import me.goodandevil.skyblock.visit.VisitTask;
 import me.goodandevil.skyblock.world.WorldManager;
+import me.goodandevil.skyblock.world.generator.VoidGenerator;
 
-public class Main extends JavaPlugin {
+public class SkyBlock extends JavaPlugin {
 
-	private static Main instance;
+	private static SkyBlock instance;
 	
 	private FileManager fileManager;
 	private WorldManager worldManager;
 	private VisitManager visitManager;
 	private BanManager banManager;
 	private IslandManager islandManager;
-	//private CreationManager creationManager;
+	private CreationManager creationManager;
 	private PlayerDataManager playerDataManager;
 	private ScoreboardManager scoreboardManager;
 	private InviteManager inviteManager;
@@ -65,7 +75,11 @@ public class Main extends JavaPlugin {
 	private LevellingManager levellingManager;
 	private CommandManager commandManager;
 	private StructureManager structureManager;
+	private SoundManager soundManager;
+	private GeneratorManager generatorManager;
 	private PlaceholderManager placeholderManager;
+	private LeaderboardManager leaderboardManager;
+	private MessageManager messageManager;
 	
 	@Override
 	public void onEnable() {
@@ -76,17 +90,29 @@ public class Main extends JavaPlugin {
 		visitManager = new VisitManager(this);
 		banManager = new BanManager(this);
 		islandManager = new IslandManager(this);
-		//creationManager = new CreationManager(this);
+		creationManager = new CreationManager(this);
 		playerDataManager = new PlayerDataManager(this);
-		scoreboardManager = new ScoreboardManager(this);
+		
+		if (fileManager.getConfig(new File(getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Scoreboard.Enable")) {
+			scoreboardManager = new ScoreboardManager(this);
+		}
+		
 		inviteManager = new InviteManager(this);
 		biomeManager = new BiomeManager(this);
 		levellingManager = new LevellingManager(this);
 		commandManager = new CommandManager(this);
 		structureManager = new StructureManager(this);
+		soundManager = new SoundManager(this);
+		
+		if (fileManager.getConfig(new File(getDataFolder(), "config.yml")).getFileConfiguration().getBoolean("Island.Generator.Enable")) {
+			generatorManager = new GeneratorManager(this);
+		}
 		
 		placeholderManager = new PlaceholderManager(this);
 		placeholderManager.registerPlaceholders();
+		
+		leaderboardManager = new LeaderboardManager(this);
+		messageManager = new MessageManager(this);
 		
 		new PlaytimeTask(playerDataManager, islandManager).runTaskTimerAsynchronously(this, 0L, 20L);
 		new VisitTask(playerDataManager).runTaskTimerAsynchronously(this, 0L, 20L);
@@ -121,7 +147,12 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new Bans(), this);
 		pluginManager.registerEvents(new ControlPanel(), this);
 		pluginManager.registerEvents(new Creator(), this);
-		pluginManager.registerEvents(new Structure(), this);
+		pluginManager.registerEvents(new Leaderboard(), this);
+		
+		pluginManager.registerEvents(new me.goodandevil.skyblock.menus.admin.Levelling(), this);
+		pluginManager.registerEvents(new me.goodandevil.skyblock.menus.admin.Creator(), this);
+		pluginManager.registerEvents(new me.goodandevil.skyblock.menus.admin.Settings(), this);
+		pluginManager.registerEvents(new Generator(), this);
 	}
 	
 	@Override
@@ -146,12 +177,16 @@ public class Main extends JavaPlugin {
 			this.biomeManager.onDisable();
 		}
 		
+		if (this.creationManager != null) {
+			this.creationManager.onDisable();
+		}
+		
 		if (this.playerDataManager != null) {
 			this.playerDataManager.onDisable();
 		}
 	}
 	
-	public static Main getInstance() {
+	public static SkyBlock getInstance() {
 		return instance;
 	}
 	
@@ -175,9 +210,9 @@ public class Main extends JavaPlugin {
 		return islandManager;
 	}
 	
-	/*public CreationManager getCreationManager() {
+	public CreationManager getCreationManager() {
 		return creationManager;
-	}*/
+	}
 	
 	public PlayerDataManager getPlayerDataManager() {
 		return playerDataManager;
@@ -207,7 +242,28 @@ public class Main extends JavaPlugin {
 		return structureManager;
 	}
 	
+	public SoundManager getSoundManager() {
+		return soundManager;
+	}
+	
+	public GeneratorManager getGeneratorManager() {
+		return generatorManager;
+	}
+	
 	public PlaceholderManager getPlaceholderManager() {
 		return placeholderManager;
 	}
+	
+	public LeaderboardManager getLeaderboardManager() {
+		return leaderboardManager;
+	}
+	
+	public MessageManager getMessageManager() {
+		return messageManager;
+	}
+	
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+    	return new VoidGenerator();
+    }
 }
