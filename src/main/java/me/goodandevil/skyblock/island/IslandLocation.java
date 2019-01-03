@@ -20,12 +20,14 @@ public class IslandLocation {
 		this.world = world;
 		this.environment = environment;
 
-		this.x = location.getX();
-		this.y = location.getY();
-		this.z = location.getZ();
+		if (location != null) {
+			this.x = location.getX();
+			this.y = location.getY();
+			this.z = location.getZ();
 
-		this.yaw = location.getYaw();
-		this.pitch = location.getPitch();
+			this.yaw = location.getYaw();
+			this.pitch = location.getPitch();
+		}
 	}
 
 	public IslandWorld getWorld() {
