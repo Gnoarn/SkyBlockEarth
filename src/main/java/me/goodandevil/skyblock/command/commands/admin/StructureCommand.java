@@ -103,9 +103,9 @@ public class StructureCommand extends SubCommand {
 			return;
 		} else {
 			if (args[0].equalsIgnoreCase("tool")) {
-				if (player.hasPermission("skyblock.admin.structure.tool")
-						|| player.hasPermission("skyblock.admin.structure.*")
-						|| player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
+				if (player.hasPermission("skyblockearth.admin.structure.tool")
+						|| player.hasPermission("skyblockearth.admin.structure.*")
+						|| player.hasPermission("skyblockearth.admin.*") || player.hasPermission("skyblockearth.*")) {
 					try {
 						ItemStack is = StructureUtil.getTool();
 
@@ -142,9 +142,9 @@ public class StructureCommand extends SubCommand {
 
 				return;
 			} else if (args[0].equalsIgnoreCase("save")) {
-				if (player.hasPermission("skyblock.admin.structure.save")
-						|| player.hasPermission("skyblock.admin.structure.*")
-						|| player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
+				if (player.hasPermission("skyblockearth.admin.structure.save")
+						|| player.hasPermission("skyblockearth.admin.structure.*")
+						|| player.hasPermission("skyblockearth.admin.*") || player.hasPermission("skyblockearth.*")) {
 					if (args.length == 2) {
 						PlayerData playerData = skyblock.getPlayerDataManager().getPlayerData(player);
 

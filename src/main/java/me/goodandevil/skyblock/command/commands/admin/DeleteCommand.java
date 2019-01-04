@@ -60,8 +60,8 @@ public class DeleteCommand extends SubCommand {
 			player = (Player) sender;
 		}
 
-		if (player == null || player.hasPermission("skyblock.admin.delete") || player.hasPermission("skyblock.admin.*")
-				|| player.hasPermission("skyblock.*")) {
+		if (player == null || player.hasPermission("skyblockearth.admin.delete") || player.hasPermission("skyblockearth.admin.*")
+				|| player.hasPermission("skyblockearth.*")) {
 			if (args.length == 1) {
 				Player targetPlayer = Bukkit.getServer().getPlayer(args[0]);
 				UUID targetPlayerUUID;

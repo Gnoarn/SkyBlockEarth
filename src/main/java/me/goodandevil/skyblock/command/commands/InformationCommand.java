@@ -45,7 +45,7 @@ public class InformationCommand extends SubCommand {
 			UUID islandOwnerUUID = null;
 
 			if (args.length == 1) {
-				if (player.hasPermission("skyblock.information") || player.hasPermission("skyblock.*")) {
+				if (player.hasPermission("skyblockearth.information") || player.hasPermission("skyblockearth.*")) {
 					Player targetPlayer = Bukkit.getServer().getPlayer(args[0]);
 
 					if (targetPlayer == null) {

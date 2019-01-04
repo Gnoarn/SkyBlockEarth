@@ -203,7 +203,7 @@ public class IslandManager {
 				}
 
 				for (int i = maximumSize; i > minimumSize; i--) {
-					if (player.hasPermission("skyblock.size." + i) || player.hasPermission("skyblock.*")) {
+					if (player.hasPermission("skyblockearth.size." + i) || player.hasPermission("skyblockearth.*")) {
 						island.setSize(i);
 
 						break;
@@ -216,8 +216,8 @@ public class IslandManager {
 		FileConfiguration configLoad = config.getFileConfiguration();
 
 		if (configLoad.getBoolean("Island.Creation.Cooldown.Creation.Enable")) {
-			if (!player.hasPermission("skyblock.bypass.cooldown") && !player.hasPermission("skyblock.bypass.*")
-					&& !player.hasPermission("skyblock.*")) {
+			if (!player.hasPermission("skyblockearth.bypass.cooldown") && !player.hasPermission("skyblockearth.bypass.*")
+					&& !player.hasPermission("skyblockearth.*")) {
 				skyblock.getCooldownManager().createPlayer(CooldownType.Creation, player);
 			}
 		}
@@ -437,8 +437,8 @@ public class IslandManager {
 				}
 
 				if (cooldownEnabled) {
-					if (!all.hasPermission("skyblock.bypass.cooldown") && !all.hasPermission("skyblock.bypass.*")
-							&& !all.hasPermission("skyblock.*")) {
+					if (!all.hasPermission("skyblockearth.bypass.cooldown") && !all.hasPermission("skyblockearth.bypass.*")
+							&& !all.hasPermission("skyblockearth.*")) {
 						skyblock.getCooldownManager().createPlayer(CooldownType.Creation, all);
 					}
 				}
@@ -976,8 +976,8 @@ public class IslandManager {
 		island = getIslandAtLocation(location);
 
 		if (island != null) {
-			if (player.hasPermission("skyblock.bypass." + setting.toLowerCase())
-					|| player.hasPermission("skyblock.bypass.*") || player.hasPermission("skyblock.*")) {
+			if (player.hasPermission("skyblockearth.bypass." + setting.toLowerCase())
+					|| player.hasPermission("skyblockearth.bypass.*") || player.hasPermission("skyblockearth.*")) {
 				return true;
 			} else if (island.isCoopPlayer(player.getUniqueId())) {
 				if (!island.getSetting(IslandRole.Coop, setting).getStatus()) {
@@ -1184,8 +1184,8 @@ public class IslandManager {
 		if (island.hasRole(IslandRole.Member, player.getUniqueId())
 				|| island.hasRole(IslandRole.Operator, player.getUniqueId())
 				|| island.hasRole(IslandRole.Operator, player.getUniqueId())) {
-			if (player.hasPermission("skyblock.fly") || player.hasPermission("skyblock.fly")
-					|| player.hasPermission("skyblock.*")) {
+			if (player.hasPermission("skyblockearth.fly") || player.hasPermission("skyblockearth.fly")
+					|| player.hasPermission("skyblockearth.*")) {
 				Bukkit.getServer().getScheduler().runTask(skyblock, new Runnable() {
 					@Override
 					public void run() {
@@ -1195,7 +1195,7 @@ public class IslandManager {
 				});
 			}
 		} else {
-			if (player.hasPermission("skyblock.fly") || player.hasPermission("skyblock.*")) {
+			if (player.hasPermission("skyblockearth.fly") || player.hasPermission("skyblockearth.*")) {
 				Bukkit.getServer().getScheduler().runTask(skyblock, new Runnable() {
 
 					@Override

@@ -35,8 +35,8 @@ public class CreateCommand extends SubCommand {
 		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 
-		if (player.hasPermission("skyblock.admin.create") || player.hasPermission("skyblock.admin.*")
-				|| player.hasPermission("skyblock.*")) {
+		if (player.hasPermission("skyblockearth.admin.create") || player.hasPermission("skyblockearth.admin.*")
+				|| player.hasPermission("skyblockearth.*")) {
 			if (playerDataManager.hasPlayerData(player)) {
 				playerDataManager.getPlayerData(player).setViewer(null);
 			}

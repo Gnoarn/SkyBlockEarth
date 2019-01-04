@@ -158,9 +158,9 @@ public class Biome {
 								selectedBiomeType = Biomes.ROOFED_FOREST.bukkitBiome();
 							}
 
-							if (!player.hasPermission("skyblock.bypass.cooldown")
-									&& !player.hasPermission("skyblock.bypass.*")
-									&& !player.hasPermission("skyblock.*")) {
+							if (!player.hasPermission("skyblockearth.bypass.cooldown")
+									&& !player.hasPermission("skyblockearth.bypass.*")
+									&& !player.hasPermission("skyblockearth.*")) {
 								cooldownManager.createPlayer(CooldownType.Biome, player);
 								biomeManager.setBiome(island, selectedBiomeType);
 							}

@@ -33,8 +33,8 @@ public class LevelCommand extends SubCommand {
 		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 
-		if (player.hasPermission("skyblock.admin.level") || player.hasPermission("skyblock.admin.*")
-				|| player.hasPermission("skyblock.*")) {
+		if (player.hasPermission("skyblockearth.admin.level") || player.hasPermission("skyblockearth.admin.*")
+				|| player.hasPermission("skyblockearth.*")) {
 			Levelling.getInstance().open(player);
 			soundManager.playSound(player, Sounds.CHEST_OPEN.bukkitSound(), 1.0F, 1.0F);
 		} else {

@@ -86,8 +86,8 @@ public class Teleport implements Listener {
 
 			if (island != null) {
 				if (!island.getOwnerUUID().equals(playerData.getOwner())) {
-					if (!player.hasPermission("skyblock.bypass") && !player.hasPermission("skyblock.bypass.*")
-							&& !player.hasPermission("skyblock.*")) {
+					if (!player.hasPermission("skyblockearth.bypass") && !player.hasPermission("skyblockearth.bypass.*")
+							&& !player.hasPermission("skyblockearth.*")) {
 						if (!island.isOpen() && !island.isCoopPlayer(player.getUniqueId())) {
 							event.setCancelled(true);
 

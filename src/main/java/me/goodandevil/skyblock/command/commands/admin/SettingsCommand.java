@@ -33,8 +33,8 @@ public class SettingsCommand extends SubCommand {
 		Config config = fileManager.getConfig(new File(skyblock.getDataFolder(), "language.yml"));
 		FileConfiguration configLoad = config.getFileConfiguration();
 
-		if (player.hasPermission("skyblock.admin.settings") || player.hasPermission("skyblock.admin.*")
-				|| player.hasPermission("skyblock.*")) {
+		if (player.hasPermission("skyblockearth.admin.settings") || player.hasPermission("skyblockearth.admin.*")
+				|| player.hasPermission("skyblockearth.*")) {
 			Settings.getInstance().open(player, Settings.Type.Categories, null);
 			soundManager.playSound(player, Sounds.CHEST_OPEN.bukkitSound(), 1.0F, 1.0F);
 		} else {

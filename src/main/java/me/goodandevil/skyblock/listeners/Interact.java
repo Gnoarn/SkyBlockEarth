@@ -475,9 +475,9 @@ public class Interact implements Listener {
 					if ((event.getItem().getType() == structureTool.getType()) && (event.getItem().hasItemMeta())
 							&& (event.getItem().getItemMeta().getDisplayName()
 									.equals(structureTool.getItemMeta().getDisplayName()))) {
-						if (player.hasPermission("skyblock.admin.structure.selection")
-								|| player.hasPermission("skyblock.admin.structure.*")
-								|| player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
+						if (player.hasPermission("skyblockearth.admin.structure.selection")
+								|| player.hasPermission("skyblockearth.admin.structure.*")
+								|| player.hasPermission("skyblockearth.admin.*") || player.hasPermission("skyblockearth.*")) {
 							event.setCancelled(true);
 
 							skyblock.getPlayerDataManager().getPlayerData(player).getArea().setPosition(1,
@@ -497,9 +497,9 @@ public class Interact implements Listener {
 					if ((event.getItem().getType() == structureTool.getType()) && (event.getItem().hasItemMeta())
 							&& (event.getItem().getItemMeta().getDisplayName()
 									.equals(structureTool.getItemMeta().getDisplayName()))) {
-						if (player.hasPermission("skyblock.admin.structure.selection")
-								|| player.hasPermission("skyblock.admin.structure.*")
-								|| player.hasPermission("skyblock.admin.*") || player.hasPermission("skyblock.*")) {
+						if (player.hasPermission("skyblockearth.admin.structure.selection")
+								|| player.hasPermission("skyblockearth.admin.structure.*")
+								|| player.hasPermission("skyblockearth.admin.*") || player.hasPermission("skyblockearth.*")) {
 							event.setCancelled(true);
 
 							skyblock.getPlayerDataManager().getPlayerData(player).getArea().setPosition(2,

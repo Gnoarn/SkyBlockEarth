@@ -213,8 +213,8 @@ public class GeneratorManager {
 
 					if (generator.isPermission()) {
 						if (!player.hasPermission(generator.getPermission())
-								&& !player.hasPermission("skyblock.generator.*")
-								&& !player.hasPermission("skyblock.*")) {
+								&& !player.hasPermission("skyblockearth.generator.*")
+								&& !player.hasPermission("skyblockearth.*")) {
 							continue;
 						}
 					}
